@@ -1,10 +1,25 @@
-import serveHTTP from './http-server';
-import Server from './websocket-server';
+import Timer from './timer';
+import GM from '../shared/event/GameManager';
+import Server from '../shared/network/Server';
+
+const REFRESH_RATE = 60;
+
+class GameServer extends Server {
+  onMessage(message) {
+    console.log(message);
+  }
+}
 
 const main = async () => {
-  const httpServer = serveHTTP();
-  new Server(httpServer);
-  httpServer.listen(process.env.PORT || 3000);
+  const server = new GameServer(2);
+  server.initialize();
+
+  // Create the game timer
+  const timer = new Timer(1 / REFRESH_RATE, dt => {
+    GM.step(dt);
+  });
+
+  timer.start();
 };
 
 main().catch(console.err);
