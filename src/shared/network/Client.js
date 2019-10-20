@@ -1,9 +1,21 @@
 class Client {
   constructor(addr) {
+    this.sendBuffer = [];
+    if (!addr) {
+      addr = `ws://${location.host}`;
+    }
     this.socket = new WebSocket(addr);
-    this.socket.onmessage = this.onMessage.bind(this);
+    this.socket.onmessage = message => {
+      this.onMessage(JSON.parse(message.data));
+    }
     this.socket.onclose = this.onClose.bind(this);
-    this.socket.onopen = this.onOpen.bind(this);
+    this.socket.onopen = () => {
+      for (let i = 0; i < this.sendBuffer.length; i++) {
+        this.send(this.sendBuffer[i]);
+      }
+      this.sendBuffer = [];
+      this.onOpen();
+    };
     this.socket.onerror = console.log;
   }
 
@@ -26,7 +38,11 @@ class Client {
    * @param message The message to send
    */
   send(message) {
-    this.socket.send(JSON.stringify(message));
+    if (this.socket.readyState === 1) {
+      this.socket.send(JSON.stringify(message));
+    } else {
+      this.sendBuffer.push(message);
+    }
   }
 }
 

@@ -49,7 +49,7 @@ class Server {
     }
   }
 
-  onMessage(socketIndex, message) { }
+  onMessage(message, socketIndex) { }
 
   onOpen(socketIndex) { }
 
@@ -66,24 +66,17 @@ class Server {
 
     // Handle receive message from client
     connection.on('message', message => {
-      console.log('message', message);
       if (message.type === 'utf8') {
         const data = JSON.parse(message.utf8Data);
-        this.onMessage(connectionIndex, data);
+        this.onMessage(data, connectionIndex);
       }
     });
 
     // Remove connection
     connection.on('close', () => {
       this.onClose(connectionIndex);
-      console.log(`client ${connectionIndex} has disconnected`);
       delete this.connections[connectionIndex];
     });
-
-    // Send them the full history when they connect
-    for (const message of this.history) {
-      connection.sendUTF(JSON.stringify(message));
-    }
   }
 }
 

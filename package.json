@@ -38,6 +38,7 @@
     "express": "^4.17.1",
     "react-helmet": "^5.2.1",
     "twojs-ts": "^0.7.0-13",
+    "uuid": "^3.3.3",
     "websocket": "^1.0.30"
   }
 }
