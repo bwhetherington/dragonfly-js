@@ -3,6 +3,8 @@ import './index.css';
 import Client from './GameClient';
 import Entity from '../shared/entity/Entity';
 import WM from '../shared/entity/WorldManager';
+import Hero from '../shared/entity/Hero';
+import GM from '../shared/event/GameManager';
 
 const removeChildren = element => {
   while (element.firstChild) {
@@ -10,25 +12,68 @@ const removeChildren = element => {
   }
 }
 
-const main = async () => {
-  WM.setEntityGenerator(type => {
+class GameClient extends Client {
+  constructor(two, addr) {
+    super(two, addr);
+    this.heroes = {};
+    this.playerID = -2;
+  }
+
+  attachCamera(entity) {
+    GM.registerHandler('STEP', () => {
+      const centerX = (this.two.width / 2 - entity.position.x);
+      const centerY = (this.two.height / 2 - entity.position.y);
+      this.two.scene.translation.set(centerX, centerY);
+    });
+  }
+
+  initialize(window) {
+    super.initialize(window);
+    WM.setEntityGenerator(type => this.createEntity(type));
+
+    GM.registerHandler('CLEANUP_GRAPHICS', event => {
+      const { object } = event;
+      this.two.remove(object);
+    });
+
+    GM.registerHandler('CREATE_OBJECT', event => {
+      const { object } = event;
+      if (object.type === 'Hero' && object.playerID === this.playerID) {
+        this.hero = object;
+        this.attachCamera(object);
+      }
+    })
+
+    // Initialize grid
+  }
+
+  onMessage(message) {
+    if (message.type === 'ASSIGN_ID') {
+      this.playerID = message.data.playerID;
+    } else {
+      super.onMessage(message);
+    }
+  }
+
+  createEntity(type) {
     switch (type) {
       case 'Entity':
         console.log('Create entity');
         const entity = new Entity();
-        entity.initializeGraphics(two);
+        entity.initializeGraphics(this.two);
         return entity;
       case 'Hero':
         console.log('Create hero');
-        const hero = new Entity();
-        hero.initializeGraphics(two);
+        const hero = new Hero();
+        hero.initializeGraphics(this.two);
         return hero;
       default:
         return null;
     }
-  });
-  WM.initialize();
+  }
+}
 
+const main = async () => {
   const element = document.getElementById('game');
   removeChildren(element);
   const two = new Two({
@@ -36,11 +81,42 @@ const main = async () => {
     autostart: true
   }).appendTo(element);
 
-  // two.scene.translation.set(-window.width / 2, -window.height / 2);
+  two.scene.translation.set(100, 100);
 
+  const makeLine = (two, x1, y1, x2, y2, color = '#f0f0f0', width = 2) => {
+    const line = two.makeLine(x1, y1, x2, y2);
+    line.stroke = color;
+    line.linewidth = width;
+  }
+
+  GM.registerHandler('DEFINE_ARENA', event => {
+    const { x, y, width, height } = event;
+
+    const rect = two.makeRectangle(x + width / 2, y + height / 2, width, height);
+    rect.fill = 'white';
+
+    // Define grid
+    const GRID_SIZE = 20;
+
+    // Horizontal
+    for (let i = GRID_SIZE; i <= width - GRID_SIZE; i += GRID_SIZE) {
+      makeLine(two, x, y + i, x + width, y + i);
+      makeLine(two, x + i, y, x + i, y + height);
+    }
+
+    // Define horizontal bars
+    makeLine(two, x, y, x + width, y, '#a0a0a0', 5);
+    makeLine(two, x, y + height, x + width, y + height, '#a0a0a0', 5);
+
+    // Define vertical bars
+    makeLine(two, x, y, x, y + height, '#a0a0a0', 5);
+    makeLine(two, x + width, y, x + width, y + height, '#a0a0a0', 5);
+  })
+
+  WM.initialize();
   // Start websocket client
-  const client = new Client();
-  client.initialize(window, two);
+  const client = new GameClient(two);
+  client.initialize(window);
 };
 
 main();

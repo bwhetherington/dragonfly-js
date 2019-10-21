@@ -1,5 +1,7 @@
 import Entity from './Entity';
 
+const MOVEMENT_SPEED = 100;
+
 class Hero extends Entity {
   constructor(playerID = -1) {
     super();
@@ -31,7 +33,21 @@ class Hero extends Entity {
       this.velocity.setX(this.velocity.x + 1);
     }
     this.velocity.normalize();
-    this.velocity.scale(80);
+    this.velocity.scale(MOVEMENT_SPEED);
+  }
+
+  serialize() {
+    return {
+      ...super.serialize(),
+      playerID: this.playerID
+    };
+  }
+
+  deserialize(obj) {
+    super.deserialize(obj);
+    if (obj.playerID > -1) {
+      this.playerID = obj.playerID;
+    }
   }
 }
 

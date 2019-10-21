@@ -1,5 +1,6 @@
 import Vector from '../util/Vector';
 import uuid from 'uuid/v1';
+import GM from '../event/GameManager';
 
 class Entity {
   constructor() {
@@ -7,6 +8,7 @@ class Entity {
     this.velocity = new Vector(0, 0);
     this.velocityBuffer = new Vector(0, 0);
     this.graphicsObject = null;
+    this.markedForDelete = false;
     this.id = uuid();
   }
 
@@ -27,6 +29,22 @@ class Entity {
     this.velocityBuffer.scale(dt);
     this.position.add(this.velocityBuffer);
     this.updateGraphics();
+  }
+
+  markForDelete() {
+    this.markedForDelete = true;
+  }
+
+  cleanup() {
+    if (this.graphicsObject) {
+      const event = {
+        type: 'CLEANUP_GRAPHICS',
+        data: {
+          object: this.graphicsObject
+        }
+      };
+      GM.emitEvent(event);
+    }
   }
 
   serialize() {

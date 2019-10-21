@@ -18,6 +18,21 @@ class GameServer extends Server {
     const hero = new Hero(socketIndex);
     WM.add(hero);
     this.heroes[socketIndex] = hero;
+    this.send({
+      type: 'ASSIGN_ID',
+      data: {
+        playerID: socketIndex
+      }
+    }, socketIndex);
+    this.send({
+      type: 'DEFINE_ARENA',
+      data: WM.bounds
+    }, socketIndex);
+  }
+
+  onClose(socketIndex) {
+    const hero = this.heroes[socketIndex];
+    hero.markForDelete();
   }
 
   initialize() {

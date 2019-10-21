@@ -3,10 +3,10 @@ import { isClient } from '../util/util';
 
 class WorldManager {
   constructor() {
-    this.entities = [];
-    this.removeQueue = [];
-    this.addQueue = [];
+    this.entities = {};
+    this.deleted = [];
     this.entityGenerator = () => null;
+    this.setBounds(0, 0, 500, 500);
   }
 
   setEntityGenerator(generator) {
@@ -32,29 +32,45 @@ class WorldManager {
   }
 
   step(step, dt) {
-    // Remove marked entities
-    for (let i = 0; i < this.removeQueue.length; i++) {
-      const entity = this.removeQueue[i];
-      delete this.entities[entity.id];
-    }
-    this.removeQueue = [];
-
     // Update all entities
     for (const id in this.entities) {
       const entity = this.entities[id];
-      entity.step(step, dt);
+      if (entity.markedForDelete) {
+        entity.cleanup();
+        this.deleted.push(id);
+        delete this.entities[id];
+      } else {
+        entity.step(step, dt);
+      }
     }
   }
 
+  setBounds(x, y, width, height) {
+    this.bounds = { x, y, width, height };
+  }
+
   sync(server) {
+    const batch = [];
     for (const id in this.entities) {
       const entity = this.entities[id];
+      batch.push(entity.serialize());
+    }
+    if (batch.length > 0) {
       server.send({
-        type: 'SYNC_OBJECT',
+        type: 'SYNC_OBJECT_BATCH',
         data: {
-          object: entity.serialize()
+          objects: batch
         }
       });
+    }
+    if (this.deleted.length > 0) {
+      server.send({
+        type: 'SYNC_DELETE_OBJECT_BATCH',
+        data: {
+          ids: this.deleted
+        }
+      });
+      this.deleted = [];
     }
   }
 }

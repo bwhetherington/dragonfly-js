@@ -22,7 +22,7 @@ const attachInput = root => {
     GM.emitEvent(newEvent);
   });
 
-  window.addEventListener('mousedown', event => {
+  root.addEventListener('mousedown', event => {
     const newEvent = {
       type: 'MOUSE_DOWN',
       data: {
@@ -33,7 +33,8 @@ const attachInput = root => {
     };
     GM.emitEvent(newEvent);
   });
-  window.addEventListener('mouseup', event => {
+
+  root.addEventListener('mouseup', event => {
     const newEvent = {
       type: 'MOUSE_UP',
       data: {
@@ -60,11 +61,13 @@ const attachInput = root => {
 };
 
 class Client {
-  constructor(addr) {
+  constructor(two, addr) {
+    this.two = two;
     this.sendBuffer = [];
     if (!addr) {
       addr = `ws://${location.host}`;
     }
+    console.log(addr);
     this.socket = new WebSocket(addr);
     this.socket.onmessage = message => {
       this.onMessage(JSON.parse(message.data));
@@ -80,30 +83,55 @@ class Client {
     this.socket.onerror = console.log;
   }
 
-  initialize(window, two) {
+  syncObject(object) {
+    let existing = WM.findByID(object.id);
+    if (!existing) {
+      const newObject = WM.generateEntity(object.type);
+      if (newObject) {
+        newObject.setID(object.id);
+        WM.add(newObject);
+        existing = newObject;
+      }
+    }
+    if (existing) {
+      existing.deserialize(object);
+      const createEvent = {
+        type: 'CREATE_OBJECT',
+        data: {
+          object
+        }
+      };
+      GM.emitEvent(createEvent);
+    }
+  }
+
+  initialize(window) {
     attachInput(window);
 
-    GM.registerHandler('SYNC_OBJECT', event => {
-      const { id, type } = event.object;
-      let object = WM.findByID(id);
-      if (object === null) {
-        // Create new object
-        object = WM.generateEntity(type);
-        if (object) {
-          // Set its ID
-          object.setID(id);
-          WM.add(object);
-        } else {
-          console.log(`Unknown entity type: ${type}`);
-        }
-      }
-      // Deserialize it
-      if (object) {
-        object.deserialize(event.object);
+    // Batch sync
+    GM.registerHandler('SYNC_OBJECT_BATCH', event => {
+      for (let i = 0; i < event.objects.length; i++) {
+        this.syncObject(event.objects[i]);
       }
     });
 
-    two.bind('update', (_, dt) => {
+    // Single sync
+    GM.registerHandler('SYNC_OBJECT', event => {
+      this.syncObject(event.object);
+    });
+
+    GM.registerHandler('SYNC_DELETE_OBJECT_BATCH', event => {
+      for (let i = 0; i < event.ids.length; i++) {
+        const id = event.ids[i];
+        const entity = WM.findByID(id);
+        if (entity) {
+          console.log('delete', entity);
+          entity.markForDelete();
+        }
+      }
+    });
+
+    this.two.bind('update', (_, dt) => {
       const seconds = dt / 1000.0;
       if (!Number.isNaN(seconds)) {
         GM.step(seconds);
@@ -114,14 +142,11 @@ class Client {
   onClose() { }
 
   /**
-   * This methos is triggered when the socket receives a message from the 
-   * server.
+   * Passes messages received into the event loop.
    * @param message The received message
    */
   onMessage(message) {
-    if (message.type === 'SYNC_OBJECT') {
-      GM.emitEvent(message);
-    }
+    GM.emitEvent(message);
   }
 
   /**
