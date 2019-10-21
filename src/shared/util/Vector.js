@@ -14,6 +14,14 @@ class Vector {
     this.y = y;
   }
 
+  setX(x) {
+    this.x = x;
+  }
+
+  setY(y) {
+    this.y = y;
+  }
+
   set(vector) {
     const { x, y } = vector;
     this.x = x;
@@ -23,6 +31,15 @@ class Vector {
   scale(scalar) {
     this.x *= scalar;
     this.y *= scalar;
+  }
+
+  normalize() {
+    const magnitude = this.magnitude();
+    if (magnitude === 0) {
+      this.scale(0);
+    } else {
+      this.scale(1 / magnitude);
+    }
   }
 
   add(vector) {

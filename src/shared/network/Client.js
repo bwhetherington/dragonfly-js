@@ -1,3 +1,64 @@
+import GM from '../event/GameManager';
+import WM from '../entity/WorldManager';
+
+const attachInput = root => {
+  root.addEventListener('keydown', event => {
+    const newEvent = {
+      type: 'KEY_DOWN',
+      data: {
+        key: event.key
+      }
+    };
+    GM.emitEvent(newEvent);
+  });
+
+  root.addEventListener('keyup', event => {
+    const newEvent = {
+      type: 'KEY_UP',
+      data: {
+        key: event.key
+      }
+    };
+    GM.emitEvent(newEvent);
+  });
+
+  window.addEventListener('mousedown', event => {
+    const newEvent = {
+      type: 'MOUSE_DOWN',
+      data: {
+        button: event.button,
+        x: event.clientX,
+        y: event.clientY
+      }
+    };
+    GM.emitEvent(newEvent);
+  });
+  window.addEventListener('mouseup', event => {
+    const newEvent = {
+      type: 'MOUSE_UP',
+      data: {
+        button: event.button,
+        x: event.clientX,
+        y: event.clientY
+      }
+    };
+    GM.emitEvent(newEvent);
+  });
+
+  root.addEventListener('mousemove', event => {
+    const newEvent = {
+      type: 'MOUSE_MOVE',
+      data: {
+        position: {
+          x: event.clientX,
+          y: event.clientY
+        }
+      }
+    };
+    GM.emitEvent(newEvent);
+  });
+};
+
 class Client {
   constructor(addr) {
     this.sendBuffer = [];
@@ -19,6 +80,37 @@ class Client {
     this.socket.onerror = console.log;
   }
 
+  initialize(window, two) {
+    attachInput(window);
+
+    GM.registerHandler('SYNC_OBJECT', event => {
+      const { id, type } = event.object;
+      let object = WM.findByID(id);
+      if (object === null) {
+        // Create new object
+        object = WM.generateEntity(type);
+        if (object) {
+          // Set its ID
+          object.setID(id);
+          WM.add(object);
+        } else {
+          console.log(`Unknown entity type: ${type}`);
+        }
+      }
+      // Deserialize it
+      if (object) {
+        object.deserialize(event.object);
+      }
+    });
+
+    two.bind('update', (_, dt) => {
+      const seconds = dt / 1000.0;
+      if (!Number.isNaN(seconds)) {
+        GM.step(seconds);
+      }
+    }).play();
+  }
+
   onClose() { }
 
   /**
@@ -26,7 +118,11 @@ class Client {
    * server.
    * @param message The received message
    */
-  onMessage(message) { }
+  onMessage(message) {
+    if (message.type === 'SYNC_OBJECT') {
+      GM.emitEvent(message);
+    }
+  }
 
   /**
    * This method is triggered when the socket is opened.

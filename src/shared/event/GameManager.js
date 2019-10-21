@@ -42,7 +42,7 @@ class GameManager {
    */
   step(dt) {
     const stepEvent = {
-      type: 'step',
+      type: 'STEP',
       data: {
         step: this.stepCount,
         dt

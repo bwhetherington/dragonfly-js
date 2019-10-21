@@ -14,10 +14,19 @@ class Entity {
     return this.constructor.name;
   }
 
-  step(dt) {
+  setID(id) {
+    this.id = id;
+  }
+
+  getID() {
+    return this.id;
+  }
+
+  step(step, dt) {
     this.velocityBuffer.set(this.velocity);
     this.velocityBuffer.scale(dt);
     this.position.add(this.velocityBuffer);
+    this.updateGraphics();
   }
 
   serialize() {
@@ -37,6 +46,14 @@ class Entity {
     if (velocity) {
       this.velocity.set(velocity);
     }
+  }
+
+  initializeGraphics(two) {
+    const object = two.makeRectangle(0, 0, 30, 30);
+    object.fill = '#FF8000';
+    object.stroke = 'orangered'; // Accepts all valid css color
+    object.linewidth = 5;
+    this.graphicsObject = object;
   }
 
   updateGraphics() {
