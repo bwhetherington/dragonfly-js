@@ -18,6 +18,8 @@ class Entity {
     this.id = uuid();
     this.doSynchronize = true;
     this.isCollidable = true;
+    this.movementSpeed = 0;
+    this.isSlow = false;
   }
 
   registerHandler(type, handler) {
@@ -75,7 +77,7 @@ class Entity {
 
   step(step, dt) {
     WM.move(this, dt);
-    this.force.decay(dt * 100);
+    this.force.decay(dt * 200);
   }
 
   markForDelete() {

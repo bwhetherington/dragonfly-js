@@ -3,6 +3,7 @@ import { isClient } from '../util/util';
 import Rectangle from '../util/Rectangle';
 import InverseRectangle from '../util/InverseRectangle';
 import Projectile from '../entity/Projectile';
+import { Vector } from 'twojs-ts';
 
 class WorldManager {
   constructor() {
@@ -76,11 +77,24 @@ class WorldManager {
   }
 
   move(entity, dt) {
+    entity.vectorBuffer.setXY(0, 0);
     entity.vectorBuffer.set(entity.velocity);
+    if (entity.isSlow) {
+      entity.vectorBuffer.scale(0.5);
+    }
     entity.vectorBuffer.add(entity.force);
     entity.vectorBuffer.scale(dt);
 
+    if (entity.vectorBuffer.magnitude == 0) {
+      return;
+    }
+
     // Use quarter steps
+    if (!entity.isCollidable) {
+      entity.addPosition(entity.vectorBuffer);
+      return;
+    }
+
     const STEPS = 4;
     entity.vectorBuffer.scale(1 / STEPS);
 
@@ -102,6 +116,7 @@ class WorldManager {
             // Revert to last valid position
             // Emit collision event
             entity.setPositionXY(oldX, entity.position.y);
+            entity.force.setXY(0, entity.force.y);
             collidedX = true;
             break;
           }
@@ -118,6 +133,7 @@ class WorldManager {
             // Then we cannot move here
             // Revert to last valid position
             entity.setPositionXY(entity.position.x, oldY);
+            entity.force.setXY(entity.force.x, 0);
             collidedY = true;
             break;
           }

@@ -62,37 +62,45 @@ class GameServer extends Server {
     GM.registerHandler('KEY_DOWN', event => {
       const hero = this.heroes[event.socketIndex];
       switch (event.key) {
-        case 'w':
+        case 'KeyW':
           hero.setInput('up', true);
           break;
-        case 's':
+        case 'KeyS':
           hero.setInput('down', true);
           break;
-        case 'a':
+        case 'KeyA':
           hero.setInput('left', true);
           break;
-        case 'd':
+        case 'KeyD':
           hero.setInput('right', true);
           break;
-        case 'f':
+        case 'KeyF':
           hero.applyForce(new Vector(100, 0));
+          break;
+        case 'ShiftLeft':
+        case 'ShiftRight':
+          hero.setSlow(true);
           break;
       };
     });
     GM.registerHandler('KEY_UP', event => {
       const hero = this.heroes[event.socketIndex];
       switch (event.key) {
-        case 'w':
+        case 'KeyW':
           hero.setInput('up', false);
           break;
-        case 's':
+        case 'KeyS':
           hero.setInput('down', false);
           break;
-        case 'a':
+        case 'KeyA':
           hero.setInput('left', false);
           break;
-        case 'd':
+        case 'KeyD':
           hero.setInput('right', false);
+          break;
+        case 'ShiftLeft':
+        case 'ShiftRight':
+          hero.setSlow(false);
           break;
       };
     });

@@ -47,9 +47,19 @@ class Vector {
     this.addXY(x, y);
   }
 
+  subtract(vector) {
+    const { x, y } = vector;
+    this.subtractXY(x, y);
+  }
+
   addXY(x, y) {
     this.x += x;
     this.y += y;
+  }
+
+  subtractXY(x, y) {
+    this.x -= x;
+    this.y -= y;
   }
 
   distance(vector) {
@@ -69,7 +79,22 @@ class Vector {
     this.set(obj);
   }
 
-  decay(amount = 1) {
+  dotProduct(vector) {
+    const { x, y } = vector;
+    return this.x * x + this.y * y;
+  }
+
+  projection(vector) {
+    const dot = this.dotProduct(vector);
+    const magnitude = this.magnitude;
+    if (magnitude === 0) {
+      return 0;
+    } else {
+      return dot / magnitude;
+    }
+  }
+
+  decay(amount = 2) {
     const magnitude = this.magnitude;
 
     if (magnitude > 0) {
@@ -89,6 +114,36 @@ class Vector {
       this.x -= decayX;
       this.y -= decayY;
     }
+  }
+
+  addToZero(vector) {
+    let newX = vector.x + this.x;
+    let newY = vector.y + this.y;
+
+    if (Math.sign(newX) !== Math.sign(this.x)) {
+      newX = 0;
+    }
+    if (Math.sign(newY) !== Math.sign(this.y)) {
+      newY = 0;
+    }
+
+    this.x = newX;
+    this.y = newY;
+  }
+
+  subtractToZero(vector) {
+    let newX = this.x - vector.y;
+    let newY = this.y - vector.y;
+
+    if (Math.sign(newX) !== Math.sign(this.x)) {
+      newX = 0;
+    }
+    if (Math.sign(newY) !== Math.sign(this.y)) {
+      newY = 0;
+    }
+
+    this.x = newX;
+    this.y = newY;
   }
 }
 

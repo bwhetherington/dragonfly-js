@@ -14,6 +14,7 @@ const createOffset = (magnitude = 0.1) => {
 class Hero extends Entity {
   constructor(playerID = -1) {
     super();
+    this.movementSpeed = MOVEMENT_SPEED;
     this.playerID = playerID;
     this.input = {
       up: false,
@@ -23,6 +24,33 @@ class Hero extends Entity {
     };
     this.damageAmount = 0;
     this.cannonAngle = 0;
+
+    this.registerHandler('OBJECT_COLLISION', event => {
+      const { object1, object2 } = event;
+      let other = null;
+      if (object1.id === this.id) {
+        if (object2 instanceof Hero) {
+          other = object2;
+        }
+      }
+      if (object2.id === this.id) {
+        if (object1 instanceof Hero) {
+          other = object1;
+        }
+      }
+      if (other !== null) {
+        const vector = new Vector(0, 0);
+        vector.add(other.position);
+        vector.subtract(this.position);
+        vector.normalize();
+        vector.scale(2);
+        other.applyForce(vector);
+      }
+    })
+  }
+
+  setSlow(value) {
+    this.isSlow = value;
   }
 
   damage(amount) {
@@ -49,7 +77,7 @@ class Hero extends Entity {
       this.velocity.setX(this.velocity.x + 1);
     }
     this.velocity.normalize();
-    this.velocity.scale(MOVEMENT_SPEED);
+    this.velocity.scale(this.movementSpeed);
   }
 
   serialize() {
@@ -103,7 +131,7 @@ class Hero extends Entity {
     offset.normalize();
     offset.scale(20);
 
-    bullet.velocity.scale(500);
+    bullet.velocity.scale(650);
     bullet.setPosition(this.position);
     bullet.position.add(offset);
     WM.add(bullet);

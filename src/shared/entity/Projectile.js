@@ -26,11 +26,15 @@ class Projectile extends Entity {
         if (object1.id === this.id) {
           if (object2.id !== this.sourceID && !(object2 instanceof Projectile)) {
             this.hit(object2);
+            this.velocity.scale(0.05);
+            object2.applyForce(this.velocity);
             this.markForDelete();
           }
         } else if (object2.id === this.id) {
           if (object1.id !== this.sourceID && !(object1 instanceof Projectile)) {
             this.hit(object1);
+            this.velocity.scale(0.05);
+            object1.applyForce(this.velocity);
             this.markForDelete();
           }
         }

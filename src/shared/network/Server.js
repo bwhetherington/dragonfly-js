@@ -7,6 +7,7 @@ const HTML_FILE = path.join(__dirname, '..', 'client', 'index.html');
 
 const serveHTTP = () => {
   const app = express();
+  app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
   app.use('/dist', express.static(path.join(__dirname, '..', 'client')));
   app.get('/', (req, res) => {
     res.sendFile(HTML_FILE);

@@ -45,10 +45,10 @@ class Explosion extends Entity {
   }
 
   initializeGraphics(two) {
-    const circle = two.makeCircle(this.position.x, this.position.y, 30);
+    const circle = two.makeCircle(this.position.x, this.position.y, 15);
 
-    circle.fill = 'rgba(200, 150, 50, 0.5)';
-    circle.stroke = 'rgba(150, 100, 25, 0.3)';
+    circle.fill = 'rgba(200, 150, 50, 0.8)';
+    circle.stroke = 'rgba(150, 100, 25, 0.6)';
     circle.linewidth = BORDER_SIZE;
 
     this.graphicsObject = circle;

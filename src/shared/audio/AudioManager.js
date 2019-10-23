@@ -54,7 +54,7 @@ class AudioManager {
 
   async playSound(sound, volume = 0.5) {
     if (isClient()) {
-      const url = 'dist/assets/sounds/' + sound;
+      const url = '/assets/sounds/' + sound;
       const audio = new Audio(url);
       audio.volume = volume;
       await audio.play();

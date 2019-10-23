@@ -13,7 +13,9 @@ const attachInput = (two, root) => {
     const newEvent = {
       type: 'KEY_DOWN',
       data: {
-        key: event.key
+        key: event.code,
+        shift: event.shiftKey,
+        ctrl: event.ctrlKey
       }
     };
     GM.emitEvent(newEvent);
@@ -23,7 +25,9 @@ const attachInput = (two, root) => {
     const newEvent = {
       type: 'KEY_UP',
       data: {
-        key: event.key
+        key: event.code,
+        shift: event.shiftKey,
+        ctrl: event.ctrlKey
       }
     };
     GM.emitEvent(newEvent);
