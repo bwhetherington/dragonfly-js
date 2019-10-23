@@ -46,6 +46,7 @@ class Server {
   onLastConnection() { }
 
   send(message, socketIndex = -1) {
+    message.time = Date.now();
     // Serialize the message
     const data = JSON.stringify(message);
 

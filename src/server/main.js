@@ -1,9 +1,11 @@
 import Timer from './timer';
 import GM from '../shared/event/GameManager';
 import Server from '../shared/network/Server';
-import Entity from '../shared/entity/Entity';
+import delayServer from '../shared/network/DelayServer';
 import WM from '../shared/entity/WorldManager';
 import Hero from '../shared/entity/Hero';
+import Vector from '../shared/util/Vector';
+import { readFileSync } from 'fs';
 
 const REFRESH_RATE = 60;
 
@@ -18,16 +20,29 @@ class GameServer extends Server {
     const hero = new Hero(socketIndex);
     WM.add(hero);
     this.heroes[socketIndex] = hero;
+
     this.send({
       type: 'ASSIGN_ID',
       data: {
         playerID: socketIndex
       }
     }, socketIndex);
+
     this.send({
       type: 'DEFINE_ARENA',
-      data: WM.bounds
+      data: {
+        geometry: WM.geometry.map(shape => ({ type: shape.constructor.name, ...shape }))
+      }
     }, socketIndex);
+
+    hero.registerHandler('MOUSE_DOWN', event => {
+      const { position, socketIndex } = event;
+      if (hero.playerID === socketIndex) {
+        const { x, y } = position;
+        hero.fireXY(x, y);
+      }
+    });
+
   }
 
   onClose(socketIndex) {
@@ -52,6 +67,9 @@ class GameServer extends Server {
         case 'd':
           hero.setInput('right', true);
           break;
+        case 'f':
+          hero.applyForce(new Vector(100, 0));
+          break;
       };
     });
     GM.registerHandler('KEY_UP', event => {
@@ -71,29 +89,35 @@ class GameServer extends Server {
           break;
       };
     });
+
+    // Load level
+    const levelString = readFileSync('level.json', 'utf-8');
+    const levelGeometry = JSON.parse(levelString);
+
+    WM.setGeomtetry(levelGeometry);
   }
 
   onMessage(message, socketIndex) {
     super.onMessage(message, socketIndex);
-    if (message.type === 'KEY_DOWN' || message.type === 'KEY_UP') {
-      // Attach socket index
-      const event = {
-        type: message.type,
-        data: {
-          ...message.data,
-          socketIndex: socketIndex
-        }
-      };
-      GM.emitEvent(event);
-    }
+    // Attach socket index
+    const event = {
+      type: message.type,
+      data: {
+        ...message.data,
+        socketIndex: socketIndex
+      }
+    };
+    GM.emitEvent(event);
   }
 }
 
 const main = async () => {
-  const server = new GameServer(2);
+  const server = new (delayServer(GameServer, 0))(4);
   server.initialize();
 
   WM.initialize();
+
+  // Create level geometry
 
   // Create the game timer
   const timer = new Timer(1 / REFRESH_RATE, dt => {

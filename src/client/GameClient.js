@@ -19,6 +19,20 @@ class GameClient extends Client {
         data: event
       });
     });
+
+    GM.registerHandler('MOUSE_DOWN', event => {
+      this.send({
+        type: 'MOUSE_DOWN',
+        data: event
+      });
+    })
+
+    GM.registerHandler('MOUSE_UP', event => {
+      this.send({
+        type: 'MOUSE_UP',
+        data: event
+      });
+    })
   }
 }
 

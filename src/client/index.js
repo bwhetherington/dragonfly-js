@@ -5,6 +5,7 @@ import Entity from '../shared/entity/Entity';
 import WM from '../shared/entity/WorldManager';
 import Hero from '../shared/entity/Hero';
 import GM from '../shared/event/GameManager';
+import Projectile from '../shared/entity/Projectile';
 
 const removeChildren = element => {
   while (element.firstChild) {
@@ -58,15 +59,17 @@ class GameClient extends Client {
   createEntity(type) {
     switch (type) {
       case 'Entity':
-        console.log('Create entity');
         const entity = new Entity();
         entity.initializeGraphics(this.two);
         return entity;
       case 'Hero':
-        console.log('Create hero');
         const hero = new Hero();
         hero.initializeGraphics(this.two);
         return hero;
+      case 'Projectile':
+        const projectile = new Projectile();
+        projectile.initializeGraphics(this.two);
+        return projectile;
       default:
         return null;
     }
@@ -87,16 +90,17 @@ const main = async () => {
     const line = two.makeLine(x1, y1, x2, y2);
     line.stroke = color;
     line.linewidth = width;
-  }
+  };
 
-  GM.registerHandler('DEFINE_ARENA', event => {
-    const { x, y, width, height } = event;
-
-    const rect = two.makeRectangle(x + width / 2, y + height / 2, width, height);
+  const makeBounds = (two, x, y, width, height) => {
+    const rect = two.makeRectangle(x, y, width, height);
     rect.fill = 'white';
 
     // Define grid
     const GRID_SIZE = 20;
+
+    x -= width / 2;
+    y -= height / 2;
 
     // Horizontal
     for (let i = GRID_SIZE; i <= width - GRID_SIZE; i += GRID_SIZE) {
@@ -105,12 +109,30 @@ const main = async () => {
     }
 
     // Define horizontal bars
-    makeLine(two, x, y, x + width, y, '#a0a0a0', 5);
-    makeLine(two, x, y + height, x + width, y + height, '#a0a0a0', 5);
+    const border = two.makeRectangle(x + width / 2, y + width / 2, width, height);
+    border.fill = 'rgba(0, 0, 0, 0)';
+    border.stroke = '#a0a0a0';
+    border.linewidth = 5;
+  };
 
-    // Define vertical bars
-    makeLine(two, x, y, x, y + height, '#a0a0a0', 5);
-    makeLine(two, x + width, y, x + width, y + height, '#a0a0a0', 5);
+  GM.registerHandler('DEFINE_ARENA', event => {
+    const { geometry } = event;
+    WM.setGeomtetry(geometry);
+    for (const shape of geometry) {
+      const { type, x, y, width, height } = shape;
+      switch (type) {
+        case 'InverseRectangle':
+          // An InverseRectangle represents the outer bounds
+          makeBounds(two, x, y, width, height);
+          break;
+        case 'Rectangle':
+          const rectangle = two.makeRectangle(x, y, width, height);
+          rectangle.fill = 'black';
+          rectangle.stroke = '#a0a0a0';
+          rectangle.linewidth = 5;
+          break;
+      }
+    }
   })
 
   WM.initialize();

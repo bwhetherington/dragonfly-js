@@ -1,7 +1,14 @@
 import GM from '../event/GameManager';
 import WM from '../entity/WorldManager';
 
-const attachInput = root => {
+const transformClientCoordinates = (two, x, y) => {
+  return {
+    x: x - two.scene.translation.x,
+    y: y - two.scene.translation.y
+  };
+}
+
+const attachInput = (two, root) => {
   root.addEventListener('keydown', event => {
     const newEvent = {
       type: 'KEY_DOWN',
@@ -23,37 +30,35 @@ const attachInput = root => {
   });
 
   root.addEventListener('mousedown', event => {
+    const { x, y } = transformClientCoordinates(two, event.clientX, event.clientY);
     const newEvent = {
       type: 'MOUSE_DOWN',
       data: {
         button: event.button,
-        x: event.clientX,
-        y: event.clientY
+        position: { x, y }
       }
     };
     GM.emitEvent(newEvent);
   });
 
   root.addEventListener('mouseup', event => {
+    const { x, y } = transformClientCoordinates(two, event.clientX, event.clientY);
     const newEvent = {
       type: 'MOUSE_UP',
       data: {
         button: event.button,
-        x: event.clientX,
-        y: event.clientY
+        position: { x, y }
       }
     };
     GM.emitEvent(newEvent);
   });
 
   root.addEventListener('mousemove', event => {
+    const { x, y } = transformClientCoordinates(two, event.clientX, event.clientY);
     const newEvent = {
       type: 'MOUSE_MOVE',
       data: {
-        position: {
-          x: event.clientX,
-          y: event.clientY
-        }
+        position: { x, y }
       }
     };
     GM.emitEvent(newEvent);
@@ -85,28 +90,33 @@ class Client {
 
   syncObject(object) {
     let existing = WM.findByID(object.id);
+    let created = false;
     if (!existing) {
       const newObject = WM.generateEntity(object.type);
       if (newObject) {
         newObject.setID(object.id);
-        WM.add(newObject);
         existing = newObject;
+        created = true;
       }
     }
     if (existing) {
       existing.deserialize(object);
-      const createEvent = {
-        type: 'CREATE_OBJECT',
-        data: {
-          object
-        }
-      };
-      GM.emitEvent(createEvent);
+      if (created) {
+        WM.add(existing);
+        existing.updatePosition();
+        const createEvent = {
+          type: 'CREATE_OBJECT',
+          data: {
+            object: existing
+          }
+        };
+        GM.emitEvent(createEvent);
+      }
     }
   }
 
   initialize(window) {
-    attachInput(window);
+    attachInput(this.two, window);
 
     // Batch sync
     GM.registerHandler('SYNC_OBJECT_BATCH', event => {
@@ -125,7 +135,6 @@ class Client {
         const id = event.ids[i];
         const entity = WM.findByID(id);
         if (entity) {
-          console.log('delete', entity);
           entity.markForDelete();
         }
       }
@@ -139,7 +148,9 @@ class Client {
     }).play();
   }
 
-  onClose() { }
+  onClose() {
+    console.log('closed');
+  }
 
   /**
    * Passes messages received into the event loop.
@@ -159,6 +170,7 @@ class Client {
    * @param message The message to send
    */
   send(message) {
+    message.time = Date.now();
     if (this.socket.readyState === 1) {
       this.socket.send(JSON.stringify(message));
     } else {

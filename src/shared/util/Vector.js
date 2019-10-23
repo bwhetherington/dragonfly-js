@@ -34,7 +34,7 @@ class Vector {
   }
 
   normalize() {
-    const magnitude = this.magnitude();
+    const magnitude = this.magnitude;
     if (magnitude === 0) {
       this.scale(0);
     } else {
@@ -44,6 +44,10 @@ class Vector {
 
   add(vector) {
     const { x, y } = vector;
+    this.addXY(x, y);
+  }
+
+  addXY(x, y) {
     this.x += x;
     this.y += y;
   }
@@ -55,7 +59,7 @@ class Vector {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  magnitude() {
+  get magnitude() {
     const { x, y } = this;
     return Math.sqrt(x * x + y * y);
   }
@@ -63,6 +67,28 @@ class Vector {
   deserialize(str) {
     const obj = JSON.parse(str);
     this.set(obj);
+  }
+
+  decay(amount = 1) {
+    const magnitude = this.magnitude;
+
+    if (magnitude > 0) {
+      const cos = this.x / magnitude;
+      const sin = this.y / magnitude;
+
+      let decayX = amount * cos;
+      let decayY = amount * sin;
+
+      if (Math.abs(decayX) > Math.abs(this.x)) {
+        decayX = this.x;
+      }
+      if (Math.abs(decayY) > Math.abs(this.y)) {
+        decayY = this.y;
+      }
+
+      this.x -= decayX;
+      this.y -= decayY;
+    }
   }
 }
 

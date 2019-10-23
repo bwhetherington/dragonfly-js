@@ -1,19 +1,40 @@
 import Vector from '../util/Vector';
 import uuid from 'uuid/v1';
 import GM from '../event/GameManager';
+import WM from './WorldManager';
+import Rectangle from '../util/Rectangle';
 
 class Entity {
   constructor() {
     this.position = new Vector(0, 0);
     this.velocity = new Vector(0, 0);
-    this.velocityBuffer = new Vector(0, 0);
+    this.force = new Vector(0, 0);
+    this.vectorBuffer = new Vector(0, 0);
     this.graphicsObject = null;
     this.markedForDelete = false;
+    this.boundingBox = new Rectangle(0, 0, 30, 30);
+    this.boundingBox.setCenter(this.position);
+    this.handlers = {};
     this.id = uuid();
+    this.collisionMode = 'SOLID';
+  }
+
+  registerHandler(type, handler) {
+    const id = GM.registerHandler(type, handler);
+    let handlers = this.handlers[type];
+    if (!handlers) {
+      handlers = [];
+      this.handlers[type] = handlers;
+    }
+    handlers.push(id);
   }
 
   get type() {
     return this.constructor.name;
+  }
+
+  applyForce(vector) {
+    this.force.add(vector);
   }
 
   setID(id) {
@@ -24,11 +45,36 @@ class Entity {
     return this.id;
   }
 
+  updatePosition() {
+    this.boundingBox.setCenter(this.position);
+    if (this.graphicsObject) {
+      this.graphicsObject.translation.set(this.position.x, this.position.y);
+    }
+  }
+
+  addPosition(vector) {
+    this.position.add(vector);
+    this.updatePosition();
+  }
+
+  addPositionXY(x, y) {
+    this.position.addXY(x, y);
+    this.updatePosition();
+  }
+
+  setPositionXY(x, y) {
+    this.position.setXY(x, y);
+    this.updatePosition();
+  }
+
+  setPosition(vector) {
+    this.position.set(vector);
+    this.updatePosition();
+  }
+
   step(step, dt) {
-    this.velocityBuffer.set(this.velocity);
-    this.velocityBuffer.scale(dt);
-    this.position.add(this.velocityBuffer);
-    this.updateGraphics();
+    WM.move(this, dt);
+    this.force.decay(dt * 100);
   }
 
   markForDelete() {
@@ -44,6 +90,14 @@ class Entity {
         }
       };
       GM.emitEvent(event);
+    }
+
+    // Cleanup handlers attached to this entity
+    for (const type in this.handlers) {
+      const handlers = this.handlers[type];
+      for (const id of handlers) {
+        GM.removeHandler(type, id);
+      }
     }
   }
 
@@ -66,20 +120,25 @@ class Entity {
     }
   }
 
-  initializeGraphics(two) {
-    const object = two.makeRectangle(0, 0, 30, 30);
-    object.fill = '#FF8000';
-    object.stroke = 'orangered'; // Accepts all valid css color
-    object.linewidth = 5;
-    this.graphicsObject = object;
-  }
-
-  updateGraphics() {
+  updateColor() {
     const { graphicsObject } = this;
     if (graphicsObject) {
-      graphicsObject.translation.set(this.position.x, this.position.y);
+      const { damageAmount = 0 } = this;
+      const damageColor = Math.min(100 + damageAmount * 5, 255);
+      const outlineColor = damageColor - 50;
+      graphicsObject.fill = `rgb(${damageColor}, 75, 50)`;
+      graphicsObject.stroke = `rgb(${outlineColor}, 50, 25)`;
     }
   }
+
+  initializeGraphics(two) {
+    const object = two.makeRectangle(0, 0, 30, 30);
+    object.linewidth = 5;
+    this.graphicsObject = object;
+    this.updateColor();
+  }
+
+  damage(amount) { }
 }
 
 export default Entity;
