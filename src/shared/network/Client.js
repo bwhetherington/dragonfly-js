@@ -72,7 +72,6 @@ class Client {
     if (!addr) {
       addr = `ws://${location.host}`;
     }
-    console.log(addr);
     this.socket = new WebSocket(addr);
     this.socket.onmessage = message => {
       this.onMessage(JSON.parse(message.data));
@@ -103,20 +102,16 @@ class Client {
       existing.deserialize(object);
       if (created) {
         WM.add(existing);
-        existing.updatePosition();
-        const createEvent = {
-          type: 'CREATE_OBJECT',
-          data: {
-            object: existing
-          }
-        };
-        GM.emitEvent(createEvent);
       }
     }
   }
 
   initialize(window) {
     attachInput(this.two, window);
+
+    GM.registerHandler('CREATE_OBJECT', event => {
+      event.object.initializeGraphics(this.two);
+    });
 
     // Batch sync
     GM.registerHandler('SYNC_OBJECT_BATCH', event => {

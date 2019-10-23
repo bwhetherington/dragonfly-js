@@ -1,78 +1,13 @@
 import Two from 'twojs-ts';
 import './index.css';
-import Client from './GameClient';
-import Entity from '../shared/entity/Entity';
+import GameClient from './GameClient';
 import WM from '../shared/entity/WorldManager';
-import Hero from '../shared/entity/Hero';
 import GM from '../shared/event/GameManager';
-import Projectile from '../shared/entity/Projectile';
+import AM from '../shared/audio/AudioManager';
 
 const removeChildren = element => {
   while (element.firstChild) {
     element.removeChild(element.firstChild);
-  }
-}
-
-class GameClient extends Client {
-  constructor(two, addr) {
-    super(two, addr);
-    this.heroes = {};
-    this.playerID = -2;
-  }
-
-  attachCamera(entity) {
-    GM.registerHandler('STEP', () => {
-      const centerX = (this.two.width / 2 - entity.position.x);
-      const centerY = (this.two.height / 2 - entity.position.y);
-      this.two.scene.translation.set(centerX, centerY);
-    });
-  }
-
-  initialize(window) {
-    super.initialize(window);
-    WM.setEntityGenerator(type => this.createEntity(type));
-
-    GM.registerHandler('CLEANUP_GRAPHICS', event => {
-      const { object } = event;
-      this.two.remove(object);
-    });
-
-    GM.registerHandler('CREATE_OBJECT', event => {
-      const { object } = event;
-      if (object.type === 'Hero' && object.playerID === this.playerID) {
-        this.hero = object;
-        this.attachCamera(object);
-      }
-    })
-
-    // Initialize grid
-  }
-
-  onMessage(message) {
-    if (message.type === 'ASSIGN_ID') {
-      this.playerID = message.data.playerID;
-    } else {
-      super.onMessage(message);
-    }
-  }
-
-  createEntity(type) {
-    switch (type) {
-      case 'Entity':
-        const entity = new Entity();
-        entity.initializeGraphics(this.two);
-        return entity;
-      case 'Hero':
-        const hero = new Hero();
-        hero.initializeGraphics(this.two);
-        return hero;
-      case 'Projectile':
-        const projectile = new Projectile();
-        projectile.initializeGraphics(this.two);
-        return projectile;
-      default:
-        return null;
-    }
   }
 }
 
@@ -136,6 +71,7 @@ const main = async () => {
   })
 
   WM.initialize();
+
   // Start websocket client
   const client = new GameClient(two);
   client.initialize(window);

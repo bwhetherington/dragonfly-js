@@ -43,6 +43,13 @@ class GameServer extends Server {
       }
     });
 
+    hero.registerHandler('ROTATE_CANNON', event => {
+      const { playerID, angle, socketIndex } = event;
+      if (playerID === socketIndex && hero.playerID === playerID) {
+        hero.rotateCannon(angle);
+      }
+    })
+
   }
 
   onClose(socketIndex) {
@@ -112,7 +119,7 @@ class GameServer extends Server {
 }
 
 const main = async () => {
-  const server = new (delayServer(GameServer, 0))(4);
+  const server = new (delayServer(GameServer, -1))(4);
   server.initialize();
 
   WM.initialize();

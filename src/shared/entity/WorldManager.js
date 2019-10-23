@@ -2,10 +2,12 @@ import GM from '../event/GameManager';
 import { isClient } from '../util/util';
 import Rectangle from '../util/Rectangle';
 import InverseRectangle from '../util/InverseRectangle';
+import Projectile from '../entity/Projectile';
 
 class WorldManager {
   constructor() {
     this.entities = {};
+    this.entityCount = 0;
     this.deleted = [];
     this.entityGenerator = () => null;
     this.setBounds(0, 0, 500, 500);
@@ -45,6 +47,16 @@ class WorldManager {
 
   add(entity) {
     this.entities[entity.id] = entity;
+    this.entityCount += 1;
+
+    const event = {
+      type: 'CREATE_OBJECT',
+      data: {
+        object: entity
+      }
+    };
+
+    GM.emitEvent(event);
   }
 
   step(step, dt) {
@@ -54,7 +66,9 @@ class WorldManager {
       if (entity.markedForDelete) {
         entity.cleanup();
         this.deleted.push(id);
-        delete this.entities[id];
+        if (delete this.entities[id]) {
+          this.entityCount -= 1;
+        }
       } else {
         entity.step(step, dt);
       }
@@ -114,6 +128,12 @@ class WorldManager {
       for (const id in this.entities) {
         if (id !== entity.id) {
           const otherEntity = this.findByID(id);
+          if (!otherEntity.isCollidable) {
+            continue;
+          }
+          if (otherEntity instanceof Projectile) {
+            continue;
+          }
           if (entity.boundingBox.intersects(otherEntity.boundingBox)) {
             collidedEntities[id] = otherEntity;
           }
@@ -151,7 +171,9 @@ class WorldManager {
     const batch = [];
     for (const id in this.entities) {
       const entity = this.entities[id];
-      batch.push(entity.serialize());
+      if (entity.doSynchronize) {
+        batch.push(entity.serialize());
+      }
     }
     if (batch.length > 0) {
       server.send({
@@ -170,6 +192,10 @@ class WorldManager {
       });
       this.deleted = [];
     }
+  }
+
+  getEntityCount() {
+    return this.entityCount;
   }
 }
 

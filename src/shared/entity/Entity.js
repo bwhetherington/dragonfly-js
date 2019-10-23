@@ -16,7 +16,8 @@ class Entity {
     this.boundingBox.setCenter(this.position);
     this.handlers = {};
     this.id = uuid();
-    this.collisionMode = 'SOLID';
+    this.doSynchronize = true;
+    this.isCollidable = true;
   }
 
   registerHandler(type, handler) {
@@ -132,7 +133,7 @@ class Entity {
   }
 
   initializeGraphics(two) {
-    const object = two.makeRectangle(0, 0, 30, 30);
+    const object = two.makeRectangle(this.position.x, this.position.y, 30, 30);
     object.linewidth = 5;
     this.graphicsObject = object;
     this.updateColor();

@@ -7,6 +7,8 @@ class GameManager {
     this.handlers = {};
     this.stepCount = 0;
     this.timeElapsed = 0;
+    this.handlerCount = 0;
+    this.frameRate = 0;
   }
 
   pollEvents() {
@@ -25,13 +27,16 @@ class GameManager {
     // Generate uuid
     const id = uuid();
     handlers[id] = handler;
+    this.handlerCount += 1;
     return id;
   }
 
   removeHandler(type, id) {
     const handlers = this.handlers[type];
     if (handlers) {
-      delete handlers[id];
+      if (delete handlers[id]) {
+        this.handlerCount -= 1;
+      }
     }
   }
 
@@ -64,18 +69,8 @@ class GameManager {
    */
   step(dt) {
     this.timeElapsed += dt;
-    if (this.timeElapsed >= 2) {
-      this.timeElapsed -= 2;
 
-      // Sum up all listeners
-      let count = 0;
-      for (const type in this.handlers) {
-        for (const id in this.handlers[type]) {
-          count += 1;
-        }
-      }
-      console.log(`Handlers: ${count}`);
-    }
+    this.frameRate = 1.0 / dt;
 
     const stepEvent = {
       type: 'STEP',
@@ -87,6 +82,10 @@ class GameManager {
     this.stepCount += 1;
     this.handleEvent(stepEvent);
     this.pollEvents();
+  }
+
+  getHandlerCount() {
+    return this.handlerCount;
   }
 }
 
