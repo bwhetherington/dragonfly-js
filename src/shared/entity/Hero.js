@@ -5,12 +5,10 @@ import Projectile from './Projectile';
 import WM from './WorldManager';
 import AM from '../audio/AudioManager';
 import Ray from './Ray';
+import Pistol from './Pistol';
+import Shotgun from './Shotgun';
 
 const MOVEMENT_SPEED = 300;
-
-const createOffset = (magnitude = 0.1) => {
-  return (Math.random() - 0.5) * 2 * magnitude;
-}
 
 class Hero extends Entity {
   constructor(playerID = -1) {
@@ -25,6 +23,7 @@ class Hero extends Entity {
     };
     this.damageAmount = 0;
     this.cannonAngle = 0;
+    this.weapon = new Pistol();
 
     this.registerHandler('OBJECT_COLLISION', event => {
       const { object1, object2 } = event;
@@ -81,12 +80,17 @@ class Hero extends Entity {
     this.velocity.scale(this.movementSpeed);
   }
 
+  createOffset (magnitude = 0.1){
+    return (Math.random() - 0.5) * 2 * magnitude;
+  }
+
   serialize() {
     return {
       ...super.serialize(),
       playerID: this.playerID,
       cannonAngle: this.cannonAngle,
-      damageAmount: this.damageAmount
+      damageAmount: this.damageAmount,
+      weapon: this.weapon
     };
   }
 
@@ -112,47 +116,7 @@ class Hero extends Entity {
   }
 
   fireXY(fx, fy) {
-    AM.playSound('fire.wav');
-    const ray = new Ray(this.id);
-    WM.add(ray);
-    ray.position.set(this.position);
-    const event = {
-      type: 'CAST_RAY',
-      data: {
-        id: ray.id,
-        target: {
-          x: fx,
-          y: fy
-        }
-      }
-    };
-    GM.emitEvent(event);
-
-    // const vector = new Vector(0, 0);
-    // const offset = new Vector(0, 0);
-
-    // for (let i = 0; i < 1; i++) {
-
-    //   // Create direction vector to target
-    //   const { x, y } = this.position;
-    //   vector.setXY(fx - x, fy - y);
-    //   vector.normalize();
-
-    //   vector.addXY(createOffset(0.1), createOffset(0.1));
-    //   // vector.normalize();
-
-    //   const bullet = new Projectile(this.id);
-    //   bullet.velocity.set(vector);
-
-    //   offset.set(vector);
-    //   offset.normalize();
-    //   offset.scale(20);
-
-    //   bullet.velocity.scale(650);
-    //   bullet.setPosition(this.position);
-    //   bullet.position.add(offset);
-    //   WM.add(bullet);
-    // }
+    this.weapon.fire(fx, fy, this);
   }
 
   initializeGraphics(two) {

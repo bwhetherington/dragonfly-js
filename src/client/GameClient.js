@@ -7,6 +7,7 @@ import Projectile from '../shared/entity/Projectile';
 import Explosion from '../shared/entity/Explosion';
 import Laser from '../shared/entity/Laser';
 import Vector from '../shared/util/Vector';
+import AM from '../shared/audio/AudioManager';
 
 class GameClient extends Client {
   constructor(two, addr) {
@@ -149,6 +150,10 @@ class GameClient extends Client {
         data: event
       };
       this.send(packet);
+    });
+
+    GM.registerHandler('PLAY_AUDIO', data => {
+      AM.playSoundInternal(data.filename, data.volume);
     });
   }
 
