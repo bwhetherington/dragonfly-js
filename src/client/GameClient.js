@@ -5,6 +5,7 @@ import Hero from '../shared/entity/Hero';
 import GM from '../shared/event/GameManager';
 import Projectile from '../shared/entity/Projectile';
 import Explosion from '../shared/entity/Explosion';
+import AM from '../shared/audio/AudioManager';
 
 class GameClient extends Client {
   constructor(two, addr) {
@@ -135,6 +136,10 @@ class GameClient extends Client {
         data: event
       };
       this.send(packet);
+    });
+
+    GM.registerHandler('PLAY_AUDIO', data => {
+      AM.playSoundInternal(data.filename, data.volume);
     });
   }
 

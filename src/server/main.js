@@ -105,6 +105,15 @@ class GameServer extends Server {
       };
     });
 
+    GM.registerHandler('PLAY_AUDIO', data => {
+      const event = {
+        type: 'PLAY_AUDIO',
+        data
+      };
+      
+      this.send(event);
+    });
+
     // Load level
     const levelString = readFileSync('level.json', 'utf-8');
     const levelGeometry = JSON.parse(levelString);

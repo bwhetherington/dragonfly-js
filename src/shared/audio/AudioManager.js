@@ -1,4 +1,5 @@
 import { isClient } from "../util/util";
+import GM from "../event/GameManager";
 
 // var soundContext = new AudioContext();
 
@@ -25,7 +26,7 @@ import { isClient } from "../util/util";
 //   request.send();
 // }
 
-// function playSound(name, options) {
+// function playSoundInternal(name, options) {
 //   var sound = sounds[name];
 //   var soundVolume = sounds[name].volume || 1;
 
@@ -52,8 +53,9 @@ import { isClient } from "../util/util";
 
 class AudioManager {
 
-  async playSound(sound, volume = 0.5) {
+  async playSoundInternal(sound, volume = 0.5) {
     if (isClient()) {
+      console.log(sound);
       const url = '/assets/sounds/' + sound;
       const audio = new Audio(url);
       audio.volume = volume;
@@ -61,6 +63,17 @@ class AudioManager {
     }
   }
 
+  async playSound(filename, volume = 0.5) {
+    const event = {
+      type: 'PLAY_AUDIO',
+      data: {
+        filename,
+        volume
+      }
+    };
+
+    GM.emitEvent(event);
+  }
 }
 
 const AM = new AudioManager();

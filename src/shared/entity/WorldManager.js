@@ -86,6 +86,7 @@ class WorldManager {
     entity.vectorBuffer.scale(dt);
 
     if (entity.vectorBuffer.magnitude == 0) {
+      entity.updatePosition();
       return;
     }
 

@@ -3,7 +3,7 @@ import GM from '../event/GameManager';
 import Rectangle from '../util/Rectangle';
 import Explosion from './Explosion';
 import WM from './WorldManager';
-import { isClient, isServer } from '../util/util';
+import { isClient } from '../util/util';
 import AM from '../audio/AudioManager';
 
 class Projectile extends Entity {
@@ -13,7 +13,7 @@ class Projectile extends Entity {
     this.boundingBox = new Rectangle(0, 0, 20, 20);
     this.updatePosition();
 
-    if (isServer()) {
+    if (!isClient()) {
       this.registerHandler('GEOMETRY_COLLISION', event => {
         const { object } = event;
         if (object.id === this.id) {
@@ -41,7 +41,7 @@ class Projectile extends Entity {
       });
     }
 
-   //as AM.playSoundInternal('fire.wav', 0.1);
+    AM.playSoundInternal('fire.wav', 0.1);
   }
 
   initializeGraphics(two) {
