@@ -2,7 +2,8 @@ import Entity from "./Entity";
 import Vector from "../util/Vector";
 import Rectangle from '../util/Rectangle';
 
-const DURATION = 0.25;
+const DURATION = 0.375;
+const BORDER_SIZE = 5;
 
 class Laser extends Entity {
   constructor(p1, p2) {
@@ -41,8 +42,7 @@ class Laser extends Entity {
   updateSize() {
     if (this.graphicsObject) {
       const progress = this.timer / DURATION;
-      this.graphicsObject.fill = this.getFill(1 - progress);
-      this.graphicsObject.stroke = this.getStroke(1 - progress);
+      this.graphicsObject.opacity = (1 - progress) * 0.7;
     }
   }
 
@@ -59,12 +59,10 @@ class Laser extends Entity {
 
     const rect = two.makeRectangle(x, y, dist, 10);
     rect.rotation = angle;
-
-    rect.fill = 'rgba(200, 0, 0, 0.5)';
-    rect.stroke = 'rgba(150, 0, 0, 0.3)';
     rect.linewidth = 5;
 
     this.graphicsObject = rect;
+    this.setColor({ red: 200, green: 150, blue: 50 });
   }
 }
 

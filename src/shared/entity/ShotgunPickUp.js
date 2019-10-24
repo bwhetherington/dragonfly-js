@@ -10,7 +10,7 @@ import Hero from '../entity/Hero';
 import PickUp from './PickUp';
 
 class ShotgunPickUp extends PickUp {
-  constructor(givenVector = new Vector(0,0)) {
+  constructor(givenVector = new Vector(0, 0)) {
     super();
     this.position = givenVector;
     this.boundingBox = new Rectangle(0, 0, 20, 20);
@@ -29,7 +29,7 @@ class ShotgunPickUp extends PickUp {
         }
         if (other !== null) {
           if (other instanceof Hero) {
-            other.equipWeapon(Shotgun);
+            other.setWeapon(Shotgun);
             this.markForDelete();
           }
         }
@@ -45,15 +45,15 @@ class ShotgunPickUp extends PickUp {
     this.graphicsObject = circle;
   }
 
-  serialize() {
-    return {
-      ...super.serialize(),
-    };
-  }
+  // serialize() {
+  //   return {
+  //     ...super.serialize(),
+  //   };
+  // }
 
-  deserialize(object) {
-    super.deserialize(object);
-  }
+  // deserialize(object) {
+  //   super.deserialize(object);
+  // }
 
   cleanup() {
     super.cleanup();

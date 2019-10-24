@@ -42,9 +42,9 @@ class Vector {
     }
   }
 
-  add(vector) {
+  add(vector, scale = 1) {
     const { x, y } = vector;
-    this.addXY(x, y);
+    this.addXY(x * scale, y * scale);
   }
 
   subtract(vector) {

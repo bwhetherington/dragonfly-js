@@ -12,8 +12,8 @@ class Pistol extends Weapon {
     super();
   }
 
-  fire(fx, fy, sourceHero){
-    super.fire(fx, fy, sourceHero);
+  fire(fx, fy, sourceHero) {
+
     const vector = new Vector(0, 0);
     const offset = new Vector(0, 0);
 
@@ -24,7 +24,7 @@ class Pistol extends Weapon {
 
     vector.addXY(sourceHero.createOffset(0.1), sourceHero.createOffset(0.1));
     vector.normalize();
-    
+
     const bullet = new Projectile(sourceHero.id);
     bullet.velocity.set(vector);
 
@@ -35,12 +35,17 @@ class Pistol extends Weapon {
     bullet.velocity.scale(650);
     bullet.setPosition(sourceHero.position);
     bullet.position.add(offset);
+    bullet.registerHandler('HIT_OBJECT', event => {
+      const { hitID, sourceID } = event;
+      if (sourceID === bullet.id) {
+        const object = WM.findByID(hitID);
+        if (object) {
+          object.damage(1);
+        }
+      }
+    });
     WM.add(bullet);
-    AM.playSoundInternal('fire.wav', 0.1);
-  }
-
-  cleanup() {
-    super.cleanup();
+    AM.playSound('fire.wav');
   }
 }
 

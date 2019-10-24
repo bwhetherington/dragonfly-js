@@ -8,6 +8,7 @@ import Ray from './Ray';
 import Pistol from './Pistol';
 import Shotgun from './Shotgun';
 import Raygun from './Raygun';
+import Weapon from './Weapon';
 
 const MOVEMENT_SPEED = 300;
 
@@ -37,7 +38,7 @@ class Hero extends Entity {
     };
     this.damageAmount = 0;
     this.cannonAngle = 0;
-    this.weapon = new Raygun();
+    this.setWeapon(Raygun);
     this.friction = 1;
     this.bounce = 0.6;
 
@@ -99,18 +100,17 @@ class Hero extends Entity {
     return (Math.random() - 0.5) * 2 * magnitude;
   }
 
-  equipWeapon(WeaponClass) {
-    this.weapon = new WeaponClass;
-  }
-
   serialize() {
-    return {
+    const obj = {
       ...super.serialize(),
       playerID: this.playerID,
       cannonAngle: this.cannonAngle,
-      damageAmount: this.damageAmount,
-      weapon: this.weapon
+      damageAmount: this.damageAmount
     };
+    if (this.weapon instanceof Weapon) {
+      obj.weapon = this.weapon.serialize();
+    }
+    return obj;
   }
 
   rotateCannon(angle) {
@@ -131,10 +131,17 @@ class Hero extends Entity {
     if (obj.damageAmount !== undefined) {
       this.damageAmount = obj.damageAmount;
     }
+    if (obj.weapon !== undefined) {
+      if (obj.type !== this.weapon.type) {
+        // this.setWeapon()
+      } else {
+        this.weapon.deserialize(obj.weapon);
+      }
+    }
   }
 
   fireXY(fx, fy) {
-    this.weapon.fire(fx, fy, this);
+    this.weapon.fireInternal(fx, fy, this);
   }
 
   initializeGraphics(two) {
@@ -151,6 +158,13 @@ class Hero extends Entity {
     this.graphicsObject = two.makeGroup(object, cannonGroup);
     this.graphicsObject.translation.set(this.position.x, this.position.y);
     this.setColor(COLORS[this.playerID % 2]);
+  }
+
+  setWeapon(WeaponClass) {
+    if (this.weapon instanceof Weapon) {
+      this.weapon.cleanup();
+    }
+    this.weapon = new WeaponClass();
   }
 }
 

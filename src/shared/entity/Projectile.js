@@ -49,7 +49,8 @@ class Projectile extends Entity {
         if (other !== null) {
           this.hit(other);
           if (other instanceof Hero) {
-            const scale = Math.max(other.damageAmount, 10) * 0.05;
+            const scale = Math.max(other.damageAmount, 10) * 10;
+            this.velocity.normalize();
             this.velocity.scale(scale);
             other.applyForce(this.velocity);
           }
@@ -65,21 +66,20 @@ class Projectile extends Entity {
 
   initializeGraphics(two) {
     const circle = two.makeCircle(this.position.x, this.position.y, 10);
-    circle.fill = 'rgba(200, 150, 50, 0.8)';
-    circle.stroke = 'rgba(150, 100, 25, 0.6)';
     circle.linewidth = 5;
     this.graphicsObject = circle;
+    this.setColor({ red: 200, green: 150, blue: 50 });
+    this.graphicsObject.opacity = 0.7;
   }
 
   hit(entity) {
-    entity.damage(1);
     const event = {
       type: 'HIT_OBJECT',
       data: {
-        object: entity
+        sourceID: this.id,
+        hitID: entity.id
       }
     };
-
     GM.emitEvent(event);
   }
 

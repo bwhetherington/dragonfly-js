@@ -143,6 +143,10 @@ class GameClient extends Client {
       const p1 = new Vector(end.x, end.y);
       const laser = new Laser(p0, p1);
       WM.add(laser);
+
+      const explosion = new Explosion();
+      explosion.setPosition(p1);
+      WM.add(explosion);
     });
 
     GM.registerHandler('ROTATE_CANNON', event => {

@@ -80,7 +80,7 @@ class GameServer extends Server {
           hero.applyForce(new Vector(100, 0));
           break;
         case 'KeyQ':
-          hero.equipWeapon(Pistol);
+          hero.setWeapon(Pistol);
           break;
         case 'ShiftLeft':
         case 'ShiftRight':
@@ -159,4 +159,4 @@ const main = async () => {
   timer.start();
 };
 
-main().catch(console.err);
+main().catch(console.error);

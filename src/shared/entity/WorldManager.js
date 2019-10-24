@@ -13,7 +13,7 @@ class WorldManager {
     this.entityGenerator = () => null;
     this.setBounds(0, 0, 500, 500);
     this.geometry = [];
-    this.friction = 30;
+    this.friction = 5;
   }
 
   setEntityGenerator(generator) {
@@ -118,8 +118,6 @@ class WorldManager {
     let collidedEntities = {};
 
     // Check collision with level geometry
-
-    const BOUNCE = 0.3;
 
     for (let i = 0; i < STEPS; i++) {
       // Attempt to move along X axis

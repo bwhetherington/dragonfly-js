@@ -34,24 +34,17 @@ class Explosion extends Entity {
       this.graphicsObject.scale = scale;
       if (progress > 0) {
         this.graphicsObject.linewidth = BORDER_SIZE / (progress * 0.75);
+        this.graphicsObject.opacity = (1 - progress) * 0.7;
       }
     }
   }
 
-  getColor() {
-    const progress = this.timer / DURATION;
-    const opacity = 0.5 * (1 - progress);
-    return 'rgba(200, 150, 50, ' + opacity + ')';
-  }
-
   initializeGraphics(two) {
     const circle = two.makeCircle(this.position.x, this.position.y, 15);
-
-    circle.fill = 'rgba(200, 150, 50, 0.8)';
-    circle.stroke = 'rgba(150, 100, 25, 0.6)';
     circle.linewidth = BORDER_SIZE;
 
     this.graphicsObject = circle;
+    this.setColor({ red: 200, green: 150, blue: 50 });
     this.updateSize();
   }
 }

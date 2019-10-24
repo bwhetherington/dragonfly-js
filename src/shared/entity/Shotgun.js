@@ -9,27 +9,11 @@ import AM from '../audio/AudioManager';
 
 class Shotgun extends Weapon {
   constructor() {
-    super();
+    super(0.5);
     this.projectileNum = 5;
-    this.delayTimer = 0;
-    this.delayAmount = 0.5;
-
-    this.registerHandler('STEP', event => {
-      const { dt } = event;
-      if (this.delayTimer !== 0) {
-        this.delayTimer -= dt;
-        if (this.delayTimer < 0) {
-          this.delayTimer = 0;
-        }
-      }
-    });
   }
 
   fire(fx, fy, sourceHero) {
-    if(this.delayTimer > 0){
-      return;
-    }
-    super.fire(fx, fy, sourceHero);
     const vector = new Vector(0, 0);
     const offset = new Vector(0, 0);
 
@@ -53,30 +37,18 @@ class Shotgun extends Weapon {
       bullet.velocity.scale(650);
       bullet.setPosition(sourceHero.position);
       bullet.position.add(offset);
+      bullet.registerHandler('HIT_OBJECT', event => {
+        const { hitID, sourceID } = event;
+        if (sourceID === bullet.id) {
+          const object = WM.findByID(hitID);
+          if (object) {
+            object.damage(2);
+          }
+        }
+      });
       WM.add(bullet);
     }
-    this.delayTimer = this.delayAmount;
-    //AM.playSoundInternal('fire.wav');
     AM.playSound('fire.wav');
-  }
-
-  serialize() {
-    return {
-      ...super.serialize(),
-      sourceID: this.sourceID
-    };
-  }
-
-  deserialize(object) {
-    super.deserialize(object);
-    const { sourceID } = object;
-    if (sourceID) {
-      this.sourceID = sourceID;
-    }
-  }
-
-  cleanup() {
-    super.cleanup();
   }
 }
 
