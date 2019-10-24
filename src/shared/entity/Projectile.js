@@ -5,6 +5,7 @@ import Explosion from './Explosion';
 import WM from './WorldManager';
 import { isClient } from '../util/util';
 import AM from '../audio/AudioManager';
+import Hero from '../entity/Hero';
 
 class Projectile extends Entity {
   constructor(sourceID = null) {
@@ -23,20 +24,24 @@ class Projectile extends Entity {
 
       this.registerHandler('OBJECT_COLLISION', event => {
         const { object1, object2 } = event;
+        let other = null;
         if (object1.id === this.id) {
           if (object2.id !== this.sourceID && !(object2 instanceof Projectile)) {
-            this.hit(object2);
-            this.velocity.scale(0.05);
-            object2.applyForce(this.velocity);
-            this.markForDelete();
+            other = object2;
           }
         } else if (object2.id === this.id) {
           if (object1.id !== this.sourceID && !(object1 instanceof Projectile)) {
-            this.hit(object1);
-            this.velocity.scale(0.05);
-            object1.applyForce(this.velocity);
-            this.markForDelete();
+            other = object1;
           }
+        }
+        if (other !== null) {
+          this.hit(other);
+          if (other instanceof Hero) {
+            const scale = Math.max(other.damageAmount, 10) * 0.05;
+            this.velocity.scale(scale);
+            other.applyForce(this.velocity);
+          }
+          this.markForDelete();
         }
       });
     }

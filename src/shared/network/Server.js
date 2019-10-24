@@ -2,6 +2,7 @@ import { server as WebsocketServer } from 'websocket';
 import express from 'express';
 import http from 'http';
 import path from 'path';
+import GM from '../event/GameManager';
 
 const HTML_FILE = path.join(__dirname, '..', 'client', 'index.html');
 
@@ -26,6 +27,13 @@ class Server {
   initialize() {
     // Create http server
     const httpServer = serveHTTP();
+
+    GM.registerHandler('CREATE_RAY', data => {
+      this.send({
+        type: 'CREATE_RAY',
+        data
+      });
+    })
 
     // Attach websocket server to http server
     this.wsServer = new WebsocketServer({ httpServer });

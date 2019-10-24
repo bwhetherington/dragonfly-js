@@ -5,6 +5,8 @@ import Hero from '../shared/entity/Hero';
 import GM from '../shared/event/GameManager';
 import Projectile from '../shared/entity/Projectile';
 import Explosion from '../shared/entity/Explosion';
+import Laser from '../shared/entity/Laser';
+import Vector from '../shared/util/Vector';
 
 class GameClient extends Client {
   constructor(two, addr) {
@@ -63,6 +65,10 @@ class GameClient extends Client {
     });
 
     GM.registerHandler('MOUSE_DOWN', event => {
+      // Create a laser to test
+      // const laser = new Laser(this.hero.position, new Vector(event.position.x, event.position.y));
+      // WM.add(laser);
+
       this.send({
         type: 'MOUSE_DOWN',
         data: event
@@ -128,6 +134,14 @@ class GameClient extends Client {
         this.initializeHero(object);
       }
     })
+
+    GM.registerHandler('CREATE_RAY', event => {
+      const { start, end } = event;
+      const p0 = new Vector(start.x, start.y);
+      const p1 = new Vector(end.x, end.y);
+      const laser = new Laser(p0, p1);
+      WM.add(laser);
+    });
 
     GM.registerHandler('ROTATE_CANNON', event => {
       const packet = {

@@ -4,6 +4,7 @@ import GM from '../event/GameManager';
 import Projectile from './Projectile';
 import WM from './WorldManager';
 import AM from '../audio/AudioManager';
+import Ray from './Ray';
 
 const MOVEMENT_SPEED = 300;
 
@@ -112,29 +113,46 @@ class Hero extends Entity {
 
   fireXY(fx, fy) {
     AM.playSound('fire.wav');
+    const ray = new Ray(this.id);
+    WM.add(ray);
+    ray.position.set(this.position);
+    const event = {
+      type: 'CAST_RAY',
+      data: {
+        id: ray.id,
+        target: {
+          x: fx,
+          y: fy
+        }
+      }
+    };
+    GM.emitEvent(event);
 
-    const vector = new Vector(0, 0);
-    const offset = new Vector(0, 0);
+    // const vector = new Vector(0, 0);
+    // const offset = new Vector(0, 0);
 
-    // Create direction vector to target
-    const { x, y } = this.position;
-    vector.setXY(fx - x, fy - y);
-    vector.normalize();
+    // for (let i = 0; i < 1; i++) {
 
-    vector.addXY(createOffset(0.1), createOffset(0.1));
-    vector.normalize();
+    //   // Create direction vector to target
+    //   const { x, y } = this.position;
+    //   vector.setXY(fx - x, fy - y);
+    //   vector.normalize();
 
-    const bullet = new Projectile(this.id);
-    bullet.velocity.set(vector);
+    //   vector.addXY(createOffset(0.1), createOffset(0.1));
+    //   // vector.normalize();
 
-    offset.set(vector);
-    offset.normalize();
-    offset.scale(20);
+    //   const bullet = new Projectile(this.id);
+    //   bullet.velocity.set(vector);
 
-    bullet.velocity.scale(650);
-    bullet.setPosition(this.position);
-    bullet.position.add(offset);
-    WM.add(bullet);
+    //   offset.set(vector);
+    //   offset.normalize();
+    //   offset.scale(20);
+
+    //   bullet.velocity.scale(650);
+    //   bullet.setPosition(this.position);
+    //   bullet.position.add(offset);
+    //   WM.add(bullet);
+    // }
   }
 
   initializeGraphics(two) {

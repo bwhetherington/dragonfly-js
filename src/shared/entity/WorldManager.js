@@ -86,13 +86,14 @@ class WorldManager {
     entity.vectorBuffer.scale(dt);
 
     if (entity.vectorBuffer.magnitude == 0) {
-      return;
+      entity.updatePosition();
+      return false;
     }
 
     // Use quarter steps
     if (!entity.isCollidable) {
       entity.addPosition(entity.vectorBuffer);
-      return;
+      return false;
     }
 
     const STEPS = 4;
@@ -157,6 +158,8 @@ class WorldManager {
       }
     }
 
+    let hadCollision = false;
+
     if (collidedX || collidedY) {
       const event = {
         type: 'GEOMETRY_COLLISION',
@@ -165,6 +168,7 @@ class WorldManager {
         }
       };
       GM.emitEvent(event);
+      hadCollision = true;
     }
 
     for (const id in collidedEntities) {
@@ -176,7 +180,15 @@ class WorldManager {
         }
       };
       GM.emitEvent(event);
+
+      // If it was not an ignored entity
+      hadCollision = true;
+      // if (ignore.indexOf(id) < 0) {
+      //   hadCollision = true;
+      // }
     }
+
+    return hadCollision;
   }
 
   setBounds(x, y, width, height) {

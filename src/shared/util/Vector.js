@@ -65,13 +65,25 @@ class Vector {
   distance(vector) {
     const { x, y } = vector;
     const dx = x - this.x;
-    const dy = x - this.y;
+    const dy = y - this.y;
     return Math.sqrt(dx * dx + dy * dy);
   }
 
   get magnitude() {
     const { x, y } = this;
     return Math.sqrt(x * x + y * y);
+  }
+
+  get angle() {
+    const { x, y } = this;
+    return Math.atan2(y, x);
+  }
+
+  angleTo(vector) {
+    const { x, y } = vector;
+    const dx = x - this.x;
+    const dy = y - this.y;
+    return Math.atan2(dy, dx);
   }
 
   deserialize(str) {

@@ -16,7 +16,7 @@ class Rectangle {
     return x1 <= x && x <= x2 && y1 <= y && y <= y2;
   }
 
-  intersects(other) {
+  intersects(other, first = true) {
     const halfWidth = other.width / 2;
     const halfHeight = other.height / 2;
 
@@ -29,10 +29,10 @@ class Rectangle {
     const brX = other.x + halfWidth;
     const brY = other.y + halfHeight;
 
-    return this.containsXY(tlX, tlY) ||
+    return (this.containsXY(tlX, tlY) ||
       this.containsXY(trX, trY) ||
       this.containsXY(blX, blY) ||
-      this.containsXY(brX, brY);
+      this.containsXY(brX, brY)) || (first && other.intersects(this, false));
   }
 
   setCenterXY(x, y) {
