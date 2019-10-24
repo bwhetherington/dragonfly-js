@@ -11,6 +11,19 @@ import Raygun from './Raygun';
 
 const MOVEMENT_SPEED = 300;
 
+const COLORS = [
+  {
+    red: 200,
+    green: 80,
+    blue: 50
+  },
+  {
+    red: 50,
+    green: 80,
+    blue: 200
+  }
+];
+
 class Hero extends Entity {
   constructor(playerID = -1) {
     super();
@@ -24,7 +37,7 @@ class Hero extends Entity {
     };
     this.damageAmount = 0;
     this.cannonAngle = 0;
-    this.weapon = new Pistol();
+    this.weapon = new Raygun();
 
     this.registerHandler('OBJECT_COLLISION', event => {
       const { object1, object2 } = event;
@@ -56,7 +69,6 @@ class Hero extends Entity {
 
   damage(amount) {
     this.damageAmount += amount;
-    this.updateColor();
   }
 
   setInput(direction, on) {
@@ -81,11 +93,11 @@ class Hero extends Entity {
     this.velocity.scale(this.movementSpeed);
   }
 
-  createOffset (magnitude = 0.1){
+  createOffset(magnitude = 0.1) {
     return (Math.random() - 0.5) * 2 * magnitude;
   }
 
-  equipWeapon (WeaponClass){
+  equipWeapon(WeaponClass) {
     this.weapon = new WeaponClass;
   }
 
@@ -116,7 +128,6 @@ class Hero extends Entity {
     }
     if (obj.damageAmount !== undefined) {
       this.damageAmount = obj.damageAmount;
-      this.updateColor();
     }
   }
 
@@ -137,7 +148,7 @@ class Hero extends Entity {
 
     this.graphicsObject = two.makeGroup(object, cannonGroup);
     this.graphicsObject.translation.set(this.position.x, this.position.y);
-    this.updateColor();
+    this.setColor(COLORS[this.playerID % 2]);
   }
 }
 

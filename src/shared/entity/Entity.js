@@ -4,6 +4,19 @@ import GM from '../event/GameManager';
 import WM from './WorldManager';
 import Rectangle from '../util/Rectangle';
 
+const getFill = color => {
+  const { red, green, blue, alpha = 1 } = color;
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
+const getStroke = color => {
+  let { red, green, blue, alpha = 1 } = color;
+  red -= 50;
+  green -= 50;
+  blue -= 50;
+  return `rgb(${Math.max(0, red)}, ${Math.max(0, green)}, ${Math.max(0, blue)}, ${alpha})`;
+}
+
 class Entity {
   constructor() {
     this.position = new Vector(0, 0);
@@ -30,6 +43,16 @@ class Entity {
       this.handlers[type] = handlers;
     }
     handlers.push(id);
+  }
+
+  setColor(color) {
+    const { graphicsObject } = this;
+    if (graphicsObject) {
+      const fill = getFill(color);
+      const stroke = getStroke(color);
+      graphicsObject.fill = fill;
+      graphicsObject.stroke = stroke;
+    }
   }
 
   get type() {
