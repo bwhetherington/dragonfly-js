@@ -13,6 +13,7 @@ class WorldManager {
     this.entityGenerator = () => null;
     this.setBounds(0, 0, 500, 500);
     this.geometry = [];
+    this.friction = 30;
   }
 
   setEntityGenerator(generator) {
@@ -77,38 +78,54 @@ class WorldManager {
   }
 
   move(entity, dt) {
-    entity.vectorBuffer.setXY(0, 0);
-    entity.vectorBuffer.set(entity.velocity);
-    if (entity.isSlow) {
-      entity.vectorBuffer.scale(0.5);
-    }
-    entity.vectorBuffer.add(entity.force);
-    entity.vectorBuffer.scale(dt);
+    // vb1 = a * t
+    entity.vectorBuffer1.set(entity.acceleration);
+    entity.vectorBuffer1.scale(entity.friction * this.friction * dt);
 
-    if (entity.vectorBuffer.magnitude == 0) {
+    // v += a * t
+    entity.velocity.add(entity.vectorBuffer1);
+
+    entity.vectorBuffer1.set(entity.velocity);
+
+    // Calculate friction and apply to velocity
+    // friction = -µ * v * t
+    entity.vectorBuffer1.scale(-entity.friction * this.friction * dt);
+
+    // velocity += friction
+    entity.velocity.add(entity.vectorBuffer1);
+
+    entity.vectorBuffer1.set(entity.velocity);
+    entity.vectorBuffer1.scale(dt);
+
+    // Check whether or not entity moves
+    if (entity.vectorBuffer1.magnitude == 0) {
       entity.updatePosition();
       return false;
     }
 
-    // Use quarter steps
+    // Do full movement at once if no collision
     if (!entity.isCollidable) {
-      entity.addPosition(entity.vectorBuffer);
+      entity.addPosition(entity.vectorBuffer1);
       return false;
     }
 
+    // Use movement steps
     const STEPS = 4;
-    entity.vectorBuffer.scale(1 / STEPS);
+    entity.vectorBuffer1.scale(1 / STEPS);
 
     let collidedX = false;
     let collidedY = false;
     let collidedEntities = {};
 
     // Check collision with level geometry
+
+    const BOUNCE = 0.3;
+
     for (let i = 0; i < STEPS; i++) {
       // Attempt to move along X axis
       if (!collidedX) {
         const { x: oldX } = entity.position;
-        entity.addPositionXY(entity.vectorBuffer.x, 0);
+        entity.addPositionXY(entity.vectorBuffer1.x, 0);
 
         for (let j = 0; j < this.geometry.length; j++) {
           const shape = this.geometry[j];
@@ -117,7 +134,7 @@ class WorldManager {
             // Revert to last valid position
             // Emit collision event
             entity.setPositionXY(oldX, entity.position.y);
-            entity.force.setXY(0, entity.force.y);
+            entity.velocity.setXY(entity.velocity.x * -entity.bounce, entity.velocity.y);
             collidedX = true;
             break;
           }
@@ -126,7 +143,7 @@ class WorldManager {
 
       if (!collidedY) {
         const { y: oldY } = entity.position;
-        entity.addPositionXY(0, entity.vectorBuffer.y);
+        entity.addPositionXY(0, entity.vectorBuffer1.y);
 
         for (let j = 0; j < this.geometry.length; j++) {
           const shape = this.geometry[j];
@@ -134,7 +151,7 @@ class WorldManager {
             // Then we cannot move here
             // Revert to last valid position
             entity.setPositionXY(entity.position.x, oldY);
-            entity.force.setXY(entity.force.x, 0);
+            entity.velocity.setXY(entity.velocity.x, entity.velocity.y * -entity.bounce);
             collidedY = true;
             break;
           }

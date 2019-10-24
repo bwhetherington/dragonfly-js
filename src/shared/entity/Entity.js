@@ -21,8 +21,9 @@ class Entity {
   constructor() {
     this.position = new Vector(0, 0);
     this.velocity = new Vector(0, 0);
-    this.force = new Vector(0, 0);
-    this.vectorBuffer = new Vector(0, 0);
+    this.acceleration = new Vector(0, 0);
+    this.vectorBuffer1 = new Vector(0, 0);
+    this.vectorBuffer2 = new Vector(0, 0);
     this.graphicsObject = null;
     this.markedForDelete = false;
     this.boundingBox = new Rectangle(0, 0, 30, 30);
@@ -33,6 +34,8 @@ class Entity {
     this.isCollidable = true;
     this.movementSpeed = 0;
     this.isSlow = false;
+    this.friction = 0;
+    this.bounce = 0;
   }
 
   registerHandler(type, handler) {
@@ -60,7 +63,7 @@ class Entity {
   }
 
   applyForce(vector) {
-    this.force.add(vector);
+    this.velocity.add(vector);
   }
 
   setID(id) {
@@ -100,7 +103,6 @@ class Entity {
 
   step(step, dt) {
     WM.move(this, dt);
-    this.force.decay(dt * 200);
   }
 
   markForDelete() {

@@ -13,15 +13,26 @@ class Projectile extends Entity {
     super();
     this.sourceID = sourceID;
     this.boundingBox = new Rectangle(0, 0, 20, 20);
+    this.bounce = 1;
+    this.timer = 0;
     this.updatePosition();
 
     if (isServer()) {
-      this.registerHandler('GEOMETRY_COLLISION', event => {
-        const { object } = event;
-        if (object.id === this.id) {
+      this.registerHandler('STEP', data => {
+        this.timer += data.dt;
+        if (this.timer >= 1) {
           this.markForDelete();
         }
-      })
+      });
+      // this.registerHandler('GEOMETRY_COLLISION', event => {
+      //   const { object } = event;
+      //   if (object.id === this.id) {
+      //     this.bounces += 1;
+      //     if (this.bounces = 1000) {
+      //       this.markForDelete();
+      //     }
+      //   }
+      // });
 
       this.registerHandler('OBJECT_COLLISION', event => {
         const { object1, object2 } = event;
@@ -42,14 +53,14 @@ class Projectile extends Entity {
             this.velocity.scale(scale);
             other.applyForce(this.velocity);
           }
-          if(!(other instanceof PickUp)){
+          if (!(other instanceof PickUp)) {
             this.markForDelete();
           }
         }
       });
     }
 
-   //as AM.playSoundInternal('fire.wav', 0.1);
+    //as AM.playSoundInternal('fire.wav', 0.1);
   }
 
   initializeGraphics(two) {

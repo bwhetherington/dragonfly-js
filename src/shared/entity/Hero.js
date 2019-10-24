@@ -38,6 +38,8 @@ class Hero extends Entity {
     this.damageAmount = 0;
     this.cannonAngle = 0;
     this.weapon = new Raygun();
+    this.friction = 1;
+    this.bounce = 0.6;
 
     this.registerHandler('OBJECT_COLLISION', event => {
       const { object1, object2 } = event;
@@ -76,21 +78,21 @@ class Hero extends Entity {
     this.input[direction] = on;
 
     // Calculate velocity from this
-    this.velocity.setXY(0, 0);
+    this.acceleration.setXY(0, 0);
     if (input.up) {
-      this.velocity.setY(this.velocity.y - 1);
+      this.acceleration.setY(this.acceleration.y - 1);
     }
     if (input.down) {
-      this.velocity.setY(this.velocity.y + 1);
+      this.acceleration.setY(this.acceleration.y + 1);
     }
     if (input.left) {
-      this.velocity.setX(this.velocity.x - 1);
+      this.acceleration.setX(this.acceleration.x - 1);
     }
     if (input.right) {
-      this.velocity.setX(this.velocity.x + 1);
+      this.acceleration.setX(this.acceleration.x + 1);
     }
-    this.velocity.normalize();
-    this.velocity.scale(this.movementSpeed);
+    this.acceleration.normalize();
+    this.acceleration.scale(this.movementSpeed);
   }
 
   createOffset(magnitude = 0.1) {
