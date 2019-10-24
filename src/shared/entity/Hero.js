@@ -7,6 +7,7 @@ import AM from '../audio/AudioManager';
 import Ray from './Ray';
 import Pistol from './Pistol';
 import Shotgun from './Shotgun';
+import Raygun from './Raygun';
 
 const MOVEMENT_SPEED = 300;
 
@@ -23,7 +24,7 @@ class Hero extends Entity {
     };
     this.damageAmount = 0;
     this.cannonAngle = 0;
-    this.weapon = new Pistol();
+    this.weapon = new Raygun();
 
     this.registerHandler('OBJECT_COLLISION', event => {
       const { object1, object2 } = event;
