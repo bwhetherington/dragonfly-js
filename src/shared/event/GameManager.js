@@ -42,6 +42,7 @@ class GameManager {
 
   handleEvent(event) {
     const { type, data } = event;
+
     if (type === 'ANY') {
       for (const type in this.handlers) {
         for (const handlerID in this.handlers[type]) {

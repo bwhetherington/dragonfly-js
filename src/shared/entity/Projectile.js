@@ -76,7 +76,8 @@ class Projectile extends Entity {
     const event = {
       type: 'HIT_OBJECT',
       data: {
-        sourceID: this.id,
+        sourceID: this.sourceID,
+        projectileID: this.id,
         hitID: entity.id
       }
     };

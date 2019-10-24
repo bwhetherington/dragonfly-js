@@ -9,6 +9,7 @@ import Pistol from './Pistol';
 import Shotgun from './Shotgun';
 import Raygun from './Raygun';
 import Weapon from './Weapon';
+import { isServer, isClient } from '../util/util';
 
 const MOVEMENT_SPEED = 300;
 
@@ -38,9 +39,15 @@ class Hero extends Entity {
     };
     this.damageAmount = 0;
     this.cannonAngle = 0;
-    this.setWeapon(Raygun);
+    this.setWeapon(Pistol);
     this.friction = 1;
     this.bounce = 0.6;
+    this.score = 0;
+    this.deathTimer = -1;
+    this.deathAmount = 1;
+    this.invilTimer = -1;
+    this.invilAmount = 2;
+
 
     this.registerHandler('OBJECT_COLLISION', event => {
       const { object1, object2 } = event;
@@ -63,15 +70,68 @@ class Hero extends Entity {
         vector.scale(2);
         other.applyForce(vector);
       }
-    })
+    });
+
+    this.registerHandler('STEP', event => {
+      const { dt } = event;
+      if (isClient()) {
+        return;
+      }
+      if (this.invilTimer !== -1) {
+        this.invilTimer -= dt;
+        if (this.invilTimer <= 0) {
+          this.invilTimer = -1;
+          this.updateOpacity(1);
+        }
+      }
+
+      if (this.deathTimer !== -1) {
+        this.deathTimer -= dt;
+        if (this.deathTimer <= 0) {
+          this.deathTimer = -1;
+          this.respawn(0, 0);
+          this.invilTimer = this.invilAmount;
+        }
+      }
+    });
   }
 
   setSlow(value) {
     this.isSlow = value;
   }
 
-  damage(amount) {
+  damage(amount, sourceID) {
+    if (this.invilTimer !== -1) {
+      return;
+    }
     this.damageAmount += amount;
+    this.updateColor();
+    if (this.damageAmount >= 5) {
+      this.kill(sourceID);
+    }
+  }
+
+  kill(killerID) {
+    this.damageAmount = 0;
+    this.velocity.setXY(0, 0);
+    this.updateOpacity(0);
+    this.isCollidable = false;
+    this.deathTimer = this.deathAmount;
+    const event = {
+      type: 'PLAYER_KILLED',
+      data: {
+        deadID: this.id,
+        killerID: killerID
+      }
+    };
+
+    GM.emitEvent(event);
+  }
+
+  respawn(x, y) {
+    this.setPositionXY(x, y);
+    this.updateOpacity(.8);
+    this.isCollidable = true;
   }
 
   setInput(direction, on) {
@@ -105,7 +165,10 @@ class Hero extends Entity {
       ...super.serialize(),
       playerID: this.playerID,
       cannonAngle: this.cannonAngle,
-      damageAmount: this.damageAmount
+      damageAmount: this.damageAmount,
+      score: this.score,
+      deathTimer: this.deathTimer,
+      invilTimer: this.invilTimer
     };
     if (this.weapon instanceof Weapon) {
       obj.weapon = this.weapon.serialize();
@@ -128,6 +191,9 @@ class Hero extends Entity {
     if (obj.cannonAngle !== undefined) {
       this.rotateCannon(obj.cannonAngle);
     }
+    if (obj.score !== undefined) {
+      this.score = obj.score;
+    }
     if (obj.damageAmount !== undefined) {
       this.damageAmount = obj.damageAmount;
     }
@@ -138,6 +204,26 @@ class Hero extends Entity {
         this.weapon.deserialize(obj.weapon);
       }
     }
+    if (obj.deathTimer !== undefined) {
+      if (obj.deathTimer !== -1 || this.deathTimer !== -1) {
+        if (obj.deathTimer > 0) {
+          this.updateOpacity(0);
+          this.isCollidable = false;
+        }
+      }
+      this.deathTimer = obj.deathTimer;
+    }
+
+    if (obj.invilTimer !== undefined) {
+      if (obj.invilTimer !== -1 || this.invilTimer !== -1) {
+        if (obj.invilTimer > 0) {
+          this.updateOpacity(0.8);
+        } else {
+          this.updateOpacity(1);
+        }
+      }
+    }
+    this.invilTimer = obj.invilTimer;
   }
 
   fireXY(fx, fy) {

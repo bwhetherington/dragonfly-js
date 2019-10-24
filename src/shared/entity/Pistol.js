@@ -36,11 +36,11 @@ class Pistol extends Weapon {
     bullet.setPosition(sourceHero.position);
     bullet.position.add(offset);
     bullet.registerHandler('HIT_OBJECT', event => {
-      const { hitID, sourceID } = event;
-      if (sourceID === bullet.id) {
+      const { hitID, sourceID, projectileID } = event;
+      if (projectileID === bullet.id) {
         const object = WM.findByID(hitID);
         if (object) {
-          object.damage(1);
+          object.damage(1, sourceID);
         }
       }
     });

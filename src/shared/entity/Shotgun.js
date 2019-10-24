@@ -26,7 +26,6 @@ class Shotgun extends Weapon {
 
       vector.addXY(sourceHero.createOffset(0.5), sourceHero.createOffset(0.5));
       vector.normalize();
-
       const bullet = new Projectile(sourceHero.id);
       bullet.velocity.set(vector);
 
@@ -38,11 +37,11 @@ class Shotgun extends Weapon {
       bullet.setPosition(sourceHero.position);
       bullet.position.add(offset);
       bullet.registerHandler('HIT_OBJECT', event => {
-        const { hitID, sourceID } = event;
-        if (sourceID === bullet.id) {
+        const { hitID, sourceID, projectileID } = event;
+        if (projectileID === bullet.id) {
           const object = WM.findByID(hitID);
           if (object) {
-            object.damage(2);
+            object.damage(2, sourceID);
           }
         }
       });

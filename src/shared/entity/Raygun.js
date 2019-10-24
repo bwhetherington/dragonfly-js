@@ -20,11 +20,11 @@ class Raygun extends Weapon {
     ray.position.set(sourceHero.position);
     ray.castRay({ x: fx, y: fy });
     ray.registerHandler('HIT_OBJECT', event => {
-      const { hitID, sourceID } = event;
-      if (sourceID === ray.id) {
+      const { hitID, sourceID, projectileID } = event;
+      if (projectileID === ray.id) {
         const object = WM.findByID(hitID);
         if (object) {
-          object.damage(10);
+          object.damage(10, sourceID);
         }
       }
     });
