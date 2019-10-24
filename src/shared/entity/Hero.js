@@ -39,7 +39,7 @@ class Hero extends Entity {
     };
     this.damageAmount = 0;
     this.cannonAngle = 0;
-    this.setWeapon(Pistol);
+    this.setWeapon(Raygun);
     this.friction = 1;
     this.bounce = 0.6;
     this.score = 0;

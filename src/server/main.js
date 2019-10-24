@@ -8,6 +8,7 @@ import Vector from '../shared/util/Vector';
 import ShotgunPickUp from '../shared/entity/ShotgunPickUp';
 import { readFileSync } from 'fs';
 import Pistol from '../shared/entity/Pistol';
+import Rectangle from '../shared/util/Rectangle';
 
 const REFRESH_RATE = 60;
 
@@ -33,6 +34,8 @@ class GameServer extends Server {
     this.send({
       type: 'DEFINE_ARENA',
       data: {
+        friction: WM.friction,
+        ice: WM.icePatches.map(shape => ({ type: shape.constructor.name, ...shape })),
         geometry: WM.geometry.map(shape => ({ type: shape.constructor.name, ...shape }))
       }
     }, socketIndex);
@@ -53,15 +56,15 @@ class GameServer extends Server {
     });
 
     hero.registerHandler('OBJECT_HIT', event => {
-      const{ sourceID } = event;
-      if(hero.id === sourceID){
+      const { sourceID } = event;
+      if (hero.id === sourceID) {
         hero.score += 10;
       }
     });
 
     hero.registerHandler('PLAYER_KILLED', event => {
       const { killerID } = event;
-      if(hero.id === killerID){
+      if (hero.id === killerID) {
         hero.score += 100;
       }
     })
@@ -135,9 +138,15 @@ class GameServer extends Server {
 
     // Load level
     const levelString = readFileSync('level.json', 'utf-8');
-    const levelGeometry = JSON.parse(levelString);
+    const level = JSON.parse(levelString);
 
-    WM.setGeomtetry(levelGeometry);
+    WM.setGeomtetry(level.geometry);
+    if (level.friction !== undefined) {
+      WM.friction = level.friction;
+    }
+    if (level.features !== undefined) {
+      WM.icePatches = level.features.map(({ x, y, width, height }) => new Rectangle(x, y, width, height));
+    }
     const pickShotgun = new ShotgunPickUp(new Vector(50, 80));
     WM.add(pickShotgun);
   }

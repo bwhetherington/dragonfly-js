@@ -79,8 +79,20 @@ class WorldManager {
 
   move(entity, dt) {
     // vb1 = a * t
+    let { friction } = this;
+    const { boundingBox } = entity;
+
+    if (entity.friction > 0) {
+      for (const icePatch of this.icePatches) {
+        if (icePatch.intersects(boundingBox)) {
+          friction /= 20;
+          break;
+        }
+      }
+    }
+
     entity.vectorBuffer1.set(entity.acceleration);
-    entity.vectorBuffer1.scale(entity.friction * this.friction * dt);
+    entity.vectorBuffer1.scale(entity.friction * friction * dt);
 
     // v += a * t
     entity.velocity.add(entity.vectorBuffer1);
@@ -89,7 +101,7 @@ class WorldManager {
 
     // Calculate friction and apply to velocity
     // friction = -µ * v * t
-    entity.vectorBuffer1.scale(-entity.friction * this.friction * dt);
+    entity.vectorBuffer1.scale(-entity.friction * friction * dt);
 
     // velocity += friction
     entity.velocity.add(entity.vectorBuffer1);

@@ -4,6 +4,7 @@ import GameClient from './GameClient';
 import WM from '../shared/entity/WorldManager';
 import GM from '../shared/event/GameManager';
 import AM from '../shared/audio/AudioManager';
+import Rectangle from '../shared/util/Rectangle';
 
 const removeChildren = element => {
   while (element.firstChild) {
@@ -51,7 +52,10 @@ const main = async () => {
   };
 
   GM.registerHandler('DEFINE_ARENA', event => {
-    const { geometry } = event;
+    const { geometry, ice } = event;
+
+    WM.icePatches = ice.map(({ x, y, width, height }) => new Rectangle(x, y, width, height));
+
     WM.setGeomtetry(geometry);
     for (const shape of geometry) {
       const { type, x, y, width, height } = shape;
@@ -67,6 +71,14 @@ const main = async () => {
           rectangle.linewidth = 5;
           break;
       }
+    }
+
+    for (const patch of ice) {
+      const { x, y, width, height } = patch;
+      const rectangle = two.makeRectangle(x, y, width, height);
+      rectangle.fill = 'rgba(150, 180, 255, 0.5)';
+      rectangle.stroke = 'lightgrey';
+      rectangle.linewidth = 5;
     }
   })
 
