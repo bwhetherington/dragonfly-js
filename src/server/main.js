@@ -50,6 +50,20 @@ class GameServer extends Server {
       if (playerID === socketIndex && hero.playerID === playerID) {
         hero.rotateCannon(angle);
       }
+    });
+
+    hero.registerHandler('OBJECT_HIT', event => {
+      const{ sourceID } = event;
+      if(hero.id === sourceID){
+        hero.score += 10;
+      }
+    });
+
+    hero.registerHandler('PLAYER_KILLED', event => {
+      const { killerID } = event;
+      if(hero.id === killerID){
+        hero.score += 100;
+      }
     })
 
   }

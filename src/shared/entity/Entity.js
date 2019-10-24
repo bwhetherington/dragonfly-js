@@ -159,6 +159,13 @@ class Entity {
     }
   }
 
+  updateOpacity(opacity) {
+    const { graphicsObject } = this;
+    if (graphicsObject) {
+      graphicsObject.opacity = opacity;
+    }
+  }
+
   initializeGraphics(two) {
     const object = two.makeRectangle(this.position.x, this.position.y, 30, 30);
     object.linewidth = 5;

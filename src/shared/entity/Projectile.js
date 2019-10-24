@@ -72,11 +72,12 @@ class Projectile extends Entity {
   }
 
   hit(entity) {
-    entity.damage(1);
+    entity.damage(1, this.sourceID);
     const event = {
-      type: 'HIT_OBJECT',
+      type: 'OBJECT_HIT',
       data: {
-        object: entity
+        object: entity,
+        sourceID: this.sourceID
       }
     };
 

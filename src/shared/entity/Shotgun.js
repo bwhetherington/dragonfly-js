@@ -42,7 +42,6 @@ class Shotgun extends Weapon {
 
       vector.addXY(sourceHero.createOffset(0.5), sourceHero.createOffset(0.5));
       vector.normalize();
-
       const bullet = new Projectile(sourceHero.id);
       bullet.velocity.set(vector);
 
@@ -56,7 +55,6 @@ class Shotgun extends Weapon {
       WM.add(bullet);
     }
     this.delayTimer = this.delayAmount;
-    //AM.playSoundInternal('fire.wav');
     AM.playSound('fire.wav');
   }
 

@@ -22,10 +22,12 @@ class GameClient extends Client {
     GM.registerHandler('STEP', event => {
       const { dt } = event;
       let hits = 0;
+      let score = 0;
       const hero = this.hero;
 
       if (hero) {
         hits = hero.damageAmount;
+        score = hero.score;
       }
 
       const curFPS = 1 / dt;
@@ -38,6 +40,9 @@ class GameClient extends Client {
 
       const hitLabel = document.getElementById('hit-count');
       hitLabel.innerText = hits;
+
+      const scoreLabel = document.getElementById('score-count');
+      scoreLabel.innerText = score;
 
       const entityLabel = document.getElementById('entity-count');
       entityLabel.innerText = entityCount;
