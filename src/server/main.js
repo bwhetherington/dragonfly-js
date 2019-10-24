@@ -5,7 +5,9 @@ import delayServer from '../shared/network/DelayServer';
 import WM from '../shared/entity/WorldManager';
 import Hero from '../shared/entity/Hero';
 import Vector from '../shared/util/Vector';
+import ShotgunPickUp from '../shared/entity/ShotgunPickUp';
 import { readFileSync } from 'fs';
+import Pistol from '../shared/entity/Pistol';
 
 const REFRESH_RATE = 60;
 
@@ -77,6 +79,9 @@ class GameServer extends Server {
         case 'KeyF':
           hero.applyForce(new Vector(100, 0));
           break;
+        case 'KeyQ':
+          hero.equipWeapon(Pistol);
+          break;
         case 'ShiftLeft':
         case 'ShiftRight':
           hero.setSlow(true);
@@ -110,7 +115,7 @@ class GameServer extends Server {
         type: 'PLAY_AUDIO',
         data
       };
-      
+
       this.send(event);
     });
 
@@ -119,6 +124,8 @@ class GameServer extends Server {
     const levelGeometry = JSON.parse(levelString);
 
     WM.setGeomtetry(levelGeometry);
+    const pickShotgun = new ShotgunPickUp(new Vector(50, 80));
+    WM.add(pickShotgun);
   }
 
   onMessage(message, socketIndex) {

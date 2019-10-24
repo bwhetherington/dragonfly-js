@@ -24,7 +24,7 @@ class Hero extends Entity {
     };
     this.damageAmount = 0;
     this.cannonAngle = 0;
-    this.weapon = new Raygun();
+    this.weapon = new Pistol();
 
     this.registerHandler('OBJECT_COLLISION', event => {
       const { object1, object2 } = event;
@@ -83,6 +83,10 @@ class Hero extends Entity {
 
   createOffset (magnitude = 0.1){
     return (Math.random() - 0.5) * 2 * magnitude;
+  }
+
+  equipWeapon (WeaponClass){
+    this.weapon = new WeaponClass;
   }
 
   serialize() {

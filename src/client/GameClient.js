@@ -8,6 +8,7 @@ import Explosion from '../shared/entity/Explosion';
 import Laser from '../shared/entity/Laser';
 import Vector from '../shared/util/Vector';
 import AM from '../shared/audio/AudioManager';
+import ShotgunPickUp from '../shared/entity/ShotgunPickUp';
 
 class GameClient extends Client {
   constructor(two, addr) {
@@ -179,6 +180,9 @@ class GameClient extends Client {
       case 'Explosion':
         const explosion = new Explosion();
         return explosion;
+      case 'ShotgunPickUp':
+        const shotgunPickUp = new ShotgunPickUp();
+        return shotgunPickUp;
       default:
         return null;
     }

@@ -6,6 +6,7 @@ import WM from './WorldManager';
 import { isClient, isServer } from '../util/util';
 import AM from '../audio/AudioManager';
 import Hero from '../entity/Hero';
+import PickUp from './PickUp';
 
 class Projectile extends Entity {
   constructor(sourceID = null) {
@@ -41,7 +42,9 @@ class Projectile extends Entity {
             this.velocity.scale(scale);
             other.applyForce(this.velocity);
           }
-          this.markForDelete();
+          if(!(other instanceof PickUp)){
+            this.markForDelete();
+          }
         }
       });
     }
