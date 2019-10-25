@@ -48,7 +48,7 @@ class Projectile extends Entity {
         }
         if (other !== null) {
           this.hit(other);
-          if (other instanceof Hero) {
+          if (other instanceof Hero && !other.isInvincible) {
             const scale = Math.max(other.damageAmount, 10) * 10;
             this.velocity.normalize();
             this.velocity.scale(scale);

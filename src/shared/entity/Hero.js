@@ -230,6 +230,10 @@ class Hero extends Entity {
     this.weapon.fireInternal(fx, fy, this);
   }
 
+  get isInvincible(){
+    return this.invilTimer !== -1;
+  }
+
   initializeGraphics(two) {
     const object = two.makeRectangle(0, 0, 30, 30);
     object.linewidth = 5;
