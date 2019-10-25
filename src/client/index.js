@@ -80,6 +80,8 @@ const main = async () => {
       rectangle.stroke = 'lightgrey';
       rectangle.linewidth = 5;
     }
+
+    WM.initializeGraphics(two);
   })
 
   WM.initialize();

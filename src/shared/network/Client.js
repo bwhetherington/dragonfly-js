@@ -101,7 +101,7 @@ class Client {
     NM.initialize(this);
 
     GM.registerHandler('CREATE_OBJECT', event => {
-      event.object.initializeGraphics(this.two);
+      event.object.initializeGraphicsInternal(this.two);
     });
 
     // Batch sync
@@ -120,6 +120,7 @@ class Client {
       for (let i = 0; i < event.ids.length; i++) {
         const id = event.ids[i];
         const entity = WM.findByID(id);
+        console
         if (entity) {
           entity.markForDelete();
         }

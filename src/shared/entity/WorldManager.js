@@ -14,6 +14,32 @@ class WorldManager {
     this.setBounds(0, 0, 500, 500);
     this.geometry = [];
     this.friction = 5;
+    this.background = null;
+    this.foreground = null;
+  }
+
+  initialize(two) {
+    this.backround = two.makeGroup();
+    this.foreground = two.makeGroup();
+    const scene = two.makeGroup(this.background, this.foreground);
+  }
+
+  addForeground(graphics) {
+    if (graphics && this.foreground) {
+      this.foreground.add(graphics);
+    }
+  }
+
+  addBackground(graphics) {
+    if (graphics && this.background) {
+      this.background.add(graphics);
+    }
+  }
+
+  initializeGraphics(two) {
+    for (const id in this.entities) {
+      this.entities[id].initializeGraphicsInternal(two);
+    }
   }
 
   setEntityGenerator(generator) {
@@ -222,7 +248,7 @@ class WorldManager {
     this.bounds = { x, y, width, height };
   }
 
-  sync(server) {
+  sync(server, socket = -1) {
     const batch = [];
     for (const id in this.entities) {
       const entity = this.entities[id];
@@ -236,7 +262,7 @@ class WorldManager {
         data: {
           objects: batch
         }
-      });
+      }, socket);
     }
     if (this.deleted.length > 0) {
       server.send({
@@ -244,7 +270,7 @@ class WorldManager {
         data: {
           ids: this.deleted
         }
-      });
+      }, socket);
       this.deleted = [];
     }
   }

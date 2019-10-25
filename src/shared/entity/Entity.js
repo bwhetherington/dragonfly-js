@@ -174,11 +174,19 @@ class Entity {
     }
   }
 
+  initializeGraphicsInternal(two) {
+    if (this.initializeGraphics) {
+      two.remove(this.initializeGraphics);
+    }
+    this.initializeGraphics(two);
+  }
+
   initializeGraphics(two) {
     const object = two.makeRectangle(this.position.x, this.position.y, 30, 30);
     object.linewidth = 5;
     this.graphicsObject = object;
     this.updateColor();
+
   }
 
   damage(amount) { }

@@ -19,6 +19,8 @@ class GameServer extends Server {
   }
 
   onOpen(socketIndex) {
+    super.onOpen(socketIndex);
+
     // Create hero for player
     const hero = new Hero(socketIndex);
     WM.add(hero);
@@ -166,7 +168,7 @@ class GameServer extends Server {
 }
 
 const main = async () => {
-  const server = new (delayServer(GameServer, 0.1))(4);
+  const server = new (delayServer(GameServer, 0.15))(4);
   server.initialize();
 
   WM.initialize();

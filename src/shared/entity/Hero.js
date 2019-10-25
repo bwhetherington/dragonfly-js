@@ -214,7 +214,7 @@ class Hero extends Entity {
       const dx = x1 - x0;
       const dy = y1 - y0;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (0 < dist && dist < 50) {
+      if (0 < dist && dist < 60) {
         this.position.setXY(x0, y0);
         this.velocity.setXY(vx, vy);
         this.acceleration.setXY(ax, ay);

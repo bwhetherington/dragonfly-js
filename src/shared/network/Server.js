@@ -84,7 +84,9 @@ class Server {
     GM.emitEvent(message);
   }
 
-  onOpen(socketIndex) { }
+  onOpen(socketIndex) {
+    WM.sync(this, socketIndex);
+  }
 
   onClose(socketIndex) { }
 
