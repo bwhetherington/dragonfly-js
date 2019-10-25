@@ -10,6 +10,7 @@ import Shotgun from './Shotgun';
 import Raygun from './Raygun';
 import Weapon from './Weapon';
 import { isServer, isClient } from '../util/util';
+import NM from '../network/NetworkManager';
 
 const MOVEMENT_SPEED = 300;
 
@@ -29,6 +30,22 @@ const COLORS = [
 class Hero extends Entity {
   constructor(playerID = -1) {
     super();
+    // if (isClient()) {
+    //   this.position = new Proxy(this.position, {
+    //     get(obj, prop) {
+    //       return obj[prop];
+    //     },
+
+    //     set(obj, prop, value) {
+    //       obj[prop] = value;
+    //       if (value === undefined || Number.isNaN(value)) {
+    //         debugger;
+    //         console.log(`${prop} = ${value}`);
+    //       }
+    //       return true;
+    //     }
+    //   });
+    // }
     this.movementSpeed = MOVEMENT_SPEED;
     this.playerID = playerID;
     this.input = {
@@ -183,12 +200,42 @@ class Hero extends Entity {
     }
   }
 
+  isCurrentHero() {
+    return GM.hero && this.playerID === GM.hero.playerID;
+  }
+
   deserialize(obj) {
+    const { x: x0, y: y0 } = this.position;
+    const { x: vx, y: vy } = this.velocity;
+    const { x: ax, y: ay } = this.acceleration;
     super.deserialize(obj);
+    const { x: x1, y: y1 } = this.position;
+    if (this.isCurrentHero()) {
+      const dx = x1 - x0;
+      const dy = y1 - y0;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (0 < dist && dist < 50) {
+        this.position.setXY(x0, y0);
+        this.velocity.setXY(vx, vy);
+        this.acceleration.setXY(ax, ay);
+        NM.send({
+          type: 'SYNC_OBJECT',
+          data: {
+            object: {
+              id: this.id,
+              position: this.position,
+              velocity: this.velocity,
+              acceleration: this.acceleration
+            }
+          }
+        });
+      }
+      this.updatePosition();
+    }
     if (obj.playerID > -1) {
       this.playerID = obj.playerID;
     }
-    if (obj.cannonAngle !== undefined) {
+    if (obj.cannonAngle !== undefined && !this.isCurrentHero()) {
       this.rotateCannon(obj.cannonAngle);
     }
     if (obj.score !== undefined) {
@@ -222,8 +269,8 @@ class Hero extends Entity {
           this.updateOpacity(1);
         }
       }
+      this.invilTimer = obj.invilTimer;
     }
-    this.invilTimer = obj.invilTimer;
   }
 
   fireXY(fx, fy) {

@@ -9,6 +9,7 @@ import Laser from '../shared/entity/Laser';
 import Vector from '../shared/util/Vector';
 import AM from '../shared/audio/AudioManager';
 import ShotgunPickUp from '../shared/entity/ShotgunPickUp';
+import Pistol from '../shared/entity/Pistol';
 
 class GameClient extends Client {
   constructor(two, addr) {
@@ -23,7 +24,7 @@ class GameClient extends Client {
       const { dt } = event;
       let hits = 0;
       let score = 0;
-      const hero = this.hero;
+      const { hero } = this;
 
       if (hero) {
         hits = hero.damageAmount;
@@ -58,6 +59,35 @@ class GameClient extends Client {
   registerInput() {
     // Register handlers to send to server
     GM.registerHandler('KEY_DOWN', event => {
+      // Process locally
+      const { hero } = this;
+      if (hero) {
+        switch (event.key) {
+          case 'KeyW':
+            hero.setInput('up', true);
+            break;
+          case 'KeyS':
+            hero.setInput('down', true);
+            break;
+          case 'KeyA':
+            hero.setInput('left', true);
+            break;
+          case 'KeyD':
+            hero.setInput('right', true);
+            break;
+          case 'KeyF':
+            hero.applyForce(new Vector(100, 0));
+            break;
+          case 'KeyQ':
+            hero.setWeapon(Pistol);
+            break;
+          case 'ShiftLeft':
+          case 'ShiftRight':
+            hero.setSlow(true);
+            break;
+        };
+      }
+
       this.send({
         type: 'KEY_DOWN',
         data: event
@@ -65,6 +95,28 @@ class GameClient extends Client {
     });
 
     GM.registerHandler('KEY_UP', event => {
+      const { hero } = this;
+      if (hero) {
+        switch (event.key) {
+          case 'KeyW':
+            hero.setInput('up', false);
+            break;
+          case 'KeyS':
+            hero.setInput('down', false);
+            break;
+          case 'KeyA':
+            hero.setInput('left', false);
+            break;
+          case 'KeyD':
+            hero.setInput('right', false);
+            break;
+          case 'ShiftLeft':
+          case 'ShiftRight':
+            hero.setSlow(false);
+            break;
+        };
+      }
+
       this.send({
         type: 'KEY_UP',
         data: event
@@ -100,6 +152,7 @@ class GameClient extends Client {
 
   initializeHero(hero) {
     this.hero = hero;
+    GM.hero = hero;
     this.attachCamera(hero);
     hero.registerHandler('MOUSE_MOVE', event => {
       const { x, y } = event.position;

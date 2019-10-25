@@ -1,5 +1,6 @@
 import GM from '../event/GameManager';
 import WM from '../entity/WorldManager';
+import NM from './NetworkManager';
 
 const transformClientCoordinates = (two, x, y) => {
   return {
@@ -92,26 +93,12 @@ class Client {
   }
 
   syncObject(object) {
-    let existing = WM.findByID(object.id);
-    let created = false;
-    if (!existing) {
-      const newObject = WM.generateEntity(object.type);
-      if (newObject) {
-        newObject.setID(object.id);
-        existing = newObject;
-        created = true;
-      }
-    }
-    if (existing) {
-      existing.deserialize(object);
-      if (created) {
-        WM.add(existing);
-      }
-    }
+    WM.receiveSyncObject(object);
   }
 
   initialize(window) {
     attachInput(this.two, window);
+    NM.initialize(this);
 
     GM.registerHandler('CREATE_OBJECT', event => {
       event.object.initializeGraphics(this.two);
@@ -126,7 +113,7 @@ class Client {
 
     // Single sync
     GM.registerHandler('SYNC_OBJECT', event => {
-      this.syncObject(event.object);
+      WM.receiveSyncObject(event.object);
     });
 
     GM.registerHandler('SYNC_DELETE_OBJECT_BATCH', event => {

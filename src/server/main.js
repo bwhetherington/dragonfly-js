@@ -151,22 +151,22 @@ class GameServer extends Server {
     WM.add(pickShotgun);
   }
 
-  onMessage(message, socketIndex) {
-    super.onMessage(message, socketIndex);
-    // Attach socket index
-    const event = {
-      type: message.type,
-      data: {
-        ...message.data,
-        socketIndex: socketIndex
-      }
-    };
-    GM.emitEvent(event);
-  }
+  // onMessage(message, socketIndex) {
+  //   super.onMessage(message, socketIndex);
+  //   // Attach socket index
+  //   const event = {
+  //     type: message.type,
+  //     data: {
+  //       ...message.data,
+  //       socketIndex: socketIndex
+  //     }
+  //   };
+  //   GM.emitEvent(event);
+  // }
 }
 
 const main = async () => {
-  const server = new (delayServer(GameServer, -1))(4);
+  const server = new (delayServer(GameServer, 0))(4);
   server.initialize();
 
   WM.initialize();

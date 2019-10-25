@@ -134,17 +134,21 @@ class Entity {
       type: this.type,
       id: this.id,
       position: this.position,
-      velocity: this.velocity
+      velocity: this.velocity,
+      acceleration: this.acceleration
     };
   }
 
   deserialize(obj) {
-    const { position, velocity } = obj;
+    const { position, velocity, acceleration } = obj;
     if (position) {
       this.position.set(position);
     }
     if (velocity) {
       this.velocity.set(velocity);
+    }
+    if (acceleration) {
+      this.acceleration.set(acceleration);
     }
   }
 

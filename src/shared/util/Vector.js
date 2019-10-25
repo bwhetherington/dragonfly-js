@@ -33,6 +33,10 @@ class Vector {
     this.y *= scalar;
   }
 
+  clone() {
+    return new Vector(this.x, this.y);
+  }
+
   normalize() {
     const magnitude = this.magnitude;
     if (magnitude === 0) {

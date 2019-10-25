@@ -82,14 +82,14 @@ class WorldManager {
     let { friction } = this;
     const { boundingBox } = entity;
 
-    if (entity.friction > 0) {
-      for (const icePatch of this.icePatches) {
-        if (icePatch.intersects(boundingBox)) {
-          friction /= 20;
-          break;
-        }
-      }
-    }
+    // if (entity.friction > 0) {
+    //   for (const icePatch of this.icePatches) {
+    //     if (icePatch.intersects(boundingBox)) {
+    //       friction /= 20;
+    //       break;
+    //     }
+    //   }
+    // }
 
     entity.vectorBuffer1.set(entity.acceleration);
     entity.vectorBuffer1.scale(entity.friction * friction * dt);
@@ -251,6 +251,35 @@ class WorldManager {
 
   getEntityCount() {
     return this.entityCount;
+  }
+
+  syncObjectClient(client, object) {
+    const packet = {
+      type: 'SYNC_OBJECT',
+      data: {
+        object: object.serialize()
+      }
+    };
+    client.send(packet);
+  }
+
+  receiveSyncObject(object) {
+    let existing = this.findByID(object.id);
+    let created = false;
+    if (!existing) {
+      const newObject = this.generateEntity(object.type);
+      if (newObject) {
+        newObject.setID(object.id);
+        existing = newObject;
+        created = true;
+      }
+    }
+    if (existing) {
+      existing.deserialize(object);
+      if (created) {
+        this.add(existing);
+      }
+    }
   }
 }
 

@@ -3,6 +3,8 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 import GM from '../event/GameManager';
+import NM from '../network/NetworkManager';
+import WM from '../entity/WorldManager';
 
 const HTML_FILE = path.join(__dirname, '..', 'client', 'index.html');
 
@@ -27,6 +29,11 @@ class Server {
   initialize() {
     // Create http server
     const httpServer = serveHTTP();
+    NM.initialize(this);
+
+    GM.registerHandler('SYNC_OBJECT', event => {
+      WM.receiveSyncObject(event.object);
+    });
 
     GM.registerHandler('CREATE_RAY', data => {
       this.send({
@@ -72,7 +79,10 @@ class Server {
     }
   }
 
-  onMessage(message, socketIndex) { }
+  onMessage(message, socketIndex) {
+    message.data.socketIndex = socketIndex;
+    GM.emitEvent(message);
+  }
 
   onOpen(socketIndex) { }
 

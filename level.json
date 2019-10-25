@@ -1,14 +1,6 @@
 {
   "friction": 5,
-  "features": [
-    {
-      "type": "IcePatch",
-      "x": 0,
-      "y": 0,
-      "width": 280,
-      "height": 280
-    }
-  ],
+  "features": [],
   "geometry": [
     {
       "type": "InverseRectangle",
