@@ -20,8 +20,21 @@ class GameClient extends Client {
 
   initializeUI() {
     let lastFPS = 60;
-    GM.registerHandler('STEP', event => {
+
+    const PING_INTERVAL = 0.5;
+
+    let timer = 0;
+    GM.registerHandler('STEP', async event => {
       const { dt } = event;
+      timer += dt;
+
+      if (timer >= PING_INTERVAL) {
+        const ping = await this.getPing();
+        const pingLabel = document.getElementById('ping');
+        pingLabel.innerText = ping;
+        timer -= PING_INTERVAL;
+      }
+
       let hits = 0;
       let score = 0;
       const { hero } = this;
@@ -80,6 +93,12 @@ class GameClient extends Client {
             break;
           case 'KeyQ':
             hero.setWeapon(Pistol);
+            break;
+          case 'KeyP':
+            (async () => {
+              const ping = await this.getPing();
+              console.log('ping', ping);
+            })();
             break;
           case 'ShiftLeft':
           case 'ShiftRight':

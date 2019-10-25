@@ -31,6 +31,14 @@ class Server {
     const httpServer = serveHTTP();
     NM.initialize(this);
 
+    GM.registerHandler('PING_CLIENT', data => {
+      const event = {
+        type: 'PING_SERVER',
+        data
+      };
+      NM.send(event, data.playerID);
+    });
+
     GM.registerHandler('SYNC_OBJECT', event => {
       WM.receiveSyncObject(event.object);
     });
