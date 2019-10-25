@@ -135,12 +135,13 @@ class Entity {
       id: this.id,
       position: this.position,
       velocity: this.velocity,
-      acceleration: this.acceleration
+      acceleration: this.acceleration,
+      isCollidable: this.isCollidable
     };
   }
 
   deserialize(obj) {
-    const { position, velocity, acceleration } = obj;
+    const { position, velocity, acceleration, isCollidable } = obj;
     if (position) {
       this.position.set(position);
     }
@@ -149,6 +150,9 @@ class Entity {
     }
     if (acceleration) {
       this.acceleration.set(acceleration);
+    }
+    if (isCollidable) {
+      this.isCollidable = isCollidable;
     }
   }
 
