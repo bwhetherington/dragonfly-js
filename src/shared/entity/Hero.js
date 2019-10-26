@@ -147,7 +147,7 @@ class Hero extends Entity {
 
   respawn(x, y) {
     this.setPositionXY(x, y);
-    this.updateOpacity(.8);
+    this.updateOpacity(0.8);
     this.isCollidable = true;
   }
 
@@ -277,7 +277,7 @@ class Hero extends Entity {
     this.weapon.fireInternal(fx, fy, this);
   }
 
-  get isInvincible(){
+  get isInvincible() {
     return this.invilTimer !== -1;
   }
 
