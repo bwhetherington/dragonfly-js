@@ -17,49 +17,47 @@ class Projectile extends Entity {
     this.timer = 0;
     this.updatePosition();
 
-    if (isServer()) {
-      this.registerHandler('STEP', data => {
-        this.timer += data.dt;
-        if (this.timer >= 1) {
+    this.registerHandler('STEP', data => {
+      this.timer += data.dt;
+      if (this.timer >= 1 && isServer()) {
+        this.markForDelete();
+      }
+    });
+    // this.registerHandler('GEOMETRY_COLLISION', event => {
+    //   const { object } = event;
+    //   if (object.id === this.id) {
+    //     this.bounces += 1;
+    //     if (this.bounces = 1000) {
+    //       this.markForDelete();
+    //     }
+    //   }
+    // });
+
+    this.registerHandler('OBJECT_COLLISION', event => {
+      const { object1, object2 } = event;
+      let other = null;
+      if (object1.id === this.id) {
+        if (object2.id !== this.sourceID && !(object2 instanceof Projectile)) {
+          other = object2;
+        }
+      } else if (object2.id === this.id) {
+        if (object1.id !== this.sourceID && !(object1 instanceof Projectile)) {
+          other = object1;
+        }
+      }
+      if (other !== null) {
+        this.hit(other);
+        if (other instanceof Hero && !other.isInvincible) {
+          const scale = Math.max(other.damageAmount, 10) * 10;
+          this.velocity.normalize();
+          this.velocity.scale(scale);
+          other.applyForce(this.velocity);
+        }
+        if (!(other instanceof PickUp) && isServer()) { 
           this.markForDelete();
         }
-      });
-      // this.registerHandler('GEOMETRY_COLLISION', event => {
-      //   const { object } = event;
-      //   if (object.id === this.id) {
-      //     this.bounces += 1;
-      //     if (this.bounces = 1000) {
-      //       this.markForDelete();
-      //     }
-      //   }
-      // });
-
-      this.registerHandler('OBJECT_COLLISION', event => {
-        const { object1, object2 } = event;
-        let other = null;
-        if (object1.id === this.id) {
-          if (object2.id !== this.sourceID && !(object2 instanceof Projectile)) {
-            other = object2;
-          }
-        } else if (object2.id === this.id) {
-          if (object1.id !== this.sourceID && !(object1 instanceof Projectile)) {
-            other = object1;
-          }
-        }
-        if (other !== null) {
-          this.hit(other);
-          if (other instanceof Hero && !other.isInvincible) {
-            const scale = Math.max(other.damageAmount, 10) * 10;
-            this.velocity.normalize();
-            this.velocity.scale(scale);
-            other.applyForce(this.velocity);
-          }
-          if (!(other instanceof PickUp)) {
-            this.markForDelete();
-          }
-        }
-      });
-    }
+      }
+    });
 
     //as AM.playSoundInternal('fire.wav', 0.1);
   }

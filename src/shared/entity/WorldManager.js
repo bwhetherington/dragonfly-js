@@ -18,24 +18,6 @@ class WorldManager {
     this.foreground = null;
   }
 
-  initialize(two) {
-    this.backround = two.makeGroup();
-    this.foreground = two.makeGroup();
-    const scene = two.makeGroup(this.background, this.foreground);
-  }
-
-  addForeground(graphics) {
-    if (graphics && this.foreground) {
-      this.foreground.add(graphics);
-    }
-  }
-
-  addBackground(graphics) {
-    if (graphics && this.background) {
-      this.background.add(graphics);
-    }
-  }
-
   initializeGraphics(two) {
     for (const id in this.entities) {
       this.entities[id].initializeGraphicsInternal(two);

@@ -175,8 +175,8 @@ class Entity {
   }
 
   initializeGraphicsInternal(two) {
-    if (this.initializeGraphics) {
-      two.remove(this.initializeGraphics);
+    if (this.graphicsObject) {
+      two.remove(this.graphicsObject);
     }
     this.initializeGraphics(two);
   }
