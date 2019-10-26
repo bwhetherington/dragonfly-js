@@ -212,7 +212,7 @@ class Hero extends Entity {
     const { x: x1, y: y1 } = this.position;
     if (this.isCurrentHero()) {
       const dx = x1 - x0;
-      const dy = y1 - y0;adw
+      const dy = y1 - y0;
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (0 < dist && dist < 100 && obj.deathTimer === -1 && this.deathTimer === -1) {
         this.position.setXY(x0, y0);
