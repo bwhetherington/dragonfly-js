@@ -98,7 +98,16 @@ class Hero extends Entity {
         this.invilTimer -= dt;
         if (this.invilTimer <= 0) {
           this.invilTimer = -1;
-          this.updateOpacity(1);
+          const event = {
+            type: 'INVICIBILITY_END',
+            data: {
+              id: this.id,
+            }
+          };
+           GM.emitEvent(event);
+          if(isServer()){
+            NM.send(event);
+          }
         }
       }
 
@@ -106,9 +115,40 @@ class Hero extends Entity {
         this.deathTimer -= dt;
         if (this.deathTimer <= 0) {
           this.deathTimer = -1;
-          this.respawn(0, 0);
+          const event = {
+            type: 'RESPAWN',
+            data: {
+              id: this.id,
+              position: {x: 0, y: 0}
+            }
+          };
+           GM.emitEvent(event);
+          if(isServer()){
+            NM.send(event);
+          }
           this.invilTimer = this.invilAmount;
         }
+      }
+    });
+
+    this.registerHandler('PLAYER_KILLED', event =>{
+      const {deadID} = event;
+       if(this.id === deadID){
+        this.kill(0,0);
+       }
+    });
+
+    this.registerHandler('RESPAWN', event => {
+      const {id} = event;
+      if(this.id === id){
+        this.respawn(0,0);
+      }
+    });
+
+    this.registerHandler('INVICIBILITY_END', event => {
+      const {id} = event;
+      if(this.id === id){
+        this.endInvincibility();
       }
     });
   }
@@ -117,35 +157,41 @@ class Hero extends Entity {
     this.isSlow = value;
   }
 
-  damage(amount, sourceID) {
+  damage(amount, killerID) {
     if (this.invilTimer !== -1) {
       return;
     }
     this.damageAmount += amount;
     this.updateColor();
     if (this.damageAmount >= 5) {
-      this.kill(sourceID);
+      const event = {
+        type: 'PLAYER_KILLED',
+        data: {
+          deadID: this.id,
+          killerID: killerID
+        }
+      };
+       GM.emitEvent(event);
+      if(isServer()){
+        NM.send(event);
+      }
+      this.deathTimer = this.deathAmount;
     }
   }
 
-  kill(killerID) {
-    this.damageAmount = 0;
-    this.velocity.setXY(0, 0);
-    this.updateOpacity(0);
-    this.isCollidable = false;
-    this.deathTimer = this.deathAmount;
-    const event = {
-      type: 'PLAYER_KILLED',
-      data: {
-        deadID: this.id,
-        killerID: killerID
-      }
-    };
-
-    GM.emitEvent(event);
+  endInvincibility(){
+    this.updateOpacity(1);
   }
 
-  respawn(x, y) {
+  kill(x = 0, y = 0) {
+    this.damageAmount = 0;
+    this.velocity.setXY(0, 0);
+    this.setPositionXY(x, y);
+    this.updateOpacity(0);
+    this.isCollidable = false;
+  }
+
+  respawn(x = 0, y = 0) {
     this.setPositionXY(x, y);
     this.updateOpacity(0.8);
     this.isCollidable = true;
@@ -183,9 +229,7 @@ class Hero extends Entity {
       playerID: this.playerID,
       cannonAngle: this.cannonAngle,
       damageAmount: this.damageAmount,
-      score: this.score,
-      deathTimer: this.deathTimer,
-      invilTimer: this.invilTimer
+      score: this.score
     };
     if (this.weapon instanceof Weapon) {
       obj.weapon = this.weapon.serialize();
@@ -232,6 +276,7 @@ class Hero extends Entity {
       }
       this.updatePosition();
     }
+    
     if (obj.playerID > -1) {
       this.playerID = obj.playerID;
     }
@@ -250,26 +295,6 @@ class Hero extends Entity {
       } else {
         this.weapon.deserialize(obj.weapon);
       }
-    }
-    if (obj.deathTimer !== undefined) {
-      if (obj.deathTimer !== -1 || this.deathTimer !== -1) {
-        if (obj.deathTimer > 0) {
-          this.updateOpacity(0);
-          this.isCollidable = false;
-        }
-      }
-      this.deathTimer = obj.deathTimer;
-    }
-
-    if (obj.invilTimer !== undefined) {
-      if (obj.invilTimer !== -1 || this.invilTimer !== -1) {
-        if (obj.invilTimer > 0) {
-          this.updateOpacity(0.8);
-        } else {
-          this.updateOpacity(1);
-        }
-      }
-      this.invilTimer = obj.invilTimer;
     }
   }
 
