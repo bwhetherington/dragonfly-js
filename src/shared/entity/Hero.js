@@ -11,6 +11,7 @@ import Raygun from './Raygun';
 import Weapon from './Weapon';
 import { isServer, isClient } from '../util/util';
 import NM from '../network/NetworkManager';
+import Explosion from './Explosion';
 
 const MOVEMENT_SPEED = 300;
 
@@ -104,8 +105,8 @@ class Hero extends Entity {
               id: this.id,
             }
           };
-           GM.emitEvent(event);
-          if(isServer()){
+          GM.emitEvent(event);
+          if (isServer()) {
             NM.send(event);
           }
         }
@@ -119,11 +120,11 @@ class Hero extends Entity {
             type: 'RESPAWN',
             data: {
               id: this.id,
-              position: {x: 0, y: 0}
+              position: { x: 0, y: 0 }
             }
           };
-           GM.emitEvent(event);
-          if(isServer()){
+          GM.emitEvent(event);
+          if (isServer()) {
             NM.send(event);
           }
           this.invilTimer = this.invilAmount;
@@ -131,23 +132,23 @@ class Hero extends Entity {
       }
     });
 
-    this.registerHandler('PLAYER_KILLED', event =>{
-      const {deadID} = event;
-       if(this.id === deadID){
-        this.kill(0,0);
-       }
+    this.registerHandler('PLAYER_KILLED', event => {
+      const { deadID } = event;
+      if (this.id === deadID) {
+        this.kill(0, 0);
+      }
     });
 
     this.registerHandler('RESPAWN', event => {
-      const {id} = event;
-      if(this.id === id){
-        this.respawn(0,0);
+      const { id } = event;
+      if (this.id === id) {
+        this.respawn(0, 0);
       }
     });
 
     this.registerHandler('INVICIBILITY_END', event => {
-      const {id} = event;
-      if(this.id === id){
+      const { id } = event;
+      if (this.id === id) {
         this.endInvincibility();
       }
     });
@@ -163,7 +164,7 @@ class Hero extends Entity {
     }
     this.damageAmount += amount;
     this.updateColor();
-    if (this.damageAmount >= 5) {
+    if (this.damageAmount >= 30) {
       const event = {
         type: 'PLAYER_KILLED',
         data: {
@@ -171,19 +172,27 @@ class Hero extends Entity {
           killerID: killerID
         }
       };
-       GM.emitEvent(event);
-      if(isServer()){
+      GM.emitEvent(event);
+      if (isServer()) {
         NM.send(event);
       }
       this.deathTimer = this.deathAmount;
     }
   }
 
-  endInvincibility(){
+  endInvincibility() {
     this.updateOpacity(1);
+    this.invilTimer = -1;
   }
 
   kill(x = 0, y = 0) {
+    // Show explosion
+    if (isClient()) {
+      const explosion = new Explosion(2);
+      explosion.setPosition(this.position);
+      WM.add(explosion);
+    }
+
     this.damageAmount = 0;
     this.velocity.setXY(0, 0);
     this.setPositionXY(x, y);
@@ -229,7 +238,8 @@ class Hero extends Entity {
       playerID: this.playerID,
       cannonAngle: this.cannonAngle,
       damageAmount: this.damageAmount,
-      score: this.score
+      score: this.score,
+      deathTimer: this.deathTimer
     };
     if (this.weapon instanceof Weapon) {
       obj.weapon = this.weapon.serialize();
@@ -258,7 +268,7 @@ class Hero extends Entity {
       const dx = x1 - x0;
       const dy = y1 - y0;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (0 < dist && dist < 100 && obj.deathTimer === -1 && this.deathTimer === -1) {
+      if (0 < dist && dist < 200 && obj.deathTimer === -1) {
         this.position.setXY(x0, y0);
         this.velocity.setXY(vx, vy);
         this.acceleration.setXY(ax, ay);
@@ -276,7 +286,7 @@ class Hero extends Entity {
       }
       this.updatePosition();
     }
-    
+
     if (obj.playerID > -1) {
       this.playerID = obj.playerID;
     }

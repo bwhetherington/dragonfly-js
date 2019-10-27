@@ -1,0 +1,98 @@
+{
+  "friction": 0.05,
+  "features": [
+    {
+      "type": "IcePatch",
+      "x": 420,
+      "y": 0,
+      "width": 80,
+      "height": 680
+    },
+    {
+      "type": "IcePatch",
+      "x": -420,
+      "y": 0,
+      "width": 80,
+      "height": 680
+    },
+    {
+      "type": "IcePatch",
+      "x": 0,
+      "y": 420,
+      "width": 680,
+      "height": 80
+    },
+    {
+      "type": "IcePatch",
+      "x": 0,
+      "y": -420,
+      "width": 680,
+      "height": 80
+    }
+  ],
+  "geometry": [
+    {
+      "type": "InverseRectangle",
+      "x": 0,
+      "y": 0,
+      "width": 1000,
+      "height": 1000
+    },
+    {
+      "type": "Rectangle",
+      "x": 300,
+      "y": 300,
+      "width": 80,
+      "height": 80
+    },
+    {
+      "type": "Rectangle",
+      "x": -300,
+      "y": 300,
+      "width": 80,
+      "height": 80
+    },
+    {
+      "type": "Rectangle",
+      "x": 300,
+      "y": -300,
+      "width": 80,
+      "height": 80
+    },
+    {
+      "type": "Rectangle",
+      "x": -300,
+      "y": -300,
+      "width": 80,
+      "height": 80
+    },
+    {
+      "type": "Rectangle",
+      "x": 0,
+      "y": -300,
+      "width": 280,
+      "height": 40
+    },
+    {
+      "type": "Rectangle",
+      "x": 0,
+      "y": 300,
+      "width": 280,
+      "height": 40
+    },
+    {
+      "type": "Rectangle",
+      "x": -300,
+      "y": 0,
+      "width": 40,
+      "height": 280
+    },
+    {
+      "type": "Rectangle",
+      "x": 300,
+      "y": 0,
+      "width": 40,
+      "height": 280
+    }
+  ]
+}

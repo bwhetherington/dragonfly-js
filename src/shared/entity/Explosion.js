@@ -8,8 +8,9 @@ const MAX_SIZE = 1;
 const BORDER_SIZE = 10;
 
 class Explosion extends Entity {
-  constructor() {
+  constructor(size = 1) {
     super();
+    this.size = size;
     this.timer = 0;
     this.isCollidable = false;
     this.doSynchronize = false;
@@ -30,7 +31,7 @@ class Explosion extends Entity {
   updateSize() {
     if (this.graphicsObject) {
       const progress = this.timer / DURATION;
-      const scale = MIN_SIZE + (progress * (MAX_SIZE - MIN_SIZE));
+      const scale = MIN_SIZE + (progress * this.size);
       this.graphicsObject.scale = scale;
       if (progress > 0) {
         this.graphicsObject.linewidth = BORDER_SIZE / (progress * 0.75);
