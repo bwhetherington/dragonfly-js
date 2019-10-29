@@ -4,6 +4,8 @@ import Rectangle from '../util/Rectangle';
 import InverseRectangle from '../util/InverseRectangle';
 import Projectile from '../entity/Projectile';
 import { Vector } from 'twojs-ts';
+import Hero from './Hero';
+import SETTINGS from '../util/settings';
 
 class WorldManager {
   constructor() {
@@ -287,6 +289,13 @@ class WorldManager {
       if (created) {
         this.add(existing);
       }
+      // if (SETTINGS.predictionEnabled && isClient()) {
+      //   if (existing instanceof Hero && existing.isCurrentHero()) {
+      //     // foo
+      //   } else {
+      //     // existing.step(-1, 1);
+      //   }
+      // }
     }
   }
 }

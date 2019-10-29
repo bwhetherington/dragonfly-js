@@ -12,6 +12,7 @@ import Weapon from './Weapon';
 import { isServer, isClient } from '../util/util';
 import NM from '../network/NetworkManager';
 import Explosion from './Explosion';
+import SETTINGS from '../util/settings';
 
 const MOVEMENT_SPEED = 300;
 
@@ -264,7 +265,7 @@ class Hero extends Entity {
     const { x: ax, y: ay } = this.acceleration;
     super.deserialize(obj);
     const { x: x1, y: y1 } = this.position;
-    if (this.isCurrentHero()) {
+    if (SETTINGS.predictionEnabled && this.isCurrentHero()) {
       const dx = x1 - x0;
       const dy = y1 - y0;
       const dist = Math.sqrt(dx * dx + dy * dy);

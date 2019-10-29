@@ -10,6 +10,7 @@ import Vector from '../shared/util/Vector';
 import AM from '../shared/audio/AudioManager';
 import ShotgunPickUp from '../shared/entity/ShotgunPickUp';
 import Pistol from '../shared/entity/Pistol';
+import SETTINGS from '../shared/util/settings';
 
 class GameClient extends Client {
   constructor(two, addr) {
@@ -90,10 +91,7 @@ class GameClient extends Client {
             hero.setWeapon(Pistol);
             break;
           case 'KeyP':
-            (async () => {
-              const ping = await this.getPing();
-              console.log('ping', ping);
-            })();
+            SETTINGS.predictionEnabled = !SETTINGS.predictionEnabled;
             break;
           case 'ShiftLeft':
           case 'ShiftRight':

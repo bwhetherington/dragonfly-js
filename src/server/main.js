@@ -155,7 +155,7 @@ class GameServer extends Server {
 }
 
 const main = async () => {
-  const server = new (delayServer(GameServer, 0.05))(4);
+  const server = new (delayServer(GameServer, 0.2))(4);
   server.initialize();
 
   WM.initialize();
