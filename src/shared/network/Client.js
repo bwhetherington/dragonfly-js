@@ -1,7 +1,6 @@
 import GM from '../event/GameManager';
 import WM from '../entity/WorldManager';
 import NM from './NetworkManager';
-import uuid from 'uuid/v1';
 
 const transformClientCoordinates = (two, x, y) => {
   return {
@@ -75,7 +74,6 @@ class Client {
   constructor(two, addr) {
     this.two = two;
     this.sendBuffer = [];
-    this.pingChecks = {};
     if (!addr) {
       addr = `ws://${location.host}`;
     }
@@ -146,16 +144,8 @@ class Client {
    * @param message The received message
    */
   onMessage(message) {
-    if (message.type === 'PING_SERVER') {
-      const { id, playerID } = message.data;
-      const handler = this.pingChecks[id];
-      if (handler) {
-        const { resolve, start } = handler;
-        const end = Date.now();
-        const time = end - start;
-        resolve(time);
-        delete this.pingChecks[id];
-      }
+    if (message.type === 'CHECK_PING') {
+      this.send(message);
     } else {
       GM.emitEvent(message);
     }
@@ -177,27 +167,6 @@ class Client {
     } else {
       this.sendBuffer.push(message);
     }
-  }
-
-  getPing() {
-    return new Promise(resolve => {
-      const start = Date.now();
-      const id = uuid();
-      const playerID = this.playerID;
-      const packet = {
-        type: 'PING_CLIENT',
-        data: { id, playerID }
-      };
-      NM.send(packet);
-      this.pingChecks[id] = {
-        start,
-        resolve
-      };
-      // Ping request times out after 2000 seconds
-      setTimeout(() => {
-        delete this.pingChecks[id];
-      }, 2000)
-    });
   }
 }
 

@@ -16,23 +16,18 @@ class GameClient extends Client {
     super(two, addr);
     this.heroes = {};
     this.playerID = -2;
+    this.latencies = {};
   }
 
   initializeUI() {
     let lastFPS = 60;
 
-    const PING_INTERVAL = 0.5;
+    GM.registerHandler('STEP', event => {
 
-    let timer = 0;
-    GM.registerHandler('STEP', async event => {
-      const { dt } = event;
-      timer += dt;
-
-      if (timer >= PING_INTERVAL) {
-        const ping = await this.getPing();
+      const ping = this.latencies[this.playerID];
+      if (ping !== undefined) {
         const pingLabel = document.getElementById('ping');
-        pingLabel.innerText = ping;
-        timer -= PING_INTERVAL;
+        pingLabel.innerText = Math.round(ping * 1000);
       }
 
       let hits = 0;
@@ -44,7 +39,7 @@ class GameClient extends Client {
         score = hero.score;
       }
 
-      const curFPS = 1 / dt;
+      const curFPS = 1 / event.dt;
       // Smooth fps slightly
       const fps = Math.round(0.7 * curFPS + 0.3 * lastFPS);
       lastFPS = curFPS;
@@ -205,6 +200,11 @@ class GameClient extends Client {
     GM.registerHandler('CLEANUP_GRAPHICS', event => {
       const { object } = event;
       this.two.remove(object);
+    });
+
+    GM.registerHandler('DISPLAY_PING', event => {
+      const { latencies } = event;
+      this.latencies = latencies;
     });
 
     GM.registerHandler('CREATE_OBJECT', event => {

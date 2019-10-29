@@ -5,6 +5,15 @@ import path from 'path';
 import GM from '../event/GameManager';
 import NM from '../network/NetworkManager';
 import WM from '../entity/WorldManager';
+import uuid from 'uuid/v1';
+
+const toSeconds = (seconds, nanoseconds) => seconds + nanoseconds * 0.000000001;
+
+const now = () => {
+  const [seconds, nanoseconds] = process.hrtime();
+  const time = toSeconds(seconds, nanoseconds);
+  return time;
+}
 
 const HTML_FILE = path.join(__dirname, '..', 'client', 'index.html');
 
@@ -24,6 +33,8 @@ class Server {
     this.connections = {};
     this.socketIndex = 0;
     this.wsServer = null;
+    this.pingChecks = {};
+    this.playerPings = {};
   }
 
   initialize() {
@@ -87,9 +98,47 @@ class Server {
     }
   }
 
+  getPlayerLatencies() {
+    for (const playerID in this.connections) {
+      const start = now();
+      const id = uuid();
+      const ping = { type: 'CHECK_PING', data: { id } };
+      this.send(ping, playerID);
+      this.pingChecks[id] = { start };
+    }
+  }
+
+  sendPlayerLatencies() {
+    const message = {
+      type: 'DISPLAY_PING',
+      data: {
+        latencies: this.playerPings
+      }
+    };
+    for (const playerID in this.connections) {
+      let ping = this.playerPings[playerID];
+      if (ping === undefined) {
+        ping = Number.NaN;
+      }
+      message.data.latencies[playerID] = ping;
+    }
+    this.send(message);
+  }
+
   onMessage(message, socketIndex) {
     message.data.socketIndex = socketIndex;
-    GM.emitEvent(message);
+    if (message.type === 'CHECK_PING') {
+      const { id } = message.data;
+      const check = this.pingChecks[id];
+      if (check) {
+        const { start } = check;
+        const end = now();
+        this.playerPings[socketIndex] = end - start;
+        delete this.pingChecks[id];
+      }
+    } else {
+      GM.emitEvent(message);
+    }
   }
 
   onOpen(socketIndex) {

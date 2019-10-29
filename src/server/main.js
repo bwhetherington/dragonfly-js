@@ -152,23 +152,10 @@ class GameServer extends Server {
     const pickShotgun = new ShotgunPickUp(new Vector(50, 80));
     WM.add(pickShotgun);
   }
-
-  // onMessage(message, socketIndex) {
-  //   super.onMessage(message, socketIndex);
-  //   // Attach socket index
-  //   const event = {
-  //     type: message.type,
-  //     data: {
-  //       ...message.data,
-  //       socketIndex: socketIndex
-  //     }
-  //   };
-  //   GM.emitEvent(event);
-  // }
 }
 
 const main = async () => {
-  const server = new (delayServer(GameServer, 0))(4);
+  const server = new (delayServer(GameServer, 0.05))(4);
   server.initialize();
 
   WM.initialize();
@@ -176,9 +163,16 @@ const main = async () => {
   // Create level geometry
 
   // Create the game timer
+  let timeElapsed = 0;
   const timer = new Timer(1 / REFRESH_RATE, dt => {
+    timeElapsed += dt;
     GM.step(dt);
     WM.sync(server);
+    if (timeElapsed >= 0.5) {
+      server.getPlayerLatencies();
+      timeElapsed -= 0.5;
+    }
+    server.sendPlayerLatencies();
   });
 
   timer.start();
