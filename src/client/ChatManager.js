@@ -15,23 +15,77 @@ class ChatManager {
     this.commands[command] = callback;
   }
 
+  /*
+  
+    & --> &amp;
+    < --> &lt;
+    > --> &gt;
+    " --> &quot;
+    ' --> &#x27;     &apos; is not recommended
+    / --> &#x2F; 
+
+  */
+
+  escapeMessage(message) {
+    return message
+      .replace('&', '&amp')
+      .replace('<', '&lt')
+      .replace('>', '&gt')
+      .replace('"', '&quot')
+      .replace('\'', '&#x27')
+      .replace('/', '<span>&#x2F</span>');
+  }
+
   initialize(playerID) {
     GM.registerHandler('CHAT_OUTPUT', event => {
       this.addMessage(event.message);
     });
 
+    GM.registerHandler('KEY_DOWN', event => {
+      if (event.key === 'Enter') {
+        this.chatInput.focus();
+      }
+    });
+
+    this.registerCommand('roll', args => {
+      if (args.length === 1) {
+        try {
+          const die = JSON.parse(args[0]);
+          if (typeof die === 'number') {
+            const roll = Math.floor(Math.random() * die) + 1;
+            const line = this.renderContent({
+              color: 'white',
+              text: `<b>[d${die}]:</b> ${roll}`
+            });
+            this.addLine(line);
+          } else {
+            const error = `\'roll\' expects number, received ${typeof die}.`;
+            this.addError(error);
+          }
+        } catch (_) {
+          const error = `Failed to parse argument: ${args[0]}.`;
+          this.addError(error);
+        }
+      } else {
+        const error = `\'roll\' expects 1 argument, received ${args.length}.`;
+        this.addError(error);
+      }
+    });
+
     this.registerCommand('setname', args => {
       if (args.length === 1) {
         const name = args[0];
-        this.name = name;
+        this.name = this.escapeMessage(name);
         const line = this.renderContent({
           color: 'rgb(0, 255, 0)',
-          text: `Your name has been set to ${name}.`
+          text: `Your name has been set to \'${name}\'.`
         });
         this.addLine(line);
+      } else {
+        const error = `\'setname\' expects 1 argument, received ${args.length}.`;
+        this.addError(error);
       }
     });
-    console.log(this.commands['setname']);
 
     this.playerID = playerID;
     this.chatForm.onsubmit = e => {
@@ -39,6 +93,11 @@ class ChatManager {
 
       // Gather input
       let { value } = this.chatInput;
+
+      if (value.length === 0) {
+        return;
+      }
+
       this.chatInput.value = '';
 
       if (value.startsWith('/')) {
@@ -51,7 +110,7 @@ class ChatManager {
         if (typeof callback === 'function') {
           callback(components.slice(1));
         } else {
-          const error = `Unknown command: ${command}`;
+          const error = `Unknown command: ${command}.`;
           this.addError(error);
         }
       } else {
@@ -72,7 +131,7 @@ class ChatManager {
 
   renderMessage(message) {
     const { author, time, content } = message;
-    const text = `<b>${author}:</b> ${content}`;
+    const text = `<b>${author}:</b> ${this.escapeMessage(content)}`;
     return this.renderContent({
       color: 'white',
       text

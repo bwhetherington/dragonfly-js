@@ -72,15 +72,15 @@ class GameServer extends Server {
       }
     });
 
-    for (const message of this.messages) {
-      const data = {
-        type: 'CHAT_OUTPUT',
-        data: {
-          message
-        }
-      };
-      this.send(data, socketIndex);
-    }
+    // for (const message of this.messages) {
+    //   const data = {
+    //     type: 'CHAT_OUTPUT',
+    //     data: {
+    //       message
+    //     }
+    //   };
+    //   this.send(data, socketIndex);
+    // }
 
   }
 
@@ -150,7 +150,7 @@ class GameServer extends Server {
     });
 
     GM.registerHandler('CHAT_INPUT', data => {
-      this.messages.push(data.message);
+      // this.messages.push(data.message);
       const event = {
         type: 'CHAT_OUTPUT',
         data
