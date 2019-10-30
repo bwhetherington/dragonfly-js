@@ -16,18 +16,32 @@ import SETTINGS from '../util/settings';
 
 const MOVEMENT_SPEED = 300;
 
-const COLORS = [
-  {
+const colorOptions = ['red', 'green', 'blue', 'yellow'];
+
+const COLORS = {
+  red: {
     red: 200,
     green: 80,
     blue: 50
   },
-  {
+  green: {
+    red: 80,
+    green: 120,
+    blue: 50
+  },
+  yellow: {
+    red: 200,
+    green: 200,
+    blue: 50
+  },
+  blue: {
     red: 50,
     green: 80,
     blue: 200
   }
-];
+};
+
+const COLORS_LIST = Object.keys(COLORS).map(key => COLORS[key]);
 
 class Hero extends Entity {
   constructor(playerID = -1) {
@@ -330,7 +344,18 @@ class Hero extends Entity {
 
     this.graphicsObject = two.makeGroup(object, cannonGroup);
     this.graphicsObject.translation.set(this.position.x, this.position.y);
-    this.setColor(COLORS[this.playerID % 2]);
+
+    // Select color
+    const color = COLORS_LIST[this.playerID % COLORS_LIST.length];
+    this.setColor(color);
+    // if (colorOptions.length > 0) {
+    //   const index = Math.floor(Math.random() * colorOptions.length);
+    //   const color = colorOptions.splice(index, 1);
+
+    //   const colorObject = COLORS[color];
+    //   this.setColor(colorObject);
+    //   this.colorString = color;
+    // }
   }
 
   setWeapon(WeaponClass) {
@@ -338,6 +363,14 @@ class Hero extends Entity {
       this.weapon.cleanup();
     }
     this.weapon = new WeaponClass();
+  }
+
+  cleanup() {
+    if (this.colorString) {
+      // Free color
+      colorOptions.push(this.colorString);
+    }
+    return super.cleanup();
   }
 }
 

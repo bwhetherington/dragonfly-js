@@ -71,7 +71,11 @@ class Server {
       }
     });
 
-    httpServer.listen(process.env.PORT || 3000);
+    const port = process.env.PORT || 3000;
+    const time = new Date().toISOString();
+    httpServer.listen(port, () => {
+      console.log(`[${time}] Listening on port ${port}...`);
+    });
   }
 
   get numConnections() {

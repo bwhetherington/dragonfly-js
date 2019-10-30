@@ -8,22 +8,36 @@
 </head>
 
 <body>
-  <div id="game"></div>
-  <div class="hud">
-    <div class="top-right menu">
-      <b>Damage:</b> <span id="hit-count"></span>
-      <br />
-      <b>Score:</b> <span id="score-count"></span>
-      <br />
-      <b>Entities:</b> <span id="entity-count"></span>
-      <br />
-      <b>Listeners:</b> <span id="listener-count"></span>
-      <br />
-      <b>FPS:</b> <span id="fps"></span>
-      <br />
-      <b>Ping:</b> <span id="ping"></span>ms
+  <div tabindex="0" id="game"></div>
+  <div class="bottom left menu">
+    <div class="chatbox" id="chat-container">
     </div>
+    <form class="chatbox-input" id="chat-form">
+      <input id="chat-input" type="text" />
+    </form>
   </div>
+  <div class="bottom right menu">
+    <b>Damage:</b> <span id="hit-count"></span>
+    <br />
+    <b>Score:</b> <span id="score-count"></span>
+    <br />
+    <b>Entities:</b> <span id="entity-count"></span>
+    <br />
+    <b>Listeners:</b> <span id="listener-count"></span>
+    <br />
+    <b>FPS:</b> <span id="fps"></span>
+    <br />
+    <b>Ping:</b> <span id="ping"></span>ms
+  </div>
+  <!-- <div class="modal-parent">
+    <div class="modal">
+      <h1>Hello, world!</h1>
+      <form>
+        <label for="name">Name</label>
+        <input type="text" id="name"></input>
+      </form>
+    </div>
+  </div> -->
   <script src="index.js"></script>
 </body>
 

@@ -5,6 +5,7 @@ import WM from '../shared/entity/WorldManager';
 import GM from '../shared/event/GameManager';
 import AM from '../shared/audio/AudioManager';
 import Rectangle from '../shared/util/Rectangle';
+import CM from './ChatManager';
 
 const removeChildren = element => {
   while (element.firstChild) {
@@ -88,7 +89,22 @@ const main = async () => {
 
   // Start websocket client
   const client = new GameClient(two);
-  client.initialize(window);
+
+  client.initialize(element);
+  element.focus();
+  initChatbox();
+};
+
+const createMessage = message => {
+  const { author, content } = message;
+  const innerHTML = `<b>[] Player ${author}:</b> ${content}`;
+  const element = document.createElement('div');
+  element.innerHTML = innerHTML;
+  return element;
+}
+
+const initChatbox = () => {
+  CM.initialize();
 };
 
 main();

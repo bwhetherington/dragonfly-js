@@ -7,26 +7,80 @@ html, body, #game {
   font-family: 'Roboto', sans-serif;
 }
 
-.hud {
+/* .hud {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
+  padding: 0px;
   background: rgba(0, 0, 0, 0);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+} */
+
+.menu {
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  border: 2px solid white;
+  border-radius: 3px;
+  padding: 5px;
   -webkit-user-select: none;
   -moz-user-select: none;
 }
 
-.menu {
-  background: rgba(0, 0, 0, 0.5);
-  border: 2px solid white;
-  padding: 5px;
-  margin: 20px;
+.menu:before {
+  border: 1px solid black;
+  border-radius: 3px;
 }
 
-.top-right {
+.top {
   position: absolute;
-  top: 10;
-  right: 10;
+  top: 10px;
+}
+
+.bottom {
+  position: absolute;
+  bottom: 10px;
+}
+
+.left {
+  position: absolute;
+  left: 10px;
+}
+
+.right {
+  position: absolute;
+  right: 10px;
+}
+
+.modal-parent {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  left: 0px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.modal {
+  position: relative;
+  width: 1000px;
+  margin: auto;
+  border: 1px solid white;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  padding: 10px;
+  background: white;
+  color: black;
+}
+
+.chatbox {
+  width: 300px;
+  height: 150px;
+  overflow-y: auto;
+}
+
+.chatbox-input {
+  width: 300px;
 }

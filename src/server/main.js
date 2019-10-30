@@ -16,6 +16,7 @@ class GameServer extends Server {
   constructor(maxConnections) {
     super(maxConnections);
     this.heroes = {};
+    this.messages = [];
   }
 
   onOpen(socketIndex) {
@@ -69,7 +70,17 @@ class GameServer extends Server {
       if (hero.id === killerID) {
         hero.score += 100;
       }
-    })
+    });
+
+    for (const message of this.messages) {
+      const data = {
+        type: 'CHAT_OUTPUT',
+        data: {
+          message
+        }
+      };
+      this.send(data, socketIndex);
+    }
 
   }
 
@@ -138,6 +149,15 @@ class GameServer extends Server {
       this.send(event);
     });
 
+    GM.registerHandler('CHAT_INPUT', data => {
+      this.messages.push(data.message);
+      const event = {
+        type: 'CHAT_OUTPUT',
+        data
+      };
+      this.send(event);
+    });
+
     // Load level
     const levelString = readFileSync('level.json', 'utf-8');
     const level = JSON.parse(levelString);
@@ -155,7 +175,7 @@ class GameServer extends Server {
 }
 
 const main = async () => {
-  const server = new (delayServer(GameServer, 0.2))(4);
+  const server = new (delayServer(GameServer, 0))(4);
   server.initialize();
 
   WM.initialize();
