@@ -38,6 +38,10 @@ class GameClient extends Client {
       if (hero) {
         hits = hero.damageAmount;
         score = hero.score;
+
+        const healthBar = document.getElementById('health');
+        const health = (30 - hero.damageAmount) / 0.3;
+        healthBar.value = health;
       }
 
       const curFPS = 1 / event.dt;

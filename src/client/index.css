@@ -19,6 +19,32 @@ html, body, #game {
   -moz-user-select: none;
 } */
 
+.health-bar {
+  width: 400px;
+}
+
+progress[value] {
+  color: red;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+progress[value]::-webkit-progress-value {
+  background-color: rgb(192, 32, 32);
+}
+
+progress[value]::-webkit-progress-bar {
+  background-color: rgba(0, 0, 0, 0.67);
+}
+
+progress[value]::-moz-progress-value {
+  background-color: rgb(192, 0, 0);
+}
+
+progress[value]::-moz-progress-bar {
+  background-color: rgba(0, 0, 0, 0.67);
+}
+
 .menu {
   background: rgba(0, 0, 0, 0.67);
   color: white;
@@ -34,7 +60,7 @@ input[type='text'] {
   flex-grow: 1;
   font-family: inherit;
   border: none;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.67);
   color: white;
   /* border-bottom: 2px solid rgba(0, 0, 0, 0); */
   padding: 5px;
@@ -105,11 +131,10 @@ input[type='text']:focus {
 }
 
 .chatbox-container {
-  background-color: rgba(0, 0, 0, 0);
   visibility: hidden;
+  bottom: 50px;
 }
 
 .chatbox-container:focus-within {
-  background-color: rgba(0, 0, 0, 0.67);
   visibility: visible;
 }
