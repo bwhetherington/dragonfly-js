@@ -67,7 +67,7 @@ const main = async () => {
           break;
         case 'Rectangle':
           const rectangle = two.makeRectangle(x, y, width, height);
-          rectangle.fill = 'black';
+          rectangle.fill = 'lightgrey';
           rectangle.stroke = '#a0a0a0';
           rectangle.linewidth = 5;
           break;
@@ -94,14 +94,6 @@ const main = async () => {
   element.focus();
   initChatbox();
 };
-
-const createMessage = message => {
-  const { author, content } = message;
-  const innerHTML = `<b>[] Player ${author}:</b> ${content}`;
-  const element = document.createElement('div');
-  element.innerHTML = innerHTML;
-  return element;
-}
 
 const initChatbox = () => {
   CM.initialize();

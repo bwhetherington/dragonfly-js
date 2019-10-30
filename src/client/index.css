@@ -2,9 +2,9 @@ html, body, #game {
   width: 100%;
   height: 100%;
   margin: 0px; 
-  background: black;
+  background: lightgrey;
   color: white;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto Mono', monospace;
 }
 
 /* .hud {
@@ -20,18 +20,32 @@ html, body, #game {
 } */
 
 .menu {
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.67);
   color: white;
-  border: 2px solid white;
-  border-radius: 3px;
+  /* border: 2px solid white; */
+  border-radius: 4px;
   padding: 5px;
   -webkit-user-select: none;
   -moz-user-select: none;
 }
 
-.menu:before {
-  border: 1px solid black;
-  border-radius: 3px;
+input[type='text'] {
+  margin: 2px;
+  flex-grow: 1;
+  font-family: inherit;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  /* border-bottom: 2px solid rgba(0, 0, 0, 0); */
+  padding: 5px;
+  border-radius: 4px;
+  font-size: inherit;
+}
+
+input[type='text']:focus {
+  outline: none;
+  border-radius: 0px;
+  content: normal;
 }
 
 .top {
@@ -76,11 +90,26 @@ html, body, #game {
 }
 
 .chatbox {
-  width: 300px;
+  width: 400px;
   height: 150px;
   overflow-y: auto;
 }
 
 .chatbox-input {
-  width: 300px;
+  display: flex;
+  visibility: visible !important;
+}
+
+::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.chatbox-container {
+  background-color: rgba(0, 0, 0, 0);
+  visibility: hidden;
+}
+
+.chatbox-container:focus-within {
+  background-color: rgba(0, 0, 0, 0.67);
+  visibility: visible;
 }

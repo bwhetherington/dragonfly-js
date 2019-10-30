@@ -25,7 +25,7 @@ class ChatManager {
         const name = args[0];
         this.name = name;
         const line = this.renderContent({
-          color: 'green',
+          color: 'rgb(0, 255, 0)',
           text: `Your name has been set to ${name}.`
         });
         this.addLine(line);
@@ -72,7 +72,7 @@ class ChatManager {
 
   renderMessage(message) {
     const { author, time, content } = message;
-    const text = `<${author}> ${content}`;
+    const text = `<b>${author}:</b> ${content}`;
     return this.renderContent({
       color: 'white',
       text
@@ -83,7 +83,7 @@ class ChatManager {
     const { color = 'white', text } = line;
     const element = document.createElement('div');
     element.style = `color: ${color}`;
-    element.innerText = text;
+    element.innerHTML = text;
     return element;
   }
 
