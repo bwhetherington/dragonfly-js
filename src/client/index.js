@@ -5,7 +5,6 @@ import WM from '../shared/entity/WorldManager';
 import GM from '../shared/event/GameManager';
 import AM from '../shared/audio/AudioManager';
 import Rectangle from '../shared/util/Rectangle';
-import CM from './ChatManager';
 
 const removeChildren = element => {
   while (element.firstChild) {
@@ -92,12 +91,12 @@ const main = async () => {
 
   client.initialize(element);
   element.focus();
-  initChatbox();
+  // initChatbox();
 };
 
-const initChatbox = () => {
-  CM.initialize();
-};
+// const initChatbox = () => {
+//   CM.initialize();
+// };
 
 main();
 

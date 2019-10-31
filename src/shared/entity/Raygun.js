@@ -24,7 +24,7 @@ class Raygun extends Weapon {
       if (projectileID === ray.id) {
         const object = WM.findByID(hitID);
         if (object) {
-          object.damage(10, sourceID);
+          object.damage(3, sourceID);
         }
       }
     });

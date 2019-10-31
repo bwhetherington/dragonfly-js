@@ -58,17 +58,10 @@ class GameServer extends Server {
       }
     });
 
-    hero.registerHandler('OBJECT_HIT', event => {
-      const { sourceID } = event;
-      if (hero.id === sourceID) {
-        hero.score += 10;
-      }
-    });
-
     hero.registerHandler('PLAYER_KILLED', event => {
       const { killerID } = event;
       if (hero.id === killerID) {
-        hero.score += 100;
+        hero.score += 10;
       }
     });
 
@@ -87,6 +80,19 @@ class GameServer extends Server {
   onClose(socketIndex) {
     const hero = this.heroes[socketIndex];
     hero.markForDelete();
+
+    const message = {
+      type: 'REMOVE_PLAYER',
+      data: {
+        id: socketIndex
+      }
+    };
+
+    for (const socket in this.connections) {
+      if (socket !== socketIndex) {
+        this.send(message, socket);
+      }
+    }
   }
 
   initialize() {
@@ -156,6 +162,8 @@ class GameServer extends Server {
         data
       };
       this.send(event);
+      const { id, author, content } = data.message;
+      console.log(`[${id}] ${author}: ${content}`);
     });
 
     // Load level

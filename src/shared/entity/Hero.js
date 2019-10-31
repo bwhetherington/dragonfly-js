@@ -46,7 +46,7 @@ const COLORS_LIST = Object.keys(COLORS).map(key => COLORS[key]);
 class Hero extends Entity {
   constructor(playerID = -1) {
     super();
-    this.maxDamage = 30;
+    this.maxDamage = 10;
     // if (isClient()) {
     //   this.position = new Proxy(this.position, {
     //     get(obj, prop) {
@@ -75,7 +75,7 @@ class Hero extends Entity {
     this.cannonAngle = 0;
     this.setWeapon(Raygun);
     this.friction = 1;
-    this.bounce = 0.6;
+    this.bounce = 0.1;
     this.score = 0;
     this.deathTimer = -1;
     this.deathAmount = 1;
@@ -174,18 +174,26 @@ class Hero extends Entity {
     this.isSlow = value;
   }
 
-  damage(amount, killerID) {
+  damage(amount, sourceID) {
     if (this.invilTimer !== -1) {
       return;
     }
     this.damageAmount += amount;
     this.updateColor();
+
+    if (isServer()) {
+      const damager = WM.findByID(sourceID);
+      if (damager instanceof Hero) {
+        damager.score += amount;
+      }
+    }
+
     if (this.damageAmount >= this.maxDamage) {
       const event = {
         type: 'PLAYER_KILLED',
         data: {
           deadID: this.id,
-          killerID: killerID
+          killerID: sourceID
         }
       };
       GM.emitEvent(event);
@@ -310,7 +318,18 @@ class Hero extends Entity {
       this.rotateCannon(obj.cannonAngle);
     }
     if (obj.score !== undefined) {
-      this.score = obj.score;
+      if (this.score !== obj.score) {
+        this.score = obj.score;
+
+        const event = {
+          type: 'UPDATE_SCORE',
+          data: {
+            id: this.playerID,
+            score: this.score
+          }
+        };
+        GM.emitEvent(event);
+      }
     }
     if (obj.damageAmount !== undefined) {
       this.damageAmount = obj.damageAmount;

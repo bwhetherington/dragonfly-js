@@ -12,6 +12,8 @@ import ShotgunPickUp from '../shared/entity/ShotgunPickUp';
 import Pistol from '../shared/entity/Pistol';
 import SETTINGS from '../shared/util/settings';
 import Bar from './Bar';
+import Scoreboard from './Scoreboard';
+import CM from './ChatManager';
 
 class GameClient extends Client {
   constructor(two, addr) {
@@ -25,13 +27,11 @@ class GameClient extends Client {
   initializeUI() {
     let lastFPS = 60;
 
-    GM.registerHandler('STEP', event => {
+    // Create scoreboard
+    this.scoreboard = new Scoreboard('scoreboard-tbody');
+    this.scoreboard.initialize();
 
-      const ping = this.latencies[this.playerID];
-      if (ping !== undefined) {
-        const pingLabel = document.getElementById('ping');
-        pingLabel.innerText = Math.round(ping * 1000);
-      }
+    GM.registerHandler('STEP', event => {
 
       let hits = 0;
       let score = 0;
@@ -51,12 +51,6 @@ class GameClient extends Client {
 
       const entityCount = WM.entityCount;
       const listenerCount = GM.handlerCount;
-
-      const hitLabel = document.getElementById('hit-count');
-      hitLabel.innerText = hits;
-
-      const scoreLabel = document.getElementById('score-count');
-      scoreLabel.innerText = score;
 
       const entityLabel = document.getElementById('entity-count');
       entityLabel.innerText = entityCount;
@@ -210,15 +204,15 @@ class GameClient extends Client {
       this.two.remove(object);
     });
 
-    GM.registerHandler('DISPLAY_PING', event => {
-      const { latencies } = event;
-      this.latencies = latencies;
-    });
-
     GM.registerHandler('CREATE_OBJECT', event => {
       const { object } = event;
-      if (object.type === 'Hero' && object.playerID === this.playerID) {
-        this.initializeHero(object);
+      if (object.type === 'Hero') {
+        if (object.playerID === this.playerID) {
+          this.initializeHero(object);
+        }
+
+        // Add to scoreboard
+        this.scoreboard.addPlayer(object.playerID);
       }
     })
 
@@ -250,6 +244,7 @@ class GameClient extends Client {
   onMessage(message) {
     if (message.type === 'ASSIGN_ID') {
       this.playerID = message.data.playerID;
+      CM.initialize(this.playerID);
     } else {
       super.onMessage(message);
     }

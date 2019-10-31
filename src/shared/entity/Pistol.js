@@ -40,7 +40,7 @@ class Pistol extends Weapon {
       if (projectileID === bullet.id) {
         const object = WM.findByID(hitID);
         if (object) {
-          object.damage(1, sourceID);
+          object.damage(2, sourceID);
         }
       }
     });

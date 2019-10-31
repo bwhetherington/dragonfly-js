@@ -1,6 +1,12 @@
 import NM from "../shared/network/NetworkManager";
 import GM from "../shared/event/GameManager";
 
+const removeChildren = element => {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
+}
+
 class ChatManager {
   constructor() {
     this.messageContainer = document.getElementById('chat-container');
@@ -45,6 +51,15 @@ class ChatManager {
       if (event.key === 'Enter') {
         this.chatInput.focus();
       }
+    });
+
+    this.registerCommand('clear', () => {
+      removeChildren(this.messageContainer);
+      const line = this.renderContent({
+        color: 'rgb(0, 255, 0)',
+        text: 'Chat box has been cleared.'
+      });
+      this.addLine(line);
     });
 
     this.registerCommand('roll', args => {
@@ -116,6 +131,7 @@ class ChatManager {
       } else {
         const message = {
           author: this.name,
+          id: this.playerID,
           content: value,
           time: Date.now()
         };
@@ -138,8 +154,12 @@ class ChatManager {
   }
 
   renderMessage(message) {
-    const { author, time, content } = message;
+    const { author, time, id, content } = message;
     const element = document.createElement('div');
+
+    const idTag = document.createElement('span');
+    idTag.append('[', id, ']');
+    idTag.style.opacity = '50%';
 
     const authorLabel = document.createElement('b');
     authorLabel.append(author, ': ');
@@ -147,7 +167,7 @@ class ChatManager {
     const messageComponent = document.createElement('span');
     messageComponent.innerText = content;
 
-    element.append(authorLabel, messageComponent);
+    element.append(idTag, ' ', authorLabel, messageComponent);
 
     return element;
 

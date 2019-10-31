@@ -9,7 +9,7 @@ import AM from '../audio/AudioManager';
 
 class Shotgun extends Weapon {
   constructor() {
-    super(0.5);
+    super(0.75);
     this.projectileNum = 5;
   }
 
@@ -41,7 +41,7 @@ class Shotgun extends Weapon {
         if (projectileID === bullet.id) {
           const object = WM.findByID(hitID);
           if (object) {
-            object.damage(2, sourceID);
+            object.damage(1, sourceID);
           }
         }
       });
