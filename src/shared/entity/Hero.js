@@ -46,6 +46,7 @@ const COLORS_LIST = Object.keys(COLORS).map(key => COLORS[key]);
 class Hero extends Entity {
   constructor(playerID = -1) {
     super();
+    this.maxDamage = 30;
     // if (isClient()) {
     //   this.position = new Proxy(this.position, {
     //     get(obj, prop) {
@@ -179,7 +180,7 @@ class Hero extends Entity {
     }
     this.damageAmount += amount;
     this.updateColor();
-    if (this.damageAmount >= 30) {
+    if (this.damageAmount >= this.maxDamage) {
       const event = {
         type: 'PLAYER_KILLED',
         data: {

@@ -7,44 +7,6 @@ html, body, #game {
   font-family: 'Roboto Mono', monospace;
 }
 
-/* .hud {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 0px;
-  background: rgba(0, 0, 0, 0);
-  -webkit-user-select: none;
-  -moz-user-select: none;
-} */
-
-.health-bar {
-  width: 400px;
-}
-
-progress[value] {
-  color: red;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-progress[value]::-webkit-progress-value {
-  background-color: rgb(192, 32, 32);
-}
-
-progress[value]::-webkit-progress-bar {
-  background-color: rgba(0, 0, 0, 0.67);
-}
-
-progress[value]::-moz-progress-value {
-  background-color: rgb(192, 0, 0);
-}
-
-progress[value]::-moz-progress-bar {
-  background-color: rgba(0, 0, 0, 0.67);
-}
-
 .menu {
   background: rgba(0, 0, 0, 0.67);
   color: white;
@@ -53,7 +15,38 @@ progress[value]::-moz-progress-bar {
   padding: 5px;
   -webkit-user-select: none;
   -moz-user-select: none;
+  font-size: 0.8em;
 }
+
+.health-container {
+  width: 400px;
+}
+
+.bar-container {
+  height: 1.5em;
+  background-color: rgba(0, 0, 0, 0.67);
+  border-radius: 2px;
+  overflow: hidden;
+  vertical-align: middle;
+  margin: 2px;
+}
+
+.bar-value {
+  background-color: rgb(192, 32, 32);
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+  height: 100%;
+  /* opacity: 25%; */
+}
+
+.bar-label {
+  position: absolute;
+  top: 30%;
+  width: 100%;
+  text-align: center;
+  line-height: 100%;
+  opacity: 50%;
+}
+
 
 input[type='text'] {
   margin: 2px;
@@ -62,7 +55,6 @@ input[type='text'] {
   border: none;
   background: rgba(0, 0, 0, 0.67);
   color: white;
-  /* border-bottom: 2px solid rgba(0, 0, 0, 0); */
   padding: 5px;
   border-radius: 4px;
   font-size: inherit;
@@ -70,7 +62,7 @@ input[type='text'] {
 
 input[type='text']:focus {
   outline: none;
-  border-radius: 0px;
+  border-radius: 2px;
   content: normal;
 }
 

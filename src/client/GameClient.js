@@ -11,6 +11,7 @@ import AM from '../shared/audio/AudioManager';
 import ShotgunPickUp from '../shared/entity/ShotgunPickUp';
 import Pistol from '../shared/entity/Pistol';
 import SETTINGS from '../shared/util/settings';
+import Bar from './Bar';
 
 class GameClient extends Client {
   constructor(two, addr) {
@@ -18,6 +19,7 @@ class GameClient extends Client {
     this.heroes = {};
     this.playerID = -2;
     this.latencies = {};
+    this.hpBar = new Bar('bar-value', 'bar-label', 30);
   }
 
   initializeUI() {
@@ -39,9 +41,7 @@ class GameClient extends Client {
         hits = hero.damageAmount;
         score = hero.score;
 
-        const healthBar = document.getElementById('health');
-        const health = (30 - hero.damageAmount) / 0.3;
-        healthBar.value = health;
+        this.hpBar.value = hero.maxDamage - hero.damageAmount;
       }
 
       const curFPS = 1 / event.dt;
@@ -166,8 +166,14 @@ class GameClient extends Client {
     });
   }
 
+  initializeHealthBar() {
+    const bar = document.getElementById('bar-value');
+    bar.style = { ...bar.style, width: "100%" };
+  }
+
   initializeHero(hero) {
     this.hero = hero;
+    this.hpBar.maxValue = hero.maxDamage;
     GM.hero = hero;
     this.attachCamera(hero);
     hero.registerHandler('MOUSE_MOVE', event => {

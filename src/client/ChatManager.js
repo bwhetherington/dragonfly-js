@@ -129,13 +129,33 @@ class ChatManager {
     };
   }
 
+  renderTimestamp(time) {
+    const date = new Date(time);
+    const text = date.toLocaleTimeString('en-US');
+    const element = document.createElement('span');
+    element.append('[', text, ']');
+    return element;
+  }
+
   renderMessage(message) {
     const { author, time, content } = message;
-    const text = `<b>${author}:</b> ${this.escapeMessage(content)}`;
-    return this.renderContent({
-      color: 'white',
-      text
-    });
+    const element = document.createElement('div');
+
+    const authorLabel = document.createElement('b');
+    authorLabel.append(author, ': ');
+
+    const messageComponent = document.createElement('span');
+    messageComponent.innerText = content;
+
+    element.append(authorLabel, messageComponent);
+
+    return element;
+
+    // const text = `<b>${author}:</b> ${this.escapeMessage(content)}`;
+    // return this.renderContent({
+    //   color: 'white',
+    //   text
+    // });
   }
 
   renderContent(line) {
