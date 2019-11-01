@@ -58,15 +58,6 @@ class GameServer extends Server {
         }
       }, socketIndex);
 
-      this.send({
-        type: 'DEFINE_ARENA',
-        data: {
-          friction: WM.friction,
-          ice: WM.icePatches.map(shape => ({ type: shape.constructor.name, ...shape })),
-          geometry: WM.geometry.map(shape => ({ type: shape.constructor.name, ...shape }))
-        }
-      }, socketIndex);
-
       hero.registerHandler('MOUSE_DOWN', event => {
         const { position, socketIndex } = event;
         if (hero.playerID === socketIndex) {
@@ -117,6 +108,7 @@ class GameServer extends Server {
           break;
       };
     });
+
     GM.registerHandler('KEY_UP', event => {
       const hero = this.heroes[event.socketIndex];
       switch (event.key) {
@@ -172,6 +164,18 @@ class GameServer extends Server {
     }
     const pickShotgun = new ShotgunPickUp(new Vector(50, 80));
     WM.add(pickShotgun);
+  }
+
+  onOpen(socketIndex) {
+    super.onOpen(socketIndex);
+    this.send({
+      type: 'DEFINE_ARENA',
+      data: {
+        friction: WM.friction,
+        ice: WM.icePatches.map(shape => ({ type: shape.constructor.name, ...shape })),
+        geometry: WM.geometry.map(shape => ({ type: shape.constructor.name, ...shape }))
+      }
+    }, socketIndex);
   }
 }
 

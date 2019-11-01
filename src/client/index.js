@@ -14,9 +14,9 @@ const removeChildren = element => {
 }
 
 const initializeLandingPage = game => {
-  if (game) {
-    game.hidden = true;
-  }
+  // if (game) {
+  //   game.hidden = true;
+  // }
 
   const modal = document.getElementById('landing-page');
   const form = document.getElementById('join-game');
@@ -38,7 +38,7 @@ const initializeLandingPage = game => {
 
     modal.hidden = true;
     if (game) {
-      game.hidden = false;
+      // game.hidden = false;
       game.focus();
     }
   };
@@ -53,7 +53,7 @@ const main = async () => {
     autostart: true
   }).appendTo(element);
 
-  two.scene.translation.set(100, 100);
+  two.scene.translation.set(two.width / 2, two.height / 2);
 
   const makeLine = (two, x1, y1, x2, y2, color = '#f0f0f0', width = 2) => {
     const line = two.makeLine(x1, y1, x2, y2);
