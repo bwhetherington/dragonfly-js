@@ -218,7 +218,7 @@ class GameClient extends Client {
         }
 
         // Add to scoreboard
-        this.scoreboard.addPlayer(object.playerID);
+        this.scoreboard.addPlayer(object);
       }
     })
 

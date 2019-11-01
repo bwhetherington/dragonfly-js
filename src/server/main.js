@@ -19,84 +19,77 @@ class GameServer extends Server {
     this.messages = [];
   }
 
-  onOpen(socketIndex) {
-    super.onOpen(socketIndex);
-
-    // Create hero for player
-    const hero = new Hero(socketIndex);
-    WM.add(hero);
-    this.heroes[socketIndex] = hero;
-
-    this.send({
-      type: 'ASSIGN_ID',
-      data: {
-        playerID: socketIndex
-      }
-    }, socketIndex);
-
-    this.send({
-      type: 'DEFINE_ARENA',
-      data: {
-        friction: WM.friction,
-        ice: WM.icePatches.map(shape => ({ type: shape.constructor.name, ...shape })),
-        geometry: WM.geometry.map(shape => ({ type: shape.constructor.name, ...shape }))
-      }
-    }, socketIndex);
-
-    hero.registerHandler('MOUSE_DOWN', event => {
-      const { position, socketIndex } = event;
-      if (hero.playerID === socketIndex) {
-        const { x, y } = position;
-        hero.fireXY(x, y);
-      }
-    });
-
-    hero.registerHandler('ROTATE_CANNON', event => {
-      const { playerID, angle, socketIndex } = event;
-      if (playerID === socketIndex && hero.playerID === playerID) {
-        hero.rotateCannon(angle);
-      }
-    });
-
-    hero.registerHandler('PLAYER_KILLED', event => {
-      const { killerID } = event;
-      if (hero.id === killerID) {
-        hero.score += hero.maxDamage;
-      }
-    });
-
-    // for (const message of this.messages) {
-    //   const data = {
-    //     type: 'CHAT_OUTPUT',
-    //     data: {
-    //       message
-    //     }
-    //   };
-    //   this.send(data, socketIndex);
-    // }
-
-  }
-
   onClose(socketIndex) {
     const hero = this.heroes[socketIndex];
-    hero.markForDelete();
 
-    const message = {
-      type: 'REMOVE_PLAYER',
-      data: {
-        id: socketIndex
-      }
-    };
+    if (hero) {
+      hero.markForDelete();
 
-    for (const socket in this.connections) {
-      if (socket !== socketIndex) {
-        this.send(message, socket);
+      const message = {
+        type: 'REMOVE_PLAYER',
+        data: {
+          id: socketIndex
+        }
+      };
+
+      for (const socket in this.connections) {
+        if (socket !== socketIndex) {
+          this.send(message, socket);
+        }
       }
     }
   }
 
   initialize() {
     super.initialize();
+
+    GM.registerHandler('JOIN_GAME', event => {
+      const { name, socketIndex } = event;
+      // Create hero for player
+      const hero = new Hero(socketIndex);
+      hero.name = name;
+      WM.add(hero);
+      this.heroes[socketIndex] = hero;
+
+      this.send({
+        type: 'ASSIGN_ID',
+        data: {
+          playerID: socketIndex
+        }
+      }, socketIndex);
+
+      this.send({
+        type: 'DEFINE_ARENA',
+        data: {
+          friction: WM.friction,
+          ice: WM.icePatches.map(shape => ({ type: shape.constructor.name, ...shape })),
+          geometry: WM.geometry.map(shape => ({ type: shape.constructor.name, ...shape }))
+        }
+      }, socketIndex);
+
+      hero.registerHandler('MOUSE_DOWN', event => {
+        const { position, socketIndex } = event;
+        if (hero.playerID === socketIndex) {
+          const { x, y } = position;
+          hero.fireXY(x, y);
+        }
+      });
+
+      hero.registerHandler('ROTATE_CANNON', event => {
+        const { playerID, angle, socketIndex } = event;
+        if (playerID === socketIndex && hero.playerID === playerID) {
+          hero.rotateCannon(angle);
+        }
+      });
+
+      hero.registerHandler('PLAYER_KILLED', event => {
+        const { killerID } = event;
+        if (hero.id === killerID) {
+          hero.score += hero.maxDamage;
+        }
+      });
+    });
+
     GM.registerHandler('KEY_DOWN', event => {
       const hero = this.heroes[event.socketIndex];
       switch (event.key) {

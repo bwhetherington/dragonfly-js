@@ -38,11 +38,14 @@ class Scoreboard {
     });
   }
 
-  addPlayer(playerID) {
+  addPlayer(hero) {
+    console.log(hero.name);
+    const { name, playerID } = hero;
+
     const row = document.createElement('tr');
 
     const playerName = document.createElement('td');
-    playerName.innerText = playerID;
+    playerName.innerText = name;
 
     const playerScore = document.createElement('td');
     playerScore.innerText = 0;
@@ -53,7 +56,7 @@ class Scoreboard {
     row.append(playerName, playerScore, playerPing);
 
     const playerObject = {
-      name: playerID,
+      name,
       score: 0,
       ping: 0,
       element: row

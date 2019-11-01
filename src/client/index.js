@@ -3,14 +3,47 @@ import './index.css';
 import GameClient from './GameClient';
 import WM from '../shared/entity/WorldManager';
 import GM from '../shared/event/GameManager';
-import AM from '../shared/audio/AudioManager';
+import NM from '../shared/network/NetworkManager';
 import Rectangle from '../shared/util/Rectangle';
+import CM from './ChatManager';
 
 const removeChildren = element => {
   while (element.firstChild) {
     element.removeChild(element.firstChild);
   }
 }
+
+const initializeLandingPage = game => {
+  if (game) {
+    game.hidden = true;
+  }
+
+  const modal = document.getElementById('landing-page');
+  const form = document.getElementById('join-game');
+  form.onsubmit = event => {
+    event.preventDefault();
+
+    const name = document.getElementById('name').value;
+
+    CM.name = name;
+
+    const message = {
+      type: 'JOIN_GAME',
+      data: {
+        name
+      }
+    };
+
+    NM.send(message);
+
+    modal.hidden = true;
+    if (game) {
+      game.hidden = false;
+      game.focus();
+    }
+  };
+  // modal.hidden = true;
+};
 
 const main = async () => {
   const element = document.getElementById('game');
@@ -91,6 +124,8 @@ const main = async () => {
 
   client.initialize(element);
   element.focus();
+
+  initializeLandingPage(element);
   // initChatbox();
 };
 

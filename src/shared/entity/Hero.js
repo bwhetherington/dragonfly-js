@@ -251,7 +251,8 @@ class Hero extends Entity {
       cannonAngle: this.cannonAngle,
       damageAmount: this.damageAmount,
       score: this.score,
-      deathTimer: this.deathTimer
+      deathTimer: this.deathTimer,
+      name: this.name
     };
     if (this.weapon instanceof Weapon) {
       obj.weapon = this.weapon.serialize();
@@ -328,6 +329,9 @@ class Hero extends Entity {
       } else {
         this.weapon.deserialize(obj.weapon);
       }
+    }
+    if (obj.name !== undefined) {
+      this.name = obj.name;
     }
   }
 
