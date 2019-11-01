@@ -29,12 +29,11 @@ class Scoreboard {
     });
 
     GM.registerHandler('DISPLAY_PING', event => {
-      const { latencies } = event;
-      for (const id in latencies) {
-        const player = this.players[id];
-        if (player) {
-          player.ping = latencies[id];
-        }
+      console.log(event);
+      const { id, ping } = event;
+      const player = this.players[id];
+      if (player) {
+        player.ping = ping;
       }
     });
   }
@@ -62,23 +61,22 @@ class Scoreboard {
 
     this.players[playerID] = new Proxy(playerObject, {
       set(obj, prop, val) {
-        obj[prop] = val;
-
-        // Update UI
-        switch (prop) {
-          case 'name':
-            playerName.innerText = val;
-            break;
-          case 'score':
-            playerScore.innerText = val;
-            break;
-          case 'ping':
-            const ping = Math.round(val * 1000) + 'ms';
-            playerPing.innerText = ping;
-            break;
+        if (obj[prop] !== val) {
+          // Update UI
+          switch (prop) {
+            case 'name':
+              playerName.innerText = val;
+              break;
+            case 'score':
+              playerScore.innerText = val;
+              break;
+            case 'ping':
+              const ping = Math.round(val * 1000) + 'ms';
+              playerPing.innerText = ping;
+              break;
+          }
         }
-
-        return true;
+        return obj[prop] = val;
       }
     });
 

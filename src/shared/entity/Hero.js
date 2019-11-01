@@ -46,23 +46,7 @@ const COLORS_LIST = Object.keys(COLORS).map(key => COLORS[key]);
 class Hero extends Entity {
   constructor(playerID = -1) {
     super();
-    this.maxDamage = 10;
-    // if (isClient()) {
-    //   this.position = new Proxy(this.position, {
-    //     get(obj, prop) {
-    //       return obj[prop];
-    //     },
-
-    //     set(obj, prop, value) {
-    //       obj[prop] = value;
-    //       if (value === undefined || Number.isNaN(value)) {
-    //         debugger;
-    //         console.log(`${prop} = ${value}`);
-    //       }
-    //       return true;
-    //     }
-    //   });
-    // }
+    this.maxDamage = 100;
     this.movementSpeed = MOVEMENT_SPEED;
     this.playerID = playerID;
     this.input = {
@@ -81,6 +65,7 @@ class Hero extends Entity {
     this.deathAmount = 1;
     this.invilTimer = -1;
     this.invilAmount = 2;
+    this.regen = 2;
 
 
     this.registerHandler('OBJECT_COLLISION', event => {
@@ -111,6 +96,10 @@ class Hero extends Entity {
       if (isClient()) {
         return;
       }
+
+      // Regen
+      this.damageAmount = Math.max(this.damageAmount - dt * this.regen, 0);
+
       if (this.invilTimer !== -1) {
         this.invilTimer -= dt;
         if (this.invilTimer <= 0) {
@@ -179,7 +168,6 @@ class Hero extends Entity {
       return;
     }
     this.damageAmount += amount;
-    this.updateColor();
 
     if (isServer()) {
       const damager = WM.findByID(sourceID);
@@ -362,7 +350,8 @@ class Hero extends Entity {
     // cannonGroup.translation.set(this.position.x, this.position.y);
     this.cannon = cannonGroup;
 
-    this.graphicsObject = two.makeGroup(object, cannonGroup);
+    this.colorObject = two.makeGroup(object, cannonGroup);
+    this.graphicsObject = this.colorObject;
     this.graphicsObject.translation.set(this.position.x, this.position.y);
 
     // Select color

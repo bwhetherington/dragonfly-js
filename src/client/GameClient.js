@@ -14,6 +14,16 @@ import SETTINGS from '../shared/util/settings';
 import Bar from './Bar';
 import Scoreboard from './Scoreboard';
 import CM from './ChatManager';
+import SizedQueue from '../shared/util/SizedQueue';
+import BounceProjectile from '../shared/entity/BounceProjectile';
+
+const average = list => {
+  let sum = 0;
+  for (let i = 0; i < list.length; i++) {
+    sum += list[i];
+  }
+  return sum / list.length;
+};
 
 class GameClient extends Client {
   constructor(two, addr) {
@@ -26,6 +36,7 @@ class GameClient extends Client {
 
   initializeUI() {
     let lastFPS = 60;
+    const fpsQueue = new SizedQueue(60);
 
     // Create scoreboard
     this.scoreboard = new Scoreboard('scoreboard-tbody');
@@ -33,21 +44,16 @@ class GameClient extends Client {
 
     GM.registerHandler('STEP', event => {
 
-      let hits = 0;
-      let score = 0;
       const { hero } = this;
 
       if (hero) {
-        hits = hero.damageAmount;
-        score = hero.score;
-
         this.hpBar.value = hero.maxDamage - hero.damageAmount;
       }
 
       const curFPS = 1 / event.dt;
+      fpsQueue.enqueue(curFPS);
       // Smooth fps slightly
-      const fps = Math.round(0.7 * curFPS + 0.3 * lastFPS);
-      lastFPS = curFPS;
+      const fps = Math.round(average(fpsQueue.toList()));
 
       const entityCount = WM.entityCount;
       const listenerCount = GM.handlerCount;
@@ -258,6 +264,9 @@ class GameClient extends Client {
       case 'Hero':
         const hero = new Hero();
         return hero;
+      case 'BounceProjectile':
+        const bounceProjectile = new BounceProjectile();
+        return bounceProjectile;
       case 'Projectile':
         const projectile = new Projectile();
         return projectile;

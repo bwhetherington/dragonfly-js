@@ -49,12 +49,13 @@ class Entity {
   }
 
   setColor(color) {
-    const { graphicsObject } = this;
-    if (graphicsObject) {
+    const { colorObject, graphicsObject } = this;
+    const obj = colorObject || graphicsObject;
+    if (obj) {
       const fill = getFill(color);
       const stroke = getStroke(color);
-      graphicsObject.fill = fill;
-      graphicsObject.stroke = stroke;
+      obj.fill = fill;
+      obj.stroke = stroke;
     }
   }
 
@@ -156,17 +157,6 @@ class Entity {
     }
   }
 
-  updateColor() {
-    const { graphicsObject } = this;
-    if (graphicsObject) {
-      const { damageAmount = 0 } = this;
-      const damageColor = Math.min(100 + damageAmount * 5, 255);
-      const outlineColor = damageColor - 50;
-      graphicsObject.fill = `rgb(${damageColor}, 75, 50)`;
-      graphicsObject.stroke = `rgb(${outlineColor}, 50, 25)`;
-    }
-  }
-
   updateOpacity(opacity) {
     const { graphicsObject } = this;
     if (graphicsObject) {
@@ -185,8 +175,6 @@ class Entity {
     const object = two.makeRectangle(this.position.x, this.position.y, 30, 30);
     object.linewidth = 5;
     this.graphicsObject = object;
-    this.updateColor();
-
   }
 
   damage(amount) { }

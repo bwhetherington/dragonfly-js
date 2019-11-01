@@ -93,19 +93,16 @@ input[type='text']:focus {
   bottom: 0px;
   right: 0px;
   left: 0px;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .modal {
   position: relative;
   width: 1000px;
   margin: auto;
-  border: 1px solid white;
   margin-top: 50px;
   margin-bottom: 50px;
   padding: 10px;
-  background: white;
-  color: black;
 }
 
 .chatbox {

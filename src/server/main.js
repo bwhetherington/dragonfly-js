@@ -61,7 +61,7 @@ class GameServer extends Server {
     hero.registerHandler('PLAYER_KILLED', event => {
       const { killerID } = event;
       if (hero.id === killerID) {
-        hero.score += 10;
+        hero.score += hero.maxDamage;
       }
     });
 
@@ -191,16 +191,16 @@ const main = async () => {
   // Create level geometry
 
   // Create the game timer
+  const PING_INTERVAL = 1;
   let timeElapsed = 0;
   const timer = new Timer(1 / REFRESH_RATE, dt => {
     timeElapsed += dt;
     GM.step(dt);
     WM.sync(server);
-    if (timeElapsed >= 0.5) {
-      server.getPlayerLatencies();
-      timeElapsed -= 0.5;
+    if (timeElapsed >= PING_INTERVAL) {
+      server.checkPings();
+      timeElapsed -= PING_INTERVAL;
     }
-    server.sendPlayerLatencies();
   });
 
   timer.start();

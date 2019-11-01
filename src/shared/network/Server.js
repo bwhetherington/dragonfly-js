@@ -42,14 +42,6 @@ class Server {
     const httpServer = serveHTTP();
     NM.initialize(this);
 
-    GM.registerHandler('PING_CLIENT', data => {
-      const event = {
-        type: 'PING_SERVER',
-        data
-      };
-      NM.send(event, data.playerID);
-    });
-
     GM.registerHandler('SYNC_OBJECT', event => {
       WM.receiveSyncObject(event.object);
     });
@@ -82,6 +74,37 @@ class Server {
     return Object.keys(this.connections).length;
   }
 
+  getPing(playerID) {
+    return new Promise(resolve => {
+      const id = uuid();
+      const start = now();
+      this.send({
+        type: 'CHECK_PING',
+        data: { id }
+      });
+      this.pingChecks[id] = {
+        start,
+        id,
+        playerID,
+        resolve
+      };
+    });
+  }
+
+  checkPings() {
+    for (const playerID in this.connections) {
+      this.getPing(playerID).then(ping => {
+        this.send({
+          type: 'DISPLAY_PING',
+          data: {
+            id: playerID,
+            ping
+          }
+        });
+      });
+    }
+  }
+
   onLastConnection() { }
 
   send(message, socketIndex = -1) {
@@ -102,42 +125,15 @@ class Server {
     }
   }
 
-  getPlayerLatencies() {
-    for (const playerID in this.connections) {
-      const start = now();
-      const id = uuid();
-      const ping = { type: 'CHECK_PING', data: { id } };
-      this.send(ping, playerID);
-      this.pingChecks[id] = { start };
-    }
-  }
-
-  sendPlayerLatencies() {
-    const message = {
-      type: 'DISPLAY_PING',
-      data: {
-        latencies: this.playerPings
-      }
-    };
-    for (const playerID in this.connections) {
-      let ping = this.playerPings[playerID];
-      if (ping === undefined) {
-        ping = Number.NaN;
-      }
-      message.data.latencies[playerID] = ping;
-    }
-    this.send(message);
-  }
-
   onMessage(message, socketIndex) {
     message.data.socketIndex = socketIndex;
     if (message.type === 'CHECK_PING') {
       const { id } = message.data;
       const check = this.pingChecks[id];
       if (check) {
-        const { start } = check;
+        const { start, resolve } = check;
         const end = now();
-        this.playerPings[socketIndex] = end - start;
+        resolve(end - start);
         delete this.pingChecks[id];
       }
     } else {

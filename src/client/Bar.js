@@ -18,21 +18,25 @@ class Bar {
   }
 
   set maxValue(val) {
+    const old = this.valueInternal;
     this.maxValueInternal = val;
-    this.updateElement();
+    this.updateElement(old, val);
   }
 
   set value(val) {
+    const old = this.valueInternal;
     this.valueInternal = val;
-    this.updateElement();
+    this.updateElement(old, val);
   }
 
-  updateElement() {
-    const width = Math.round(this.value / this.maxValue * 100) + '%';
-    if (this.label) {
-      this.label.innerText = this.value + '/' + this.maxValue;
+  updateElement(oldValue, newValue) {
+    if (oldValue !== newValue) {
+      const width = Math.round(this.value / this.maxValue * 100) + '%';
+      if (this.label) {
+        this.label.innerText = Math.round(this.value) + '/' + Math.round(this.maxValue);
+      }
+      this.element.style.width = width;
     }
-    this.element.style.width = width;
   }
 }
 

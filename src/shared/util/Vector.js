@@ -4,6 +4,12 @@ class Vector {
     this.y = y;
   }
 
+  static fromPolar(r, theta) {
+    const x = Math.cos(theta) * r;
+    const y = Math.sin(theta) * r;
+    return new Vector(x, y);
+  }
+
   equals(vector) {
     const { x, y } = vector;
     return this.x === x && this.y === y;

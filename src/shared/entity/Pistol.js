@@ -1,10 +1,7 @@
-import Entity from './Entity';
 import Weapon from './Weapon';
 import Vector from '../util/Vector';
 import Projectile from './Projectile';
-import GM from '../event/GameManager';
 import WM from './WorldManager';
-import { isClient } from '../util/util';
 import AM from '../audio/AudioManager';
 
 class Pistol extends Weapon {
@@ -26,6 +23,7 @@ class Pistol extends Weapon {
     vector.normalize();
 
     const bullet = new Projectile(sourceHero.id);
+    bullet.maxBounces = 1;
     bullet.velocity.set(vector);
 
     offset.set(vector);
@@ -40,7 +38,7 @@ class Pistol extends Weapon {
       if (projectileID === bullet.id) {
         const object = WM.findByID(hitID);
         if (object) {
-          object.damage(2, sourceID);
+          object.damage(18, sourceID);
         }
       }
     });
