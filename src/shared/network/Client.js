@@ -11,7 +11,6 @@ const transformClientCoordinates = (two, x, y) => {
 
 const attachInput = (two, root) => {
   root.addEventListener('keydown', event => {
-    console.log(document.getElementById('game') === document.activeElement);
     const newEvent = {
       type: 'KEY_DOWN',
       data: {

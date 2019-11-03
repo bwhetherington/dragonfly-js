@@ -9,6 +9,8 @@ import ShotgunPickUp from '../shared/entity/ShotgunPickUp';
 import { readFileSync } from 'fs';
 import Pistol from '../shared/entity/Pistol';
 import Rectangle from '../shared/util/Rectangle';
+import WeaponPickUp from '../shared/entity/WeaponPickUp';
+import HealthPickUp from '../shared/entity/HealthPickUp';
 
 const REFRESH_RATE = 60;
 
@@ -83,52 +85,49 @@ class GameServer extends Server {
 
     GM.registerHandler('KEY_DOWN', event => {
       const hero = this.heroes[event.socketIndex];
-      switch (event.key) {
-        case 'KeyW':
-          hero.setInput('up', true);
-          break;
-        case 'KeyS':
-          hero.setInput('down', true);
-          break;
-        case 'KeyA':
-          hero.setInput('left', true);
-          break;
-        case 'KeyD':
-          hero.setInput('right', true);
-          break;
-        case 'KeyF':
-          hero.applyForce(new Vector(100, 0));
-          break;
-        case 'KeyQ':
-          hero.setWeapon(Pistol);
-          break;
-        case 'ShiftLeft':
-        case 'ShiftRight':
-          hero.setSlow(true);
-          break;
-      };
+      if (hero) {
+        switch (event.key) {
+          case 'KeyW':
+            hero.setInput('up', true);
+            break;
+          case 'KeyS':
+            hero.setInput('down', true);
+            break;
+          case 'KeyA':
+            hero.setInput('left', true);
+            break;
+          case 'KeyD':
+            hero.setInput('right', true);
+            break;
+          case 'KeyQ':
+            hero.dropWeapon();
+            break;
+        };
+      }
     });
 
     GM.registerHandler('KEY_UP', event => {
       const hero = this.heroes[event.socketIndex];
-      switch (event.key) {
-        case 'KeyW':
-          hero.setInput('up', false);
-          break;
-        case 'KeyS':
-          hero.setInput('down', false);
-          break;
-        case 'KeyA':
-          hero.setInput('left', false);
-          break;
-        case 'KeyD':
-          hero.setInput('right', false);
-          break;
-        case 'ShiftLeft':
-        case 'ShiftRight':
-          hero.setSlow(false);
-          break;
-      };
+      if (hero) {
+        switch (event.key) {
+          case 'KeyW':
+            hero.setInput('up', false);
+            break;
+          case 'KeyS':
+            hero.setInput('down', false);
+            break;
+          case 'KeyA':
+            hero.setInput('left', false);
+            break;
+          case 'KeyD':
+            hero.setInput('right', false);
+            break;
+          case 'ShiftLeft':
+          case 'ShiftRight':
+            hero.setSlow(false);
+            break;
+        };
+      }
     });
 
     GM.registerHandler('PLAY_AUDIO', data => {
@@ -162,7 +161,19 @@ class GameServer extends Server {
     if (level.features !== undefined) {
       WM.icePatches = level.features.map(({ x, y, width, height }) => new Rectangle(x, y, width, height));
     }
-    const pickShotgun = new ShotgunPickUp(new Vector(50, 80));
+
+    let healthCount = 0;
+    GM.runTimer(1, () => {
+      if (healthCount < 5) {
+        healthCount += 1;
+        const healthPickUp = new HealthPickUp();
+        healthPickUp.setPosition(WM.getRandomPoint());
+        WM.add(healthPickUp);
+      }
+    });
+
+    const pickShotgun = new WeaponPickUp('Raygun');
+    pickShotgun.setPosition(WM.getRandomPoint());
     WM.add(pickShotgun);
   }
 
@@ -180,7 +191,7 @@ class GameServer extends Server {
 }
 
 const main = async () => {
-  const server = new (delayServer(GameServer, 0))(4);
+  const server = new (delayServer(GameServer, 0))(8);
   server.initialize();
 
   WM.initialize();

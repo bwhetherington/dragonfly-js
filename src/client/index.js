@@ -85,11 +85,14 @@ const main = async () => {
   };
 
   GM.registerHandler('DEFINE_ARENA', event => {
-    const { geometry, ice } = event;
+    const { friction, geometry, ice } = event;
+
+    WM.friction = friction;
 
     WM.icePatches = ice.map(({ x, y, width, height }) => new Rectangle(x, y, width, height));
 
     WM.setGeomtetry(geometry);
+
     for (const shape of geometry) {
       const { type, x, y, width, height } = shape;
       switch (type) {

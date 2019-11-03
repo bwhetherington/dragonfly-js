@@ -13,6 +13,7 @@ import { isServer, isClient } from '../util/util';
 import NM from '../network/NetworkManager';
 import Explosion from './Explosion';
 import SETTINGS from '../util/settings';
+import WeaponPickUp from './WeaponPickUp';
 
 const MOVEMENT_SPEED = 300;
 
@@ -57,9 +58,9 @@ class Hero extends Entity {
     };
     this.damageAmount = 0;
     this.cannonAngle = 0;
-    this.setWeapon(Raygun);
+    this.setWeapon('Pistol');
     this.friction = 1;
-    this.bounce = 0.1;
+    this.bounce = 0.2;
     this.score = 0;
     this.deathTimer = -1;
     this.deathAmount = 1;
@@ -159,6 +160,16 @@ class Hero extends Entity {
     });
   }
 
+  dropWeapon() {
+    const { weapon } = this;
+    if (weapon && weapon.type !== 'Pistol') {
+      const pickup = new WeaponPickUp(weapon.type);
+      pickup.setPosition(this.position);
+      WM.add(pickup);
+      this.setWeapon('Pistol');
+    }
+  }
+
   setSlow(value) {
     this.isSlow = value;
   }
@@ -203,6 +214,8 @@ class Hero extends Entity {
       const explosion = new Explosion(2);
       explosion.setPosition(this.position);
       WM.add(explosion);
+    } else {
+      this.dropWeapon();
     }
 
     this.damageAmount = 0;
@@ -324,11 +337,11 @@ class Hero extends Entity {
       this.damageAmount = obj.damageAmount;
     }
     if (obj.weapon !== undefined) {
-      if (obj.type !== this.weapon.type) {
-        // this.setWeapon()
-      } else {
-        this.weapon.deserialize(obj.weapon);
+      if (obj.weapon.type !== this.weapon.type) {
+        this.setWeapon(obj.weapon.type)
       }
+      this.weapon.deserialize(obj.weapon);
+
     }
     if (obj.name !== undefined) {
       this.name = obj.name;
@@ -371,17 +384,37 @@ class Hero extends Entity {
     // }
   }
 
-  setWeapon(WeaponClass) {
-    if (this.weapon instanceof Weapon) {
-      this.weapon.cleanup();
+  setWeapon(type) {
+    // If this is the same weapon type as what we already have, do nothing
+    if (!(this.weapon && type === this.weapon.type)) {
+      let weapon = null;
+      switch (type) {
+        case 'Pistol':
+          weapon = new Pistol();
+          break;
+        case 'Raygun':
+          weapon = new Raygun();
+          break;
+        case 'Shotgun':
+          weapon = new Shotgun();
+          break;
+      }
+      if (weapon) {
+        if (this.weapon) {
+          this.weapon.cleanup();
+        }
+        this.weapon = weapon;
+      }
     }
-    this.weapon = new WeaponClass();
   }
 
   cleanup() {
     if (this.colorString) {
       // Free color
       colorOptions.push(this.colorString);
+    }
+    if (this.weapon) {
+      this.weapon.cleanup();
     }
     return super.cleanup();
   }

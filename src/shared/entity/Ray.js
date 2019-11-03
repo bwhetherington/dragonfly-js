@@ -30,7 +30,7 @@ class Ray extends Entity {
         if (other !== null) {
           this.hit(other);
           if (other instanceof Hero && !other.isInvincible) {
-            const scale = other.damageAmount / other.maxDamage * 200;
+            const scale = ((other.damageAmount / other.maxDamage) * 0.8 + 0.2) * 200;
             this.velocity.normalize();
             this.velocity.scale(scale);
             other.applyForce(this.velocity);

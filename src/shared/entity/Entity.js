@@ -137,12 +137,13 @@ class Entity {
       position: this.position,
       velocity: this.velocity,
       acceleration: this.acceleration,
-      isCollidable: this.isCollidable
+      isCollidable: this.isCollidable,
+      opacity: this.opacity
     };
   }
 
   deserialize(obj) {
-    const { position, velocity, acceleration, isCollidable } = obj;
+    const { position, velocity, acceleration, isCollidable, opacity } = obj;
     if (position) {
       this.position.set(position);
     }
@@ -155,12 +156,16 @@ class Entity {
     if (isCollidable) {
       this.isCollidable = isCollidable;
     }
+    if (opacity !== undefined) {
+      this.updateOpacity(opacity);
+    }
   }
 
   updateOpacity(opacity) {
+    this.opacity = opacity;
     const { graphicsObject } = this;
     if (graphicsObject) {
-      graphicsObject.opacity = opacity;
+      graphicsObject.opacity = this.opacity;
     }
   }
 

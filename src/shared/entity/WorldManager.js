@@ -36,11 +36,27 @@ class WorldManager {
         case 'Rectangle':
           return new Rectangle(x, y, width, height);
         case 'InverseRectangle':
+          this.setBounds(x - width / 2, y - height / 2, width, height);
           return new InverseRectangle(x, y, width, height);
         default:
           return null;
       }
     }).filter(shape => shape !== null);
+  }
+
+  getRandomPoint() {
+    const { x, y, width, height } = this.bounds;
+
+    // If there are no valid spots, this will hang
+    while (true) {
+      const rx = Math.random() * width + x;
+      const ry = Math.random() * height + y;
+      for (const shape of this.geometry) {
+        if (shape.containsXY(rx, ry)) {
+          return new Vector(rx, ry);
+        }
+      }
+    }
   }
 
   generateEntity(type) {
@@ -87,19 +103,21 @@ class WorldManager {
     }
   }
 
+
+
   move(entity, dt) {
     // vb1 = a * t
     let { friction } = this;
     const { boundingBox } = entity;
 
-    // if (entity.friction > 0) {
-    //   for (const icePatch of this.icePatches) {
-    //     if (icePatch.intersects(boundingBox)) {
-    //       friction /= 20;
-    //       break;
-    //     }
-    //   }
-    // }
+    if (entity.friction > 0) {
+      for (const icePatch of this.icePatches) {
+        if (icePatch.intersects(boundingBox)) {
+          friction /= 20;
+          break;
+        }
+      }
+    }
 
     entity.vectorBuffer1.set(entity.acceleration);
     entity.vectorBuffer1.scale(entity.friction * friction * dt);

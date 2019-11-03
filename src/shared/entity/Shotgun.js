@@ -26,9 +26,9 @@ class Shotgun extends Weapon {
     const spread = this.spread / this.projectileNum;
 
     for (let i = 0; i < this.projectileNum; i++) {
-      // vector.addXY(sourceHero.createOffset(0.5), sourceHero.createOffset(0.5));
-      // vector.normalize();
       const bullet = new Projectile(sourceHero.id);
+      bullet.bounce = 0;
+      bullet.maxBounces = 0;
 
       const velocity = Vector.fromPolar(650, (i - (this.projectileNum - 1) / 2) * spread + baseAngle);
 

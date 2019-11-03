@@ -1,33 +1,51 @@
 import Entity from './Entity';
-import GM from '../event/GameManager';
 import Rectangle from '../util/Rectangle';
-import WM from './WorldManager';
-import { isClient } from '../util/util';
-import AM from '../audio/AudioManager';
-import Vector from '../util/Vector';
+import { isServer } from '../util/util';
+import Hero from './Hero';
+import GM from '../event/GameManager';
 
 class PickUp extends Entity {
-  constructor(givenVector = new Vector(0,0)) {
+  constructor() {
     super();
-    this.position = givenVector;
+    this.boundingBox = new Rectangle(0, 0, 20, 20);
+    this.isCollidable = false;
+
+    if (isServer()) {
+
+      GM.runDelay(5, () => {
+        this.isCollidable = true;
+        this.updateOpacity(1);
+      });
+
+      this.registerHandler('OBJECT_COLLISION', event => {
+        const { object1, object2 } = event;
+        let other = null;
+        if (object1.id === this.id) {
+          if (object2.id !== this.sourceID && object2 instanceof Hero) {
+            other = object2;
+          }
+        } else if (object2.id === this.id) {
+          if (object1.id !== this.sourceID && object1 instanceof Hero) {
+            other = object1;
+          }
+        }
+        if (other !== null) {
+          this.onPickUp(other);
+          this.markForDelete();
+        }
+      });
+    }
   }
 
   initializeGraphics(two) {
-
+    const circle = two.makeCircle(0, 0, 10);
+    circle.linewidth = 5;
+    this.graphicsObject = circle;
+    this.updateOpacity(0.5);
   }
 
-  serialize() {
-    return {
-      ...super.serialize(),
-    };
-  }
-
-  deserialize(object) {
-    super.deserialize(object);
-  }
-
-  cleanup() {
-    super.cleanup();
+  onPickUp(hero) {
+    console.log('PICKUP');
   }
 }
 

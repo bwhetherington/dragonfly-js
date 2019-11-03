@@ -40,6 +40,28 @@ class GameManager {
     }
   }
 
+  runTimer(interval, callback) {
+    let elapsed = 0;
+    this.registerHandler('STEP', event => {
+      elapsed += event.dt;
+      while (elapsed >= interval) {
+        elapsed -= interval;
+        callback();
+      }
+    });
+  }
+
+  runDelay(seconds, callback) {
+    let elapsed = 0;
+    this.registerHandler('STEP', (event, remove) => {
+      elapsed += event.dt;
+      if (elapsed >= seconds) {
+        callback();
+        remove();
+      }
+    })
+  }
+
   handleEvent(event) {
     const { type, data } = event;
 

@@ -62,6 +62,13 @@ class ChatManager {
       this.addLine(line);
     });
 
+    this.registerCommand('noclip', () => {
+      const { hero } = this;
+      if (hero) {
+        hero.isCollidable = !hero.isCollidable;
+      }
+    });
+
     this.registerCommand('roll', args => {
       if (args.length === 1) {
         try {
@@ -121,7 +128,6 @@ class ChatManager {
         const components = value.split(/\s+/);
         const command = components[0];
         const callback = this.commands[command];
-        console.log(callback);
         if (typeof callback === 'function') {
           callback(components.slice(1));
         } else {

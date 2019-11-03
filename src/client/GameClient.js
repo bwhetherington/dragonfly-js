@@ -8,14 +8,14 @@ import Explosion from '../shared/entity/Explosion';
 import Laser from '../shared/entity/Laser';
 import Vector from '../shared/util/Vector';
 import AM from '../shared/audio/AudioManager';
-import ShotgunPickUp from '../shared/entity/ShotgunPickUp';
+import WeaponPickUp from '../shared/entity/WeaponPickUp';
 import Pistol from '../shared/entity/Pistol';
 import SETTINGS from '../shared/util/settings';
 import Bar from './Bar';
 import Scoreboard from './Scoreboard';
 import CM from './ChatManager';
 import SizedQueue from '../shared/util/SizedQueue';
-import BounceProjectile from '../shared/entity/BounceProjectile';
+import HealthPickUp from '../shared/entity/HealthPickUp';
 
 const average = list => {
   let sum = 0;
@@ -87,12 +87,6 @@ class GameClient extends Client {
             break;
           case 'KeyD':
             hero.setInput('right', true);
-            break;
-          case 'KeyF':
-            hero.applyForce(new Vector(100, 0));
-            break;
-          case 'KeyQ':
-            hero.setWeapon(Pistol);
             break;
           case 'KeyP':
             SETTINGS.predictionEnabled = !SETTINGS.predictionEnabled;
@@ -173,6 +167,7 @@ class GameClient extends Client {
 
   initializeHero(hero) {
     this.hero = hero;
+    CM.hero = hero;
     this.hpBar.maxValue = hero.maxDamage;
     GM.hero = hero;
     this.attachCamera(hero);
@@ -257,6 +252,7 @@ class GameClient extends Client {
   }
 
   createEntity(type) {
+    console.log('create', type);
     switch (type) {
       case 'Entity':
         const entity = new Entity();
@@ -264,18 +260,18 @@ class GameClient extends Client {
       case 'Hero':
         const hero = new Hero();
         return hero;
-      case 'BounceProjectile':
-        const bounceProjectile = new BounceProjectile();
-        return bounceProjectile;
       case 'Projectile':
         const projectile = new Projectile();
         return projectile;
       case 'Explosion':
         const explosion = new Explosion();
         return explosion;
-      case 'ShotgunPickUp':
-        const shotgunPickUp = new ShotgunPickUp();
-        return shotgunPickUp;
+      case 'WeaponPickUp':
+        const weaponPickUp = new WeaponPickUp();
+        return weaponPickUp;
+      case 'HealthPickUp':
+        const healthPickUp = new HealthPickUp();
+        return healthPickUp;
       default:
         return null;
     }

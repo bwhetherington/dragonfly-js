@@ -29,7 +29,6 @@ class Scoreboard {
     });
 
     GM.registerHandler('DISPLAY_PING', event => {
-      console.log(event);
       const { id, ping } = event;
       const player = this.players[id];
       if (player) {
@@ -39,7 +38,6 @@ class Scoreboard {
   }
 
   addPlayer(hero) {
-    console.log(hero.name);
     const { name, playerID } = hero;
 
     const row = document.createElement('tr');

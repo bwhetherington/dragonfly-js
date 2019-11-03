@@ -31,6 +31,7 @@ class Pistol extends Weapon {
     offset.scale(40);
 
     bullet.velocity.scale(650);
+
     bullet.setPosition(sourceHero.position);
     bullet.position.add(offset);
     bullet.registerHandler('HIT_OBJECT', event => {
