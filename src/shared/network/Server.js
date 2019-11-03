@@ -35,6 +35,7 @@ class Server {
     this.wsServer = null;
     this.pingChecks = {};
     this.playerPings = {};
+    this.freedIDs = [];
   }
 
   initialize() {
@@ -145,14 +146,25 @@ class Server {
     WM.sync(this, socketIndex);
   }
 
-  onClose(socketIndex) { }
+  onClose(socketIndex) {
+    this.freedIDs.push(socketIndex);
+  }
+
+  assignPlayerID() {
+    if (this.freedIDs.length > 0) {
+      return this.freedIDs.shift();
+    } else {
+      const index = this.socketIndex;
+      this.socketIndex += 1;
+      return index;
+    }
+  }
 
   accept(request) {
     const connection = request.accept(null, request.origin);
-    const connectionIndex = this.socketIndex;
+    const connectionIndex = this.assignPlayerID();
 
     this.connections[connectionIndex] = connection;
-    this.socketIndex += 1;
 
     this.onOpen(connectionIndex);
 

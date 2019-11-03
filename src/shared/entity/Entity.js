@@ -37,6 +37,7 @@ class Entity {
     this.friction = 0;
     this.bounce = 0;
     this.isSpectral = false;
+    this.hasMoved = true;
   }
 
   registerHandler(type, handler) {

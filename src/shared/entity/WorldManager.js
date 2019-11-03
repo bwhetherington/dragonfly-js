@@ -150,8 +150,13 @@ class WorldManager {
 
     // Check whether or not entity moves
     if (entity.vectorBuffer1.magnitude < 1e-3) {
-      entity.updatePosition();
+      if (entity.hasMoved) {
+        entity.updatePosition();
+      }
+      entity.hasMoved = false;
       return false;
+    } else {
+      entity.hasMoved = true;
     }
 
     // Do full movement at once if no collision

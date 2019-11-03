@@ -41,7 +41,7 @@ class Laser extends Entity {
 
   updateSize() {
     if (this.graphicsObject) {
-      const progress = this.timer / DURATION;
+      const progress = Math.min(1, this.timer / DURATION);
       this.graphicsObject.opacity = (1 - progress) * 0.7;
     }
   }

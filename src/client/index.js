@@ -50,7 +50,8 @@ const main = async () => {
   removeChildren(element);
   const two = new Two({
     fullscreen: true,
-    autostart: true
+    autostart: true,
+    type: Two.Types.svg
   }).appendTo(element);
 
   two.scene.translation.set(two.width / 2, two.height / 2);

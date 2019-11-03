@@ -10,8 +10,8 @@ import AM from '../audio/AudioManager';
 class Shotgun extends Weapon {
   constructor() {
     super(1);
-    this.projectileNum = 5;
-    this.spread = Math.PI / 3;
+    this.projectileNum = 20;
+    this.spread = Math.PI * 2;
   }
 
   fire(fx, fy, sourceHero) {
@@ -30,7 +30,10 @@ class Shotgun extends Weapon {
       bullet.bounce = 0;
       bullet.maxBounces = 0;
 
-      const velocity = Vector.fromPolar(650, (i - (this.projectileNum - 1) / 2) * spread + baseAngle);
+      const velocity = Vector.fromPolar(1, (i - (this.projectileNum - 1) / 2) * spread + baseAngle);
+      velocity.addXY(sourceHero.createOffset(0.1), sourceHero.createOffset(0.1));
+      velocity.normalize();
+      velocity.scale(1000);
 
       bullet.velocity.set(velocity);
 

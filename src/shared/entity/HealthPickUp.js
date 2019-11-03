@@ -5,7 +5,7 @@ import WM from './WorldManager';
 
 const COLOR = {
   red: 50,
-  green: 200,
+  green: 255,
   blue: 50
 };
 

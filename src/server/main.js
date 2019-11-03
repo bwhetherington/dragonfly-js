@@ -37,6 +37,8 @@ class GameServer extends Server {
         }
       }
     }
+
+    super.onClose(socketIndex);
   }
 
   initialize() {

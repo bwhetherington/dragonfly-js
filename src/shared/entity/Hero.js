@@ -18,13 +18,18 @@ import DirectionVector from '../util/DirectionVector';
 
 const MOVEMENT_SPEED = 300;
 
-const colorOptions = ['red', 'green', 'blue', 'yellow'];
+const colorOptions = ['white', 'black', 'yellow', 'green', 'white', 'black'];
 
 const COLORS = {
   red: {
     red: 200,
     green: 80,
     blue: 50
+  },
+  blue: {
+    red: 50,
+    green: 80,
+    blue: 200
   },
   green: {
     red: 80,
@@ -36,10 +41,15 @@ const COLORS = {
     green: 200,
     blue: 50
   },
-  blue: {
-    red: 50,
-    green: 80,
-    blue: 200
+  white: {
+    red: 220,
+    green: 220,
+    blue: 220
+  },
+  black: {
+    red: 75,
+    green: 75,
+    blue: 75
   }
 };
 
@@ -207,8 +217,10 @@ class Hero extends Entity {
   }
 
   endInvincibility() {
-    this.updateOpacity(1);
-    this.invilTimer = -1;
+    if (isServer()) {
+      this.updateOpacity(1);
+      this.invilTimer = -1;
+    }
   }
 
   kill(x = 0, y = 0) {
@@ -224,13 +236,17 @@ class Hero extends Entity {
     this.damageAmount = 0;
     this.velocity.setXY(0, 0);
     this.setPositionXY(x, y);
-    this.updateOpacity(0);
+    if (isServer()) {
+      this.updateOpacity(0);
+    }
     this.isCollidable = false;
   }
 
   respawn(x = 0, y = 0) {
     this.setPositionXY(x, y);
-    this.updateOpacity(0.8);
+    if (isServer()) {
+      this.updateOpacity(0.8);
+    }
     this.isCollidable = true;
   }
 

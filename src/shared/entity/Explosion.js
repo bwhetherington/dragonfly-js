@@ -13,6 +13,7 @@ class Explosion extends Entity {
     this.size = size;
     this.timer = 0;
     this.isCollidable = false;
+    this.isSpectral = true;
     this.doSynchronize = false;
     this.boundingBox = new Rectangle(0, 0, 0, 0);
 
@@ -30,7 +31,7 @@ class Explosion extends Entity {
 
   updateSize() {
     if (this.graphicsObject) {
-      const progress = this.timer / DURATION;
+      const progress = Math.min(1, this.timer / DURATION);
       const scale = MIN_SIZE + (progress * this.size);
       this.graphicsObject.scale = scale;
       if (progress > 0) {
