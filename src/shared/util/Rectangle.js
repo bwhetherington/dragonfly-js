@@ -66,6 +66,10 @@ class Rectangle {
       this.containsXY(blX, blY) &&
       this.containsXY(brX, brY);
   }
+
+  containsPoint(x, y) {
+    return this.containsXY(x, y);
+  }
 }
 
 export default Rectangle;

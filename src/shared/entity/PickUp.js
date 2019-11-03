@@ -9,6 +9,7 @@ class PickUp extends Entity {
     super();
     this.boundingBox = new Rectangle(0, 0, 20, 20);
     this.isCollidable = false;
+    this.isSpectral = true;
 
     if (isServer()) {
 
@@ -38,7 +39,7 @@ class PickUp extends Entity {
   }
 
   initializeGraphics(two) {
-    const circle = two.makeCircle(0, 0, 10);
+    const circle = two.makeCircle(this.position.x, this.position.y, 10);
     circle.linewidth = 5;
     this.graphicsObject = circle;
     this.updateOpacity(0.5);

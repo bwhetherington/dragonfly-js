@@ -21,11 +21,11 @@ class Vector {
   }
 
   setX(x) {
-    this.x = x;
+    this.setXY(x, this.y);
   }
 
   setY(y) {
-    this.y = y;
+    this.setXY(this.x, y);
   }
 
   set(vector) {

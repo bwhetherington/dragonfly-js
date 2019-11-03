@@ -4,10 +4,7 @@ import Server from '../shared/network/Server';
 import delayServer from '../shared/network/DelayServer';
 import WM from '../shared/entity/WorldManager';
 import Hero from '../shared/entity/Hero';
-import Vector from '../shared/util/Vector';
-import ShotgunPickUp from '../shared/entity/ShotgunPickUp';
 import { readFileSync } from 'fs';
-import Pistol from '../shared/entity/Pistol';
 import Rectangle from '../shared/util/Rectangle';
 import WeaponPickUp from '../shared/entity/WeaponPickUp';
 import HealthPickUp from '../shared/entity/HealthPickUp';
@@ -172,9 +169,13 @@ class GameServer extends Server {
       }
     });
 
-    const pickShotgun = new WeaponPickUp('Raygun');
-    pickShotgun.setPosition(WM.getRandomPoint());
-    WM.add(pickShotgun);
+    const raygun = new WeaponPickUp('Raygun');
+    raygun.setPosition(WM.getRandomPoint());
+    WM.add(raygun);
+
+    const shotgun = new WeaponPickUp('Shotgun');
+    shotgun.setPosition(WM.getRandomPoint());
+    WM.add(shotgun);
   }
 
   onOpen(socketIndex) {

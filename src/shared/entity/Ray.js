@@ -13,6 +13,7 @@ class Ray extends Entity {
     this.doSynchronize = false;
     this.boundingBox = new Rectangle(0, 0, 10, 10);
     this.onHit = null;
+    this.isSpectral = true;
 
     if (isServer()) {
       this.registerHandler('OBJECT_COLLISION', event => {

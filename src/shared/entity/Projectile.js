@@ -15,6 +15,7 @@ class Projectile extends Entity {
     this.bounce = 1;
     this.maxBounces = 0;
     this.bounces = 0;
+    this.isSpectral = true;
     this.updatePosition();
 
     this.registerHandler('GEOMETRY_COLLISION', event => {

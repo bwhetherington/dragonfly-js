@@ -36,6 +36,7 @@ class Entity {
     this.isSlow = false;
     this.friction = 0;
     this.bounce = 0;
+    this.isSpectral = false;
   }
 
   registerHandler(type, handler) {
@@ -138,12 +139,13 @@ class Entity {
       velocity: this.velocity,
       acceleration: this.acceleration,
       isCollidable: this.isCollidable,
+      isSpectral: this.isSpectral,
       opacity: this.opacity
     };
   }
 
   deserialize(obj) {
-    const { position, velocity, acceleration, isCollidable, opacity } = obj;
+    const { position, velocity, acceleration, isCollidable, isSpectral, opacity } = obj;
     if (position) {
       this.position.set(position);
     }
@@ -153,8 +155,11 @@ class Entity {
     if (acceleration) {
       this.acceleration.set(acceleration);
     }
-    if (isCollidable) {
+    if (isCollidable !== undefined) {
       this.isCollidable = isCollidable;
+    }
+    if (isSpectral !== undefined) {
+      this.isSpectral = isSpectral;
     }
     if (opacity !== undefined) {
       this.updateOpacity(opacity);

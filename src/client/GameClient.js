@@ -25,13 +25,33 @@ const average = list => {
   return sum / list.length;
 };
 
+const removeChildren = element => {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
+}
+
 class GameClient extends Client {
   constructor(two, addr) {
     super(two, addr);
     this.heroes = {};
     this.playerID = -2;
     this.latencies = {};
+    this.entityMenu = document.getElementById('entity-menu');
+    this.entities = document.getElementById('entity-tbody');
     this.hpBar = new Bar('bar-value', 'bar-label', 30);
+  }
+
+  createEntityRow(entity) {
+    const row = document.createElement('tr');
+    const type = document.createElement('td');
+    const position = document.createElement('td');
+
+    type.innerText = entity.type;
+    position.innerText = `(${Math.round(entity.position.x)}, ${Math.round(entity.position.y)})`;
+
+    row.append(type, position);
+    this.entities.appendChild(row);
   }
 
   initializeUI() {
@@ -43,6 +63,13 @@ class GameClient extends Client {
     this.scoreboard.initialize();
 
     GM.registerHandler('STEP', event => {
+      // Update entities
+      if (!this.entityMenu.hidden) {
+        removeChildren(this.entities);
+        for (const entity of WM.getEntities()) {
+          this.createEntityRow(entity);
+        }
+      }
 
       const { hero } = this;
 
@@ -90,6 +117,9 @@ class GameClient extends Client {
             break;
           case 'KeyP':
             SETTINGS.predictionEnabled = !SETTINGS.predictionEnabled;
+            break;
+          case 'KeyE':
+            this.entityMenu.hidden = !this.entityMenu.hidden;
             break;
           case 'ShiftLeft':
           case 'ShiftRight':

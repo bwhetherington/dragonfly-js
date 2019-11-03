@@ -20,6 +20,12 @@ class WorldManager {
     this.foreground = null;
   }
 
+  *getEntities() {
+    for (const id in this.entities) {
+      yield this.entities[id];
+    }
+  }
+
   initializeGraphics(two) {
     for (const id in this.entities) {
       this.entities[id].initializeGraphicsInternal(two);
@@ -47,16 +53,21 @@ class WorldManager {
   getRandomPoint() {
     const { x, y, width, height } = this.bounds;
 
+    let rx, ry, notFound = true;
+
     // If there are no valid spots, this will hang
-    while (true) {
-      const rx = Math.random() * width + x;
-      const ry = Math.random() * height + y;
+    while (notFound) {
+      rx = Math.random() * width + x;
+      ry = Math.random() * height + y;
+      notFound = false;
       for (const shape of this.geometry) {
-        if (shape.containsXY(rx, ry)) {
-          return new Vector(rx, ry);
+        if (shape.containsPoint(rx, ry)) {
+          notFound = true;
+          break;
         }
       }
     }
+    return new Vector(rx, ry);
   }
 
   generateEntity(type) {
@@ -138,7 +149,7 @@ class WorldManager {
     entity.vectorBuffer1.scale(dt);
 
     // Check whether or not entity moves
-    if (entity.vectorBuffer1.magnitude == 0) {
+    if (entity.vectorBuffer1.magnitude < 1e-3) {
       entity.updatePosition();
       return false;
     }
@@ -201,6 +212,9 @@ class WorldManager {
         if (id !== entity.id) {
           const otherEntity = this.findByID(id);
           if (!otherEntity.isCollidable) {
+            continue;
+          }
+          if (entity.isSpectral && otherEntity.isSpectral) {
             continue;
           }
           if (otherEntity instanceof Projectile) {

@@ -14,6 +14,7 @@ import NM from '../network/NetworkManager';
 import Explosion from './Explosion';
 import SETTINGS from '../util/settings';
 import WeaponPickUp from './WeaponPickUp';
+import DirectionVector from '../util/DirectionVector';
 
 const MOVEMENT_SPEED = 300;
 
@@ -163,10 +164,12 @@ class Hero extends Entity {
   dropWeapon() {
     const { weapon } = this;
     if (weapon && weapon.type !== 'Pistol') {
-      const pickup = new WeaponPickUp(weapon.type);
-      pickup.setPosition(this.position);
-      WM.add(pickup);
-      this.setWeapon('Pistol');
+      if (isServer()) {
+        const pickup = new WeaponPickUp(weapon.type);
+        pickup.setPosition(this.position);
+        WM.add(pickup);
+      }
+      this.weapon = new Pistol();
     }
   }
 
@@ -359,6 +362,7 @@ class Hero extends Entity {
   initializeGraphics(two) {
     const object = two.makeRectangle(0, 0, 30, 30);
     object.linewidth = 5;
+    this.tankBody = object;
 
     const cannon = two.makeRectangle(0, -10, 10, 30);
     cannon.linewidth = 5;
@@ -401,7 +405,7 @@ class Hero extends Entity {
       }
       if (weapon) {
         if (this.weapon) {
-          this.weapon.cleanup();
+          this.dropWeapon();
         }
         this.weapon = weapon;
       }
