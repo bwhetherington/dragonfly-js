@@ -203,9 +203,9 @@ class GameClient extends Client {
     const form = document.getElementById('rejoin-game');
     const game = document.getElementById('game');
     if(hero.id === winningHeroID){
-      modalText.innerHTML = "You Won, You're an ok boomer :)"
+      modalText.innerHTML = "Congratulations, You Won!"
     } else {
-      modalText.innerHTML = "You lost, sucky boomer :("
+      modalText.innerHTML = "Game Over, You lost"
     }
     modal.hidden = false;
     form.onsubmit = event => {
