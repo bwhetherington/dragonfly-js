@@ -335,6 +335,14 @@ class WorldManager {
       // }
     }
   }
+  deleteAllNonHero(){
+    for (const key in this.entities) {
+      const entity  = this.entities[key];
+      if(!(entity instanceof Hero)){
+        entity.markForDelete();
+      }
+    }
+  }
 }
 
 const WM = new WorldManager();

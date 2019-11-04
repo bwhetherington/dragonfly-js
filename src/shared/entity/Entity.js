@@ -3,6 +3,7 @@ import uuid from 'uuid/v1';
 import GM from '../event/GameManager';
 import WM from './WorldManager';
 import Rectangle from '../util/Rectangle';
+import Hero from './Hero';
 
 const getFill = color => {
   const { red, green, blue, alpha = 1 } = color;
@@ -172,6 +173,9 @@ class Entity {
     const { graphicsObject } = this;
     if (graphicsObject) {
       graphicsObject.opacity = this.opacity;
+      if(this instanceof Hero){
+        console.log('updated Opacity as ' + opacity)
+      }
     }
   }
 

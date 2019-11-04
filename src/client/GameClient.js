@@ -16,6 +16,7 @@ import Scoreboard from './Scoreboard';
 import CM from './ChatManager';
 import SizedQueue from '../shared/util/SizedQueue';
 import HealthPickUp from '../shared/entity/HealthPickUp';
+import NM from '../shared/network/NetworkManager';
 
 const average = list => {
   let sum = 0;
@@ -195,6 +196,42 @@ class GameClient extends Client {
     bar.style = { ...bar.style, width: "100%" };
   }
 
+  initializeGameResult(winningHeroID) {
+    const { hero } = this;
+    const modal = document.getElementById('game-end-page');
+    const modalText = document.getElementById('game-end-text');
+    const form = document.getElementById('rejoin-game');
+    const game = document.getElementById('game');
+    if(hero.id === winningHeroID){
+      modalText.innerHTML = "You Won, You're an ok boomer :)"
+    } else {
+      modalText.innerHTML = "You lost, sucky boomer :("
+    }
+    modal.hidden = false;
+    form.onsubmit = event => {
+    event.preventDefault();
+
+    const message = {
+      type: 'REJOIN_GAME',
+      data: {
+        heroID: hero.id
+      }
+    };
+    NM.send(message);
+    GM.emitEvent(message);
+    modal.hidden = true;
+    if (game) {
+      // game.hidden = false;
+      game.focus();
+    }
+  };
+  }
+
+  initializeGameEnded() {
+      const modal = document.getElementById('game-ended-page');
+      modal.hidden = false;
+  }
+
   initializeHero(hero) {
     this.hero = hero;
     CM.hero = hero;
@@ -270,12 +307,18 @@ class GameClient extends Client {
     GM.registerHandler('PLAY_AUDIO', data => {
       AM.playSoundInternal(data.filename, data.volume);
     });
+
+    GM.registerHandler('GAME_WON', event => {
+      this.initializeGameResult(event.winningHeroID);
+    });
   }
 
   onMessage(message) {
     if (message.type === 'ASSIGN_ID') {
       this.playerID = message.data.playerID;
       CM.initialize(this.playerID);
+    // } else if (message.type === 'GAME_ENDED') {
+    //   this.initializeGameEnded();
     } else {
       super.onMessage(message);
     }
