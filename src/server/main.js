@@ -16,7 +16,6 @@ class GameServer extends Server {
     super(maxConnections);
     this.heroes = {};
     this.messages = [];
-    this.gameRunning = true;
   }
 
   onClose(socketIndex) {
@@ -47,13 +46,6 @@ class GameServer extends Server {
 
     GM.registerHandler('JOIN_GAME', event => {
       const { name, socketIndex } = event;
-      if(!this.gameRunning){
-        // this.send({
-        //   type: 'GAME_ENDED',
-        // }, socketIndex);
-        // return;
-        this.resetGame();
-      }
 
       // Create hero for player
       const hero = new Hero(socketIndex);
@@ -92,9 +84,15 @@ class GameServer extends Server {
     });
 
     GM.registerHandler('REJOIN_GAME', event => {
-      if(!this.gameRunning){
-        this.resetGame();
-      }
+      const { heroID } = event;
+
+      const message = {
+        type: 'REJOIN_GAME',
+        data: {
+          heroID
+        }
+      };
+      this.send(message);
     });
     
 
@@ -167,8 +165,6 @@ class GameServer extends Server {
 
     GM.registerHandler('PLAYER_KILLED', event => {
       let winningHeroID = -1;
-      // console.log("hero length");
-      // console.log(this.heroes);
       for (const key in this.heroes) {
         const hero  = this.heroes[key];
         if (hero.lives > 0) {
@@ -186,8 +182,8 @@ class GameServer extends Server {
           winningHeroID
         }
       };
-      this.gameRunning = false;
       this.send(wonEvent);
+      this.resetGame();
     });
 
     GM.registerHandler('STEP', event =>{
@@ -231,18 +227,12 @@ class GameServer extends Server {
 
   resetGame(){
     WM.deleteAllNonHero();
-    for (const key in this.heroes) {
-      const hero  = this.heroes[key];
-      hero.reset();
-      hero.makeIntangible();
-    }
     this.generatePickups();
-    this.gameRunning = true;
     const message = {
       type: 'RESET_GAME',
       data: {}
     };
-
+    GM.emitEvent(message);
     this.send(message);
   }
 

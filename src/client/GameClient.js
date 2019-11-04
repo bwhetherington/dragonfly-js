@@ -218,10 +218,8 @@ class GameClient extends Client {
       }
     };
     NM.send(message);
-    GM.emitEvent(message);
     modal.hidden = true;
     if (game) {
-      // game.hidden = false;
       game.focus();
     }
   };
@@ -266,7 +264,6 @@ class GameClient extends Client {
     this.initializeUI();
 
     WM.setEntityGenerator(type => this.createEntity(type));
-
     GM.registerHandler('CLEANUP_GRAPHICS', event => {
       const { object } = event;
       this.two.remove(object);
@@ -317,8 +314,6 @@ class GameClient extends Client {
     if (message.type === 'ASSIGN_ID') {
       this.playerID = message.data.playerID;
       CM.initialize(this.playerID);
-    // } else if (message.type === 'GAME_ENDED') {
-    //   this.initializeGameEnded();
     } else {
       super.onMessage(message);
     }

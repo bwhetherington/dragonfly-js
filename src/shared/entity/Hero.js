@@ -58,7 +58,7 @@ const COLORS_LIST = Object.keys(COLORS).map(key => COLORS[key]);
 class Hero extends Entity {
   constructor(playerID = -1) {
     super();
-    this.maxDamage = 1;
+    this.maxDamage = 100;
     this.movementSpeed = MOVEMENT_SPEED;
     this.playerID = playerID;
     this.input = {
@@ -78,7 +78,7 @@ class Hero extends Entity {
     this.invilTimer = -1;
     this.invilAmount = 2;
     this.regen = 2;
-    this.lives = 1;
+    this.lives = 5;
 
 
     this.registerHandler('OBJECT_COLLISION', event => {
@@ -172,14 +172,13 @@ class Hero extends Entity {
     });
 
     this.registerHandler('RESET_GAME', event => {
-      this.reset();
-      this.makeIntangible();
+      this.despawn();
     });
 
     this.registerHandler('REJOIN_GAME', event => {
       const { heroID } = event;
-      if(this.id === heroID){
-        this.makeTangible();
+      if (this.id === heroID) {
+        this.spawn();
       }
     });
   }
@@ -221,7 +220,7 @@ class Hero extends Entity {
           killerID: sourceID
         }
       };
-      this.lives -= 1;
+      this.lives--;
       GM.emitEvent(event);
       if (isServer()) {
         NM.send(event);
@@ -253,7 +252,7 @@ class Hero extends Entity {
       this.updateOpacity(0);
     }
     this.isCollidable = false;
-    if(this.lives > 0){
+    if (this.lives > 0) {
       this.deathTimer = this.deathAmount;
     }
   }
@@ -292,32 +291,24 @@ class Hero extends Entity {
     return (Math.random() - 0.5) * 2 * magnitude;
   }
 
-  reset(){
-    this.maxDamage = 1;
-    this.movementSpeed = MOVEMENT_SPEED;
-    this.damageAmount = 0;
-    this.setWeapon('Pistol');
-    this.friction = 1;
-    this.bounce = 0.2;
-    this.score = 0;
-    this.deathTimer = -1;
-    this.deathAmount = 1;
-    this.invilTimer = -1;
-    this.invilAmount = 2;
-    this.regen = 2;
-    this.lives = 1;
-  }
-
-  makeIntangible(){
-    console.log('made ' + this.id + ' Intagible');
-    this.updateOpacity(0);
+  despawn() {
+    if (isServer()) {
+      this.updateOpacity(0);
+      this.score = 0;
+    }
+    this.lives = 0;
+    this.setPositionXY(0,0);
     this.isCollidable = false;
   }
 
-  makeTangible(){
-    console.log('made ' + this.id + ' Tangible')
-    this.updateOpacity(1);
+  spawn() {
+    if (isServer()) {
+      this.updateOpacity(1);
+    }
+    this.damageAmount = 0;
+    this.setWeapon('Pistol');
     this.isCollidable = true;
+    this.lives = 5;
   }
 
   serialize() {
@@ -328,7 +319,8 @@ class Hero extends Entity {
       damageAmount: this.damageAmount,
       score: this.score,
       deathTimer: this.deathTimer,
-      name: this.name
+      name: this.name,
+      lives: this.lives
     };
     if (this.weapon instanceof Weapon) {
       obj.weapon = this.weapon.serialize();
@@ -382,19 +374,17 @@ class Hero extends Entity {
     if (obj.cannonAngle !== undefined && !this.isCurrentHero()) {
       this.rotateCannon(obj.cannonAngle);
     }
-    if (obj.score !== undefined) {
-      if (this.score !== obj.score) {
-        this.score = obj.score;
+    if (obj.score !== undefined && this.score !== obj.score) {
+      this.score = obj.score;
 
-        const event = {
-          type: 'UPDATE_SCORE',
-          data: {
-            id: this.playerID,
-            score: this.score
-          }
-        };
-        GM.emitEvent(event);
-      }
+      const event = {
+        type: 'UPDATE_SCORE',
+        data: {
+          id: this.playerID,
+          score: this.score
+        }
+      };
+      GM.emitEvent(event);
     }
     if (obj.damageAmount !== undefined) {
       this.damageAmount = obj.damageAmount;
@@ -408,6 +398,9 @@ class Hero extends Entity {
     }
     if (obj.name !== undefined) {
       this.name = obj.name;
+    }
+    if (obj.lives !== undefined && obj.lives !== this.lives) {
+      this.lives = obj.lives;
     }
   }
 
@@ -446,6 +439,9 @@ class Hero extends Entity {
     //   this.setColor(colorObject);
     //   this.colorString = color;
     // }
+    if (this.graphicsObject) {
+      this.graphicsObject.opacity = this.opacity;
+    }
   }
 
   setWeapon(type) {
