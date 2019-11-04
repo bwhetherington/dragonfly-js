@@ -19,6 +19,7 @@ class GameServer extends Server {
     super(maxConnections);
     this.heroes = {};
     this.messages = [];
+    this.gameRunning = true;
   }
 
   onClose(socketIndex) {
@@ -47,6 +48,14 @@ class GameServer extends Server {
 
     GM.registerHandler('JOIN_GAME', event => {
       const { name, socketIndex } = event;
+      if(!this.gameRunning){
+        // this.send({
+        //   type: 'GAME_ENDED',
+        // }, socketIndex);
+        // return;
+        this.resetGame();
+      }
+
       // Create hero for player
       const hero = new Hero(socketIndex);
       hero.name = name;
@@ -82,6 +91,13 @@ class GameServer extends Server {
         }
       });
     });
+
+    GM.registerHandler('REJOIN_GAME', event => {
+      if(!this.gameRunning){
+        this.resetGame();
+      }
+    });
+    
 
     GM.registerHandler('KEY_DOWN', event => {
       const hero = this.heroes[event.socketIndex];
@@ -150,6 +166,35 @@ class GameServer extends Server {
       console.log(`[${id}] ${author}: ${content}`);
     });
 
+    GM.registerHandler('PLAYER_KILLED', event => {
+      let winningHeroID = -1;
+      // console.log("hero length");
+      // console.log(this.heroes);
+      for (const key in this.heroes) {
+        const hero  = this.heroes[key];
+        if (hero.lives > 0) {
+          if(winningHeroID !== -1){
+            return;
+          } else {
+            winningHeroID = hero.id;
+          }
+        }
+      }
+
+      const wonEvent = {
+        type: 'GAME_WON',
+        data: {
+          winningHeroID
+        }
+      };
+      this.gameRunning = false;
+      this.send(wonEvent);
+    });
+
+    GM.registerHandler('STEP', event =>{
+
+    });
+
     // Load level
     const levelString = readFileSync('level.json', 'utf-8');
     const level = JSON.parse(levelString);
@@ -162,6 +207,10 @@ class GameServer extends Server {
       WM.icePatches = level.features.map(({ x, y, width, height }) => new Rectangle(x, y, width, height));
     }
 
+    this.generatePickups();
+  }
+
+  generatePickups(){
     let healthCount = 0;
     GM.runTimer(1, () => {
       if (healthCount < 5) {
@@ -175,6 +224,23 @@ class GameServer extends Server {
     const pickShotgun = new WeaponPickUp('Raygun');
     pickShotgun.setPosition(WM.getRandomPoint());
     WM.add(pickShotgun);
+  }
+
+  resetGame(){
+    WM.deleteAllNonHero();
+    for (const key in this.heroes) {
+      const hero  = this.heroes[key];
+      hero.reset();
+      hero.makeIntangible();
+    }
+    this.generatePickups();
+    this.gameRunning = true;
+    const message = {
+      type: 'RESET_GAME',
+      data: {}
+    };
+
+    this.send(message);
   }
 
   onOpen(socketIndex) {

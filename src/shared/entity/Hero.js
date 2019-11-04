@@ -47,7 +47,7 @@ const COLORS_LIST = Object.keys(COLORS).map(key => COLORS[key]);
 class Hero extends Entity {
   constructor(playerID = -1) {
     super();
-    this.maxDamage = 100;
+    this.maxDamage = 1;
     this.movementSpeed = MOVEMENT_SPEED;
     this.playerID = playerID;
     this.input = {
@@ -67,6 +67,7 @@ class Hero extends Entity {
     this.invilTimer = -1;
     this.invilAmount = 2;
     this.regen = 2;
+    this.lives = 1;
 
 
     this.registerHandler('OBJECT_COLLISION', event => {
@@ -158,6 +159,18 @@ class Hero extends Entity {
         this.endInvincibility();
       }
     });
+
+    this.registerHandler('RESET_GAME', event => {
+      this.reset();
+      this.makeIntangible();
+    });
+
+    this.registerHandler('REJOIN_GAME', event => {
+      const { heroID } = event;
+      if(this.id === heroID){
+        this.makeTangible();
+      }
+    });
   }
 
   dropWeapon() {
@@ -195,11 +208,11 @@ class Hero extends Entity {
           killerID: sourceID
         }
       };
+      this.lives -= 1;
       GM.emitEvent(event);
       if (isServer()) {
         NM.send(event);
       }
-      this.deathTimer = this.deathAmount;
     }
   }
 
@@ -223,6 +236,9 @@ class Hero extends Entity {
     this.setPositionXY(x, y);
     this.updateOpacity(0);
     this.isCollidable = false;
+    if(this.lives > 0){
+      this.deathTimer = this.deathAmount;
+    }
   }
 
   respawn(x = 0, y = 0) {
@@ -255,6 +271,34 @@ class Hero extends Entity {
 
   createOffset(magnitude = 0.1) {
     return (Math.random() - 0.5) * 2 * magnitude;
+  }
+
+  reset(){
+    this.maxDamage = 1;
+    this.movementSpeed = MOVEMENT_SPEED;
+    this.damageAmount = 0;
+    this.setWeapon('Pistol');
+    this.friction = 1;
+    this.bounce = 0.2;
+    this.score = 0;
+    this.deathTimer = -1;
+    this.deathAmount = 1;
+    this.invilTimer = -1;
+    this.invilAmount = 2;
+    this.regen = 2;
+    this.lives = 1;
+  }
+
+  makeIntangible(){
+    console.log('made ' + this.id + ' Intagible');
+    this.updateOpacity(0);
+    this.isCollidable = false;
+  }
+
+  makeTangible(){
+    console.log('made ' + this.id + ' Tangible')
+    this.updateOpacity(1);
+    this.isCollidable = true;
   }
 
   serialize() {
