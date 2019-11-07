@@ -1,4 +1,5 @@
 import GM from "../shared/event/GameManager";
+import Hero from "../shared/entity/Hero";
 
 class Scoreboard {
   constructor(tbodyID) {
@@ -35,6 +36,30 @@ class Scoreboard {
         player.ping = ping;
       }
     });
+
+    GM.registerHandler('PLAYER_KILLED', event => {
+      const { deadID } = event;
+      const hero = WM.getElementById(deadID);
+      if (hero instanceof Hero) {
+        const playerID = hero.playerID;
+        const player = this.players[playerID];
+        if (player) {
+          player.lives = hero.lives;
+        }
+      }
+    });
+
+    GM.registerHandler('RESPAWN', event => {
+      const { id } = event;
+      const hero = WM.getElementById(id);
+      if (hero instanceof Hero) {
+        const playerID = hero.playerID;
+        const player = this.players[playerID];
+        if (player) {
+          player.lives = hero.lives;
+        }
+      }
+    });
   }
 
   addPlayer(hero) {
@@ -48,10 +73,13 @@ class Scoreboard {
     const playerScore = document.createElement('td');
     playerScore.innerText = 0;
 
+    const playerLives = document.createElement('td');
+    playerLives.innerText = hero.lives;
+
     const playerPing = document.createElement('td');
     playerPing.innerText = 0;
 
-    row.append(playerName, playerScore, playerPing);
+    row.append(playerName, playerScore, playerLives, playerPing);
 
     const playerObject = {
       name,
@@ -70,6 +98,9 @@ class Scoreboard {
               break;
             case 'score':
               playerScore.innerText = val;
+              break;
+            case 'lives':
+              playerLives.innerText = val;
               break;
             case 'ping':
               const ping = Math.round(val * 1000) + 'ms';

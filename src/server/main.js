@@ -56,7 +56,8 @@ class GameServer extends Server {
       this.send({
         type: 'ASSIGN_ID',
         data: {
-          playerID: socketIndex
+          playerID: socketIndex,
+          serverTime: GM.timeElapsed
         }
       }, socketIndex);
 
@@ -94,7 +95,7 @@ class GameServer extends Server {
       };
       this.send(message);
     });
-    
+
 
     GM.registerHandler('KEY_DOWN', event => {
       const hero = this.heroes[event.socketIndex];
@@ -166,9 +167,9 @@ class GameServer extends Server {
     GM.registerHandler('PLAYER_KILLED', event => {
       let winningHeroID = -1;
       for (const key in this.heroes) {
-        const hero  = this.heroes[key];
+        const hero = this.heroes[key];
         if (hero.lives > 0) {
-          if(winningHeroID !== -1){
+          if (winningHeroID !== -1) {
             return;
           } else {
             winningHeroID = hero.id;
@@ -186,7 +187,7 @@ class GameServer extends Server {
       this.resetGame();
     });
 
-    GM.registerHandler('STEP', event =>{
+    GM.registerHandler('STEP', event => {
 
     });
 
@@ -205,7 +206,7 @@ class GameServer extends Server {
     this.generatePickups();
   }
 
-  generatePickups(){
+  generatePickups() {
     let healthCount = 0;
     GM.runTimer(1, () => {
       if (healthCount < 5) {
@@ -225,7 +226,7 @@ class GameServer extends Server {
     WM.add(shotgun);
   }
 
-  resetGame(){
+  resetGame() {
     WM.deleteAllNonHero();
     this.generatePickups();
     const message = {

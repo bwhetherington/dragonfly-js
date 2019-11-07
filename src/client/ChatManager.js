@@ -12,6 +12,35 @@ class ChatManager {
     this.messageContainer = document.getElementById('chat-container');
     this.chatForm = document.getElementById('chat-form');
     this.chatInput = document.getElementById('chat-input');
+
+
+    this.chatInput.addEventListener('focus', () => {
+      GM.emitEvent({
+        type: 'KEY_UP',
+        data: {
+          key: 'KeyW'
+        }
+      });
+      GM.emitEvent({
+        type: 'KEY_UP',
+        data: {
+          key: 'KeyS'
+        }
+      });
+      GM.emitEvent({
+        type: 'KEY_UP',
+        data: {
+          key: 'KeyA'
+        }
+      });
+      GM.emitEvent({
+        type: 'KEY_UP',
+        data: {
+          key: 'KeyD'
+        }
+      });
+    });
+
     this.playerID = -1;
     this.commands = {};
     this.name = 'Anonymous';

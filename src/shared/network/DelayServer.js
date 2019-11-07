@@ -2,6 +2,11 @@ const delayServer = (Server, delay = 0) => class DelayServer extends Server {
   constructor(maxConnections) {
     super(maxConnections);
     this.delayMS = delay * 1000;
+    this.delays = {};
+  }
+
+  setPlayerDelay(playerID, delay) {
+    this.delays[playerID] = delay * 500;
   }
 
   send(message, socketIndex = -1) {

@@ -18,41 +18,43 @@ class Projectile extends Entity {
     this.isSpectral = true;
     this.updatePosition();
 
-    this.registerHandler('GEOMETRY_COLLISION', event => {
-      const { object } = event;
-      if (isServer() && object.id === this.id) {
-        this.bounces += 1;
-        if (this.bounces > this.maxBounces) {
-          this.markForDelete();
+    if (isServer()) {
+      this.registerHandler('GEOMETRY_COLLISION', event => {
+        const { object } = event;
+        if (object.id === this.id) {
+          this.bounces += 1;
+          if (this.bounces > this.maxBounces) {
+            this.markForDelete();
+          }
         }
-      }
-    });
+      });
 
-    this.registerHandler('OBJECT_COLLISION', event => {
-      const { object1, object2 } = event;
-      let other = null;
-      if (object1.id === this.id) {
-        if (object2.id !== this.sourceID && !(object2 instanceof Projectile)) {
-          other = object2;
+      this.registerHandler('OBJECT_COLLISION', event => {
+        const { object1, object2 } = event;
+        let other = null;
+        if (object1.id === this.id) {
+          if (object2.id !== this.sourceID) {
+            other = object2;
+          }
+        } else if (object2.id === this.id) {
+          if (object1.id !== this.sourceID) {
+            other = object1;
+          }
         }
-      } else if (object2.id === this.id) {
-        if (object1.id !== this.sourceID && !(object1 instanceof Projectile)) {
-          other = object1;
+        if (other !== null) {
+          this.hit(other);
+          if (other instanceof Hero && !other.isInvincible) {
+            const scale = ((other.damageAmount / other.maxDamage) * 0.8 + 0.2) * 200;
+            this.velocity.normalize();
+            this.velocity.scale(scale);
+            other.applyForce(this.velocity);
+          }
+          if (!(other instanceof PickUp) && isServer()) {
+            this.markForDelete();
+          }
         }
-      }
-      if (other !== null) {
-        this.hit(other);
-        if (other instanceof Hero && !other.isInvincible) {
-          const scale = ((other.damageAmount / other.maxDamage) * 0.8 + 0.2) * 200;
-          this.velocity.normalize();
-          this.velocity.scale(scale);
-          other.applyForce(this.velocity);
-        }
-        if (!(other instanceof PickUp) && isServer()) {
-          this.markForDelete();
-        }
-      }
-    });
+      });
+    }
   }
 
   initializeGraphics(two) {

@@ -5,10 +5,11 @@ import { isClient } from '../util/util';
 import AM from '../audio/AudioManager';
 
 class Weapon {
-  constructor(delayAmount = 0.5) {
+  constructor(name = "Weapon", delayAmount = 0.5) {
     this.delayTimer = 0;
     this.delayAmount = delayAmount;
     this.removeHandler = null;
+    this.name = name;
 
     GM.registerHandler('STEP', (event, remove) => {
       this.removeHandler = remove;

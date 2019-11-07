@@ -44,6 +44,12 @@ class WeaponPickUp extends PickUp {
     }
   }
 
+  initializeGraphics(two) {
+    super.initializeGraphics(two);
+    const color = WEAPON_COLORS[type] || WEAPON_COLORS.default;
+    this.setColor(color);
+  }
+
   setWeaponType(type) {
     this.weaponType = type;
     const color = WEAPON_COLORS[type] || WEAPON_COLORS.default;

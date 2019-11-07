@@ -85,7 +85,12 @@ const main = async () => {
     border.linewidth = 5;
   };
 
-  GM.registerHandler('DEFINE_ARENA', event => {
+  GM.registerHandler('ASSIGN_ID', (event, remove) => {
+    GM.timeElapsed = event.serverTime;
+    remove();
+  });
+
+  GM.registerHandler('DEFINE_ARENA', (event, remove) => {
     const { friction, geometry, ice } = event;
 
     WM.friction = friction;
@@ -119,6 +124,8 @@ const main = async () => {
     }
 
     WM.initializeGraphics(two);
+
+    remove();
   })
 
   WM.initialize();

@@ -63,6 +63,17 @@ class GameClient extends Client {
     this.scoreboard = new Scoreboard('scoreboard-tbody');
     this.scoreboard.initialize();
 
+    const weaponLabel = document.getElementById('weapon-label');
+
+    GM.registerHandler('EQUIP_WEAPON', event => {
+      const { type } = event;
+      weaponLabel.innerText = type;
+    });
+
+    GM.registerHandler('DROP_WEAPON', () => {
+      weaponLabel.innerText = 'Pistol';
+    });
+
     GM.registerHandler('STEP', event => {
       // Update entities
       if (!this.entityMenu.hidden) {
@@ -129,6 +140,8 @@ class GameClient extends Client {
         };
       }
 
+      event.time = GM.timeElapsed;
+
       this.send({
         type: 'KEY_DOWN',
         data: event
@@ -158,6 +171,8 @@ class GameClient extends Client {
         };
       }
 
+      event.time = GM.timeElapsed;
+
       this.send({
         type: 'KEY_UP',
         data: event
@@ -169,6 +184,8 @@ class GameClient extends Client {
       // const laser = new Laser(this.hero.position, new Vector(event.position.x, event.position.y));
       // WM.add(laser);
 
+      event.time = GM.timeElapsed;
+
       this.send({
         type: 'MOUSE_DOWN',
         data: event
@@ -176,6 +193,9 @@ class GameClient extends Client {
     });
 
     GM.registerHandler('MOUSE_UP', event => {
+
+      event.time = GM.timeElapsed;
+
       this.send({
         type: 'MOUSE_UP',
         data: event
@@ -202,32 +222,32 @@ class GameClient extends Client {
     const modalText = document.getElementById('game-end-text');
     const form = document.getElementById('rejoin-game');
     const game = document.getElementById('game');
-    if(hero.id === winningHeroID){
+    if (hero.id === winningHeroID) {
       modalText.innerHTML = "Congratulations, You Won!"
     } else {
       modalText.innerHTML = "Game Over, You lost"
     }
     modal.hidden = false;
     form.onsubmit = event => {
-    event.preventDefault();
+      event.preventDefault();
 
-    const message = {
-      type: 'REJOIN_GAME',
-      data: {
-        heroID: hero.id
+      const message = {
+        type: 'REJOIN_GAME',
+        data: {
+          heroID: hero.id
+        }
+      };
+      NM.send(message);
+      modal.hidden = true;
+      if (game) {
+        game.focus();
       }
     };
-    NM.send(message);
-    modal.hidden = true;
-    if (game) {
-      game.focus();
-    }
-  };
   }
 
   initializeGameEnded() {
-      const modal = document.getElementById('game-ended-page');
-      modal.hidden = false;
+    const modal = document.getElementById('game-ended-page');
+    modal.hidden = false;
   }
 
   initializeHero(hero) {

@@ -192,6 +192,12 @@ class Hero extends Entity {
         WM.add(pickup);
       }
       this.weapon = new Pistol();
+      GM.emitEvent({
+        type: 'DROP_WEAPON',
+        data: {
+          type: weapon.type
+        }
+      });
     }
   }
 
@@ -297,7 +303,7 @@ class Hero extends Entity {
       this.score = 0;
     }
     this.lives = 0;
-    this.setPositionXY(0,0);
+    this.setPositionXY(0, 0);
     this.isCollidable = false;
   }
 
@@ -464,6 +470,12 @@ class Hero extends Entity {
           this.dropWeapon();
         }
         this.weapon = weapon;
+        GM.emitEvent({
+          type: 'EQUIP_WEAPON',
+          data: {
+            type
+          }
+        });
       }
     }
   }

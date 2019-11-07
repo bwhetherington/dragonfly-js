@@ -6,6 +6,7 @@ import Projectile from '../entity/Projectile';
 import { Vector } from 'twojs-ts';
 import Hero from './Hero';
 import SETTINGS from '../util/settings';
+import SizedQueue from '../util/SizedQueue';
 
 class WorldManager {
   constructor() {
@@ -18,6 +19,7 @@ class WorldManager {
     this.friction = 5;
     this.background = null;
     this.foreground = null;
+    this.previousStates = new SizedQueue(60);
   }
 
   *getEntities() {
@@ -294,6 +296,13 @@ class WorldManager {
       }, socket);
       this.deleted = [];
     }
+
+    // Store state for rollback
+    const state = {
+      time: GM.timeElapsed,
+      state: batch
+    };
+    this.previousStates.enqueue(state);
   }
 
   getEntityCount() {
@@ -335,10 +344,10 @@ class WorldManager {
       // }
     }
   }
-  deleteAllNonHero(){
+  deleteAllNonHero() {
     for (const key in this.entities) {
-      const entity  = this.entities[key];
-      if(!(entity instanceof Hero)){
+      const entity = this.entities[key];
+      if (!(entity instanceof Hero)) {
         entity.markForDelete();
       }
     }

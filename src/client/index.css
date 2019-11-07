@@ -18,8 +18,12 @@ html, body, #game {
   font-size: 0.8em;
 }
 
-.health-container {
+.hero-container {
   width: 400px;
+}
+
+.hero-info {
+  text-align: center;
 }
 
 .bar-container {
@@ -29,6 +33,7 @@ html, body, #game {
   overflow: hidden;
   vertical-align: middle;
   margin: 2px;
+  position: relative;
 }
 
 .bar-value {
@@ -41,13 +46,12 @@ html, body, #game {
 
 .bar-label {
   position: absolute;
-  top: 30%;
+  top: 25%;
   width: 100%;
   text-align: center;
   line-height: 100%;
   opacity: 50%;
 }
-
 
 input[type='text'] {
   margin: 2px;
@@ -130,7 +134,7 @@ input[type='text']:focus {
 
 .chatbox-container {
   visibility: hidden;
-  bottom: 50px;
+  /* bottom: 50px; */
 }
 
 .chatbox-container:focus-within {
@@ -156,3 +160,7 @@ thead td {
 /* #restart-page {
   display: none;
 } */
+
+.col > *:not(:last-child) {
+  margin-bottom: 10px;
+}

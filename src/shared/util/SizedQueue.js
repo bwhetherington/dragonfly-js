@@ -59,6 +59,18 @@ class SizedQueue {
     }
     return list;
   }
+
+  *iterateForward() {
+    for (let current = this.head; current; current = current.next) {
+      yield current.value;
+    }
+  }
+
+  *iterateBack() {
+    for (let current = this.tail; current; current = current.prev) {
+      yield current.value;
+    }
+  }
 }
 
 export default SizedQueue;

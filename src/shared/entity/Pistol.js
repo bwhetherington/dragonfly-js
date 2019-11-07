@@ -6,7 +6,7 @@ import AM from '../audio/AudioManager';
 
 class Pistol extends Weapon {
   constructor() {
-    super();
+    super("Pistol");
   }
 
   fire(fx, fy, sourceHero) {

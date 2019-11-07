@@ -10,7 +10,7 @@ import Ray from './Ray';
 
 class Raygun extends Weapon {
   constructor() {
-    super(1);
+    super("Raygun", 1);
   }
 
   fire(fx, fy, sourceHero) {

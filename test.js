@@ -22,7 +22,6 @@ class SizedQueue {
     this.tail = node;
     this.size += 1;
     if (this.size > this.maxSize) {
-      this.size -= 1;
       return this.dequeue();
     } else {
       return null;
@@ -36,6 +35,8 @@ class SizedQueue {
       if (this.head === null) {
         this.tail = null;
         this.isEmptyInternal = true;
+      } else {
+        this.head.prev = null;
       }
       this.size -= 1;
       return value;
@@ -44,21 +45,41 @@ class SizedQueue {
     }
   }
 
-  get isEmpty() {
+  isEmpty() {
     return this.isEmptyInternal;
+  }
+
+  toList() {
+    const list = new Array(this.size);
+    let current = this.head;
+    for (let i = 0; current !== null; i++) {
+      const value = current.value;
+      list[i] = value;
+      current = current.next;
+    }
+    return list;
+  }
+
+  *iterateForward() {
+    for (let current = this.head; current; current = current.next) {
+      yield current.value;
+    }
+  }
+
+  *iterateBack() {
+    for (let current = this.tail; current; current = current.prev) {
+      yield current.value;
+    }
   }
 }
 
-const queue = new SizedQueue(2);
+const queue = new SizedQueue(3);
 
 queue.enqueue(1);
 queue.enqueue(2);
 queue.enqueue(3);
+queue.enqueue(4);
 
-while (!queue.isEmptyInternal) {
-  console.log(queue.dequeue());
+for (const x of queue.iterateForward()) {
+  console.log(x);
 }
-
-queue.enqueue(2);
-console.log(queue.dequeue());
-

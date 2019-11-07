@@ -10,13 +10,6 @@
 
 <body>
   <div tabindex="0" id="game"></div>
-  <div class="bottom left menu chatbox-container">
-    <div class="chatbox" id="chat-container">
-    </div>
-    <form autocomplete="off" class="chatbox-input" id="chat-form">
-      <input id="chat-input" type="text" placeholder="Enter message..." />
-    </form>
-  </div>
   <div hidden id="entity-menu" class="top left menu">
     <table>
       <thead>
@@ -44,6 +37,9 @@
             Score
           </td>
           <td>
+            Lives
+          </td>
+          <td>
             Ping
           </td>
         </tr>
@@ -52,10 +48,22 @@
       </tbody>
     </table>
   </div>
-  <div class="bottom left menu health-container">
-    <div class="bar-container">
-      <div id="bar-value" class="bar-value"></div>
-      <div id="bar-label" class="bar-label"></div>
+  <div class="bottom left col">
+    <div class="menu chatbox-container">
+      <div class="chatbox" id="chat-container">
+      </div>
+      <form autocomplete="off" class="chatbox-input" id="chat-form">
+        <input id="chat-input" type="text" placeholder="Enter message..." />
+      </form>
+    </div>
+    <div class="menu hero-container">
+      <div class="bar-container">
+        <div id="bar-value" class="bar-value"></div>
+        <div id="bar-label" class="bar-label"></div>
+      </div>
+    </div>
+    <div class="menu hero-info">
+      <b>Weapon:</b> <span id="weapon-label"></span>
     </div>
   </div>
   <div class="bottom right menu">
