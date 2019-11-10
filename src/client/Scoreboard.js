@@ -1,4 +1,5 @@
 import GM from "../shared/event/GameManager";
+import WM from '../shared/entity/WorldManager';
 import Hero from "../shared/entity/Hero";
 
 class Scoreboard {
@@ -38,8 +39,9 @@ class Scoreboard {
     });
 
     GM.registerHandler('PLAYER_KILLED', event => {
+      console.log(event);
       const { deadID } = event;
-      const hero = WM.getElementById(deadID);
+      const hero = WM.findByID(deadID);
       if (hero instanceof Hero) {
         const playerID = hero.playerID;
         const player = this.players[playerID];
@@ -51,7 +53,7 @@ class Scoreboard {
 
     GM.registerHandler('RESPAWN', event => {
       const { id } = event;
-      const hero = WM.getElementById(id);
+      const hero = WM.findByID(id);
       if (hero instanceof Hero) {
         const playerID = hero.playerID;
         const player = this.players[playerID];

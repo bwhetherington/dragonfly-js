@@ -1,85 +1,32 @@
-class SizedQueue {
-  constructor(size) {
-    this.maxSize = size;
-    this.size = 0;
-    this.head = null;
-    this.tail = null;
-    this.isEmptyInternal = true;
-  }
+const diff = (a, b) => {
+  const obj = {};
 
-  enqueue(obj) {
-    const node = {
-      next: null,
-      prev: this.tail,
-      value: obj
-    };
-    if (this.tail) {
-      this.tail.next = node;
-    } else {
-      this.head = node;
-      this.isEmptyInternal = false;
-    }
-    this.tail = node;
-    this.size += 1;
-    if (this.size > this.maxSize) {
-      return this.dequeue();
-    } else {
-      return null;
+  for (const key in b) {
+    if (!equals(a[key], b[key])) {
+      obj[key] = b[key];
     }
   }
 
-  dequeue() {
-    if (this.head) {
-      const value = this.head.value;
-      this.head = this.head.next;
-      if (this.head === null) {
-        this.tail = null;
-        this.isEmptyInternal = true;
-      } else {
-        this.head.prev = null;
+  return obj;
+};
+
+const equals = (a, b) => {
+  if (typeof a === 'object' && typeof b === 'object') {
+    const aKeys = Object.keys(a);
+    const bKeys = Object.keys(b);
+
+    if (aKeys.length !== bKeys.length) {
+      return false;
+    }
+
+    for (const key of aKeys) {
+      if (a[key] !== b[key]) {
+        return false;
       }
-      this.size -= 1;
-      return value;
-    } else {
-      return null;
     }
+
+    return true;
+  } else {
+    return a === b;
   }
-
-  isEmpty() {
-    return this.isEmptyInternal;
-  }
-
-  toList() {
-    const list = new Array(this.size);
-    let current = this.head;
-    for (let i = 0; current !== null; i++) {
-      const value = current.value;
-      list[i] = value;
-      current = current.next;
-    }
-    return list;
-  }
-
-  *iterateForward() {
-    for (let current = this.head; current; current = current.next) {
-      yield current.value;
-    }
-  }
-
-  *iterateBack() {
-    for (let current = this.tail; current; current = current.prev) {
-      yield current.value;
-    }
-  }
-}
-
-const queue = new SizedQueue(3);
-
-queue.enqueue(1);
-queue.enqueue(2);
-queue.enqueue(3);
-queue.enqueue(4);
-
-for (const x of queue.iterateForward()) {
-  console.log(x);
 }

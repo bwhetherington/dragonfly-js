@@ -1,3 +1,5 @@
+import WM from "../entity/WorldManager";
+
 export const isServer = () => !isClient();
 
 export const isClient = () => {
@@ -59,3 +61,42 @@ export const initializeInput = node => {
     };
   });
 }
+
+export const diff = (a, b) => {
+  const obj = {};
+
+  for (const key in b) {
+    if (!equals(a[key], b[key])) {
+      obj[key] = b[key];
+    }
+  }
+
+  return obj;
+};
+
+export const equals = (a, b) => {
+  if (typeof a === 'object' && typeof b === 'object') {
+    const aKeys = Object.keys(a);
+    const bKeys = Object.keys(b);
+
+    if (aKeys.length !== bKeys.length) {
+      return false;
+    }
+
+    for (const key of aKeys) {
+      if (a[key] !== b[key]) {
+        return false;
+      }
+    }
+
+    return true;
+  } else {
+    return a === b;
+  }
+}
+
+export const registerEntity = Type => {
+  setTimeout(() => {
+    WM.registerEntity(Type);
+  }, 1);
+};

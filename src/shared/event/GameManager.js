@@ -1,4 +1,5 @@
 import Queue from '../util/Queue';
+import SizedQueue from '../util/SizedQueue';
 import uuid from 'uuid/v1';
 
 class GameManager {
@@ -9,6 +10,7 @@ class GameManager {
     this.timeElapsed = 0;
     this.handlerCount = 0;
     this.frameRate = 0;
+    // this.storedEvents = new SizedQueue(1000);
   }
 
   pollEvents() {
@@ -62,6 +64,10 @@ class GameManager {
     })
   }
 
+  recordEvent(event) {
+    // this.storedEvents.enqueue(event);
+  }
+
   handleEvent(event) {
     const { type, data } = event;
 
@@ -73,6 +79,7 @@ class GameManager {
         }
       }
     }
+
     const handlers = this.handlers[type];
     if (handlers) {
       for (const id in handlers) {
@@ -109,6 +116,15 @@ class GameManager {
 
   getHandlerCount() {
     return this.handlerCount;
+  }
+
+  *eventsAfterTime(time) {
+    for (const event of this.storedEvents) {
+      // Yield every event from the frame after the state
+      if (event.data.timeStamp > time) {
+        yield event;
+      }
+    }
   }
 }
 

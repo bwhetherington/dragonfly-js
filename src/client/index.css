@@ -7,6 +7,10 @@ html, body, #game {
   font-family: 'Roboto Mono', monospace;
 }
 
+.no-pointer {
+  pointer-events: none;
+}
+
 .menu {
   background: rgba(0, 0, 0, 0.67);
   color: white;
@@ -16,6 +20,7 @@ html, body, #game {
   -webkit-user-select: none;
   -moz-user-select: none;
   font-size: 0.8em;
+  pointer-events: auto;
 }
 
 .hero-container {
@@ -114,7 +119,6 @@ input[type='text']:focus {
   max-width: 600px;
   text-align: left;
   overflow-y: auto;
-  /* background: blue; */
 }
 
 .chatbox {
@@ -126,6 +130,7 @@ input[type='text']:focus {
 .chatbox-input {
   display: flex;
   visibility: visible !important;
+  pointer-events: auto !important;
 }
 
 ::placeholder {
@@ -134,11 +139,15 @@ input[type='text']:focus {
 
 .chatbox-container {
   visibility: hidden;
-  /* bottom: 50px; */
+  /* opacity: 50%; */
+  pointer-events: none;
+  bottom: 50px;
 }
 
 .chatbox-container:focus-within {
   visibility: visible;
+  pointer-events: auto;
+  /* opacity: 100%; */
 }
 
 td {

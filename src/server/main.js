@@ -187,8 +187,8 @@ class GameServer extends Server {
       this.resetGame();
     });
 
-    GM.registerHandler('STEP', event => {
-
+    GM.registerHandler('ROLLBACK', event => {
+      WM.rollbackFrom(event.timeElapsed);
     });
 
     // Load level
@@ -217,9 +217,20 @@ class GameServer extends Server {
       }
     });
 
+    GM.registerHandler('MARK_FOR_DELETE', event => {
+      const entity = WM.findByID(event.id);
+      if (entity && entity.type === 'HealthPickUp') {
+        healthCount -= 1;
+      }
+    });
+
     const raygun = new WeaponPickUp('Raygun');
     raygun.setPosition(WM.getRandomPoint());
     WM.add(raygun);
+
+    const rocket = new WeaponPickUp('Rocket');
+    rocket.setPosition(WM.getRandomPoint());
+    WM.add(rocket);
 
     const shotgun = new WeaponPickUp('Shotgun');
     shotgun.setPosition(WM.getRandomPoint());
@@ -250,6 +261,10 @@ class GameServer extends Server {
   }
 }
 
+const cleanup = timer => () => {
+  timer.stop();
+};
+
 const main = async () => {
   const server = new (delayServer(GameServer, 0))(8);
   server.initialize();
@@ -270,6 +285,9 @@ const main = async () => {
       timeElapsed -= PING_INTERVAL;
     }
   });
+
+  // Create handler for SIGINT
+  process.on('SIGINT', cleanup(timer));
 
   timer.start();
 };

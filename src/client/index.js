@@ -85,11 +85,6 @@ const main = async () => {
     border.linewidth = 5;
   };
 
-  GM.registerHandler('ASSIGN_ID', (event, remove) => {
-    GM.timeElapsed = event.serverTime;
-    remove();
-  });
-
   GM.registerHandler('DEFINE_ARENA', (event, remove) => {
     const { friction, geometry, ice } = event;
 
@@ -137,12 +132,12 @@ const main = async () => {
   element.focus();
 
   initializeLandingPage(element);
-  // initChatbox();
+  initChatbox();
 };
 
-// const initChatbox = () => {
-//   CM.initialize();
-// };
+const initChatbox = () => {
+  CM.initialize();
+};
 
 main();
 

@@ -9,7 +9,6 @@ import Laser from '../shared/entity/Laser';
 import Vector from '../shared/util/Vector';
 import AM from '../shared/audio/AudioManager';
 import WeaponPickUp from '../shared/entity/WeaponPickUp';
-import Pistol from '../shared/entity/Pistol';
 import SETTINGS from '../shared/util/settings';
 import Bar from './Bar';
 import Scoreboard from './Scoreboard';
@@ -283,7 +282,6 @@ class GameClient extends Client {
     this.registerInput();
     this.initializeUI();
 
-    WM.setEntityGenerator(type => this.createEntity(type));
     GM.registerHandler('CLEANUP_GRAPHICS', event => {
       const { object } = event;
       this.two.remove(object);
@@ -308,7 +306,7 @@ class GameClient extends Client {
       const laser = new Laser(p0, p1);
       WM.add(laser);
 
-      const explosion = new Explosion();
+      const explosion = new Explosion({ red: 200, green: 0, blue: 0 }, 10);
       explosion.setPosition(p1);
       WM.add(explosion);
     });
@@ -328,41 +326,13 @@ class GameClient extends Client {
     GM.registerHandler('GAME_WON', event => {
       this.initializeGameResult(event.winningHeroID);
     });
-  }
 
-  onMessage(message) {
-    if (message.type === 'ASSIGN_ID') {
-      this.playerID = message.data.playerID;
-      CM.initialize(this.playerID);
-    } else {
-      super.onMessage(message);
-    }
-  }
-
-  createEntity(type) {
-    console.log('create', type);
-    switch (type) {
-      case 'Entity':
-        const entity = new Entity();
-        return entity;
-      case 'Hero':
-        const hero = new Hero();
-        return hero;
-      case 'Projectile':
-        const projectile = new Projectile();
-        return projectile;
-      case 'Explosion':
-        const explosion = new Explosion();
-        return explosion;
-      case 'WeaponPickUp':
-        const weaponPickUp = new WeaponPickUp();
-        return weaponPickUp;
-      case 'HealthPickUp':
-        const healthPickUp = new HealthPickUp();
-        return healthPickUp;
-      default:
-        return null;
-    }
+    GM.registerHandler('ASSIGN_ID', (event, remove) => {
+      CM.playerID = event.playerID;
+      this.playerID = event.playerID;
+      GM.timeElapsed = event.serverTime;
+      remove();
+    });
   }
 }
 

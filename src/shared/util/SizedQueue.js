@@ -45,6 +45,26 @@ class SizedQueue {
     }
   }
 
+  push(val) {
+    return this.enqueue(val);
+  }
+
+  pop() {
+    const node = this.tail;
+    if (node) {
+      if (node.prev) {
+        node.prev.next = null;
+        this.tail = node.prev;
+      } else {
+        this.tail = null;
+        this.head = null;
+      }
+      return node.value;
+    } else {
+      return null;
+    }
+  }
+
   isEmpty() {
     return this.isEmptyInternal;
   }

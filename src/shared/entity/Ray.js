@@ -3,7 +3,7 @@ import WM from "./WorldManager";
 import Rectangle from "../util/Rectangle";
 import Vector from "../util/Vector";
 import GM from "../event/GameManager";
-import { isServer, isClient } from "../util/util";
+import { isServer, isClient, registerEntity } from "../util/util";
 import Hero from './Hero';
 
 class Ray extends Entity {
@@ -39,6 +39,10 @@ class Ray extends Entity {
         }
       });
     }
+  }
+
+  initializeGraphics(two) {
+    // The ray has no graphics on its own
   }
 
   hit(entity) {
@@ -87,5 +91,7 @@ class Ray extends Entity {
   }
 
 }
+
+registerEntity(Ray);
 
 export default Ray;

@@ -10,21 +10,26 @@
 
 <body>
   <div tabindex="0" id="game"></div>
-  <div hidden id="entity-menu" class="top left menu">
-    <table>
-      <thead>
-        <tr>
-          <td>
-            Type
-          </td>
-          <td>
-            Position
-          </td>
-        </tr>
-      </thead>
-      <tbody id="entity-tbody">
-      </tbody>
-    </table>
+  <div class="top left col">
+    <div class="menu hero-info">
+      <b>Weapon:</b> <span id="weapon-label"></span>
+    </div>
+    <div hidden id="entity-menu" class="menu">
+      <table>
+        <thead>
+          <tr>
+            <td>
+              Type
+            </td>
+            <td>
+              Position
+            </td>
+          </tr>
+        </thead>
+        <tbody id="entity-tbody">
+        </tbody>
+      </table>
+    </div>
   </div>
   <div class="top right menu">
     <table>
@@ -48,7 +53,7 @@
       </tbody>
     </table>
   </div>
-  <div class="bottom left col">
+  <div class="bottom left col no-pointer">
     <div class="menu chatbox-container">
       <div class="chatbox" id="chat-container">
       </div>
@@ -61,9 +66,6 @@
         <div id="bar-value" class="bar-value"></div>
         <div id="bar-label" class="bar-label"></div>
       </div>
-    </div>
-    <div class="menu hero-info">
-      <b>Weapon:</b> <span id="weapon-label"></span>
     </div>
   </div>
   <div class="bottom right menu">

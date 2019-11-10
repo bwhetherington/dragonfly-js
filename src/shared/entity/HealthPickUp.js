@@ -1,5 +1,5 @@
 import PickUp from './PickUp';
-import { isClient } from '../util/util';
+import { isClient, registerEntity } from '../util/util';
 import Explosion from './Explosion';
 import WM from './WorldManager';
 
@@ -9,12 +9,21 @@ const COLOR = {
   blue: 50
 };
 
+const HEAL_AMOUNT = 20;
+
 class HealthPickUp extends PickUp {
   constructor() {
     super();
   }
 
   cleanup() {
+    // Create green explosion
+    if (isClient()) {
+      const explosion = new Explosion(COLOR, 30);
+      explosion.setPosition(this.position);
+      WM.add(explosion);
+    }
+
     super.cleanup();
   }
 
@@ -24,8 +33,10 @@ class HealthPickUp extends PickUp {
   }
 
   onPickUp(hero) {
-    hero.damageAmount = Math.max(hero.damageAmount - 50, 0);
+    hero.damageAmount = Math.max(hero.damageAmount - HEAL_AMOUNT, 0);
   }
 }
+
+registerEntity(HealthPickUp);
 
 export default HealthPickUp;

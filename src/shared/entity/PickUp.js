@@ -1,6 +1,6 @@
 import Entity from './Entity';
 import Rectangle from '../util/Rectangle';
-import { isServer } from '../util/util';
+import { isServer, registerEntity } from '../util/util';
 import Hero from './Hero';
 import GM from '../event/GameManager';
 
@@ -49,5 +49,7 @@ class PickUp extends Entity {
     console.log('PICKUP');
   }
 }
+
+registerEntity(PickUp);
 
 export default PickUp;

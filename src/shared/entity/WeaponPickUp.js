@@ -1,4 +1,6 @@
 import PickUp from './PickUp';
+import WM from './WorldManager';
+import { registerEntity } from '../util/util';
 
 const WEAPON_COLORS = {
   Raygun: {
@@ -46,15 +48,19 @@ class WeaponPickUp extends PickUp {
 
   initializeGraphics(two) {
     super.initializeGraphics(two);
-    const color = WEAPON_COLORS[type] || WEAPON_COLORS.default;
+    const color = WEAPON_COLORS[this.weaponType] || WEAPON_COLORS.default;
     this.setColor(color);
   }
 
   setWeaponType(type) {
-    this.weaponType = type;
-    const color = WEAPON_COLORS[type] || WEAPON_COLORS.default;
-    this.setColor(color);
+    if (type) {
+      this.weaponType = type;
+      const color = WEAPON_COLORS[type] || WEAPON_COLORS.default;
+      this.setColor(color);
+    }
   }
 }
+
+registerEntity(WeaponPickUp);
 
 export default WeaponPickUp;

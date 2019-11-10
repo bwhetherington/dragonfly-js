@@ -1,5 +1,5 @@
 import GM from '../event/GameManager';
-import { isClient } from '../util/util';
+import { isClient, diff } from '../util/util';
 import Rectangle from '../util/Rectangle';
 import InverseRectangle from '../util/InverseRectangle';
 import Projectile from '../entity/Projectile';
@@ -7,6 +7,9 @@ import { Vector } from 'twojs-ts';
 import Hero from './Hero';
 import SETTINGS from '../util/settings';
 import SizedQueue from '../util/SizedQueue';
+import Explosion from './Explosion';
+import WeaponPickUp from './WeaponPickUp';
+import HealthPickUp from './HealthPickUp';
 
 class WorldManager {
   constructor() {
@@ -15,16 +18,32 @@ class WorldManager {
     this.deleted = [];
     this.entityGenerator = () => null;
     this.setBounds(0, 0, 500, 500);
-    this.geometry = [];
+    this.geometry = {};
     this.friction = 5;
     this.background = null;
     this.foreground = null;
-    this.previousStates = new SizedQueue(60);
+    this.previousState = [];
+    this.entityTable = {};
+    // this.previousStates = new SizedQueue(600);
+  }
+
+  registerEntity(EntityType) {
+    this.entityTable[EntityType.name] = EntityType;
   }
 
   *getEntities() {
     for (const id in this.entities) {
       yield this.entities[id];
+    }
+  }
+
+  *getEntitiesByRadius(point, radius) {
+    for (const entity of this.getEntities()) {
+      if (entity.isCollidable) {
+        if (entity.position.distance(point) <= radius) {
+          yield entity;
+        }
+      }
     }
   }
 
@@ -72,10 +91,6 @@ class WorldManager {
     return new Vector(rx, ry);
   }
 
-  generateEntity(type) {
-    return this.entityGenerator(type);
-  }
-
   initialize() {
     GM.registerHandler('STEP', ({ step, dt }) => {
       this.step(step, dt);
@@ -98,6 +113,10 @@ class WorldManager {
     };
 
     GM.emitEvent(event);
+  }
+
+  deleteEntities() {
+
   }
 
   step(step, dt) {
@@ -147,19 +166,23 @@ class WorldManager {
     // velocity += friction
     entity.velocity.add(entity.vectorBuffer1);
 
+    if (entity.velocity.magnitude < 0.1) {
+      entity.velocity.setXY(0, 0);
+    }
+
     entity.vectorBuffer1.set(entity.velocity);
     entity.vectorBuffer1.scale(dt);
 
-    // Check whether or not entity moves
-    if (entity.vectorBuffer1.magnitude < 1e-3) {
-      if (entity.hasMoved) {
-        entity.updatePosition();
-      }
-      entity.hasMoved = false;
-      return false;
-    } else {
-      entity.hasMoved = true;
-    }
+    // // Check whether or not entity moves
+    // if (entity.vectorBuffer1.magnitude < 0.1) {
+    //   if (entity.hasMoved) {
+    //     entity.updatePosition();
+    //   }
+    //   entity.hasMoved = false;
+    //   return false;
+    // } else {
+    //   entity.hasMoved = true;
+    // }
 
     // Do full movement at once if no collision
     if (!entity.isCollidable) {
@@ -271,14 +294,116 @@ class WorldManager {
     this.bounds = { x, y, width, height };
   }
 
-  sync(server, socket = -1) {
-    const batch = [];
-    for (const id in this.entities) {
-      const entity = this.entities[id];
-      if (entity.doSynchronize) {
-        batch.push(entity.serialize());
+  getStateAtTime(time) {
+    const toAddBack = new Array(this.previousStates.size);
+    let foundState = null;
+    for (let i = this.previousStates.size - 1; i >= 0; i--) {
+      const state = this.previousStates.pop();
+      toAddBack[i] = state;
+      if (state.time <= time) {
+        // We good
+        foundState = state;
       }
     }
+
+    if (foundState) {
+      return foundState;
+    } else {
+      // Add the states back to the queue
+      for (let i = 0; i < toAddBack.length; i++) {
+        this.previousStates.push(toAddBack[i]);
+      }
+      return null;
+    }
+  }
+
+  rollbackFrom(time) {
+    // Revert to the state
+    const state = this.getStateAtTime(time);
+    this.revertState(state);
+
+    // Find the events after this
+    for (const event of GM.eventsAfterTime(time)) {
+      GM.emitEvent(event);
+      GM.pollEvents();
+    }
+  }
+
+  revertState(state) {
+    const ids = {};
+
+    // Sync all objects
+    for (const obj of state) {
+      this.receiveSyncObject(obj);
+      ids[obj.id] = true;
+    }
+
+    // Remove all other objects
+    for (const entity of this.getEntities()) {
+      if (!ids[entity.id]) {
+        entity.markForDelete();
+      }
+    }
+  }
+
+  createEntity(type) {
+    const EntityType = this.entityTable[type];
+    if (EntityType) {
+      return new EntityType();
+    } else {
+      return null;
+    }
+  }
+
+  serializeAll() {
+    const batch = [];
+    for (const entity of this.getEntities()) {
+      batch.push(entity.serialize());
+    }
+    return batch;
+  }
+
+  sync(server, socket = -1, forceSync = true) {
+    const batch = [];
+    if (forceSync) {
+      for (const entity of this.getEntities()) {
+        if (entity.doSynchronize) {
+          batch.push(entity.serialize());
+        }
+      }
+    } else {
+      // Check each object against the previous state
+      const state = {};
+      for (const entity of this.getEntities()) {
+        // Only synchronize entities with synchronize enabled
+        if (entity.doSynchronize) {
+          const serialized = entity.serialize();
+
+          // Add it to the state
+          state[entity.id] = serialized;
+
+          // Compare it to the previous state
+          const previous = this.previousState[entity.id];
+
+          if (previous !== undefined) {
+            // Only record diffs
+            const change = diff(previous, serialized);
+            if (Object.keys(change).length > 0) {
+              // console.log((previous.position, serialized.position));
+              change.id = serialized.id;
+              batch.push(change);
+            } else {
+              // Objects are identical; do nothing
+            }
+          } else {
+            // New entity
+            batch.push(serialized);
+          }
+        }
+      }
+      this.previousState = state;
+    }
+
     if (batch.length > 0) {
       server.send({
         type: 'SYNC_OBJECT_BATCH',
@@ -298,11 +423,11 @@ class WorldManager {
     }
 
     // Store state for rollback
-    const state = {
-      time: GM.timeElapsed,
-      state: batch
-    };
-    this.previousStates.enqueue(state);
+    // const state = {
+    //   time: GM.timeElapsed,
+    //   state: batch
+    // };
+    // this.previousStates.enqueue(state);
   }
 
   getEntityCount() {
@@ -323,7 +448,7 @@ class WorldManager {
     let existing = this.findByID(object.id);
     let created = false;
     if (!existing) {
-      const newObject = this.generateEntity(object.type);
+      const newObject = this.createEntity(object.type);
       if (newObject) {
         newObject.setID(object.id);
         existing = newObject;
@@ -344,6 +469,7 @@ class WorldManager {
       // }
     }
   }
+
   deleteAllNonHero() {
     for (const key in this.entities) {
       const entity = this.entities[key];

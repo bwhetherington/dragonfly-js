@@ -13,34 +13,6 @@ class ChatManager {
     this.chatForm = document.getElementById('chat-form');
     this.chatInput = document.getElementById('chat-input');
 
-
-    this.chatInput.addEventListener('focus', () => {
-      GM.emitEvent({
-        type: 'KEY_UP',
-        data: {
-          key: 'KeyW'
-        }
-      });
-      GM.emitEvent({
-        type: 'KEY_UP',
-        data: {
-          key: 'KeyS'
-        }
-      });
-      GM.emitEvent({
-        type: 'KEY_UP',
-        data: {
-          key: 'KeyA'
-        }
-      });
-      GM.emitEvent({
-        type: 'KEY_UP',
-        data: {
-          key: 'KeyD'
-        }
-      });
-    });
-
     this.playerID = -1;
     this.commands = {};
     this.name = 'Anonymous';
@@ -81,6 +53,13 @@ class ChatManager {
         this.chatInput.focus();
       }
     });
+
+    this.registerCommand('rollback', () => {
+      NM.send({
+        type: 'ROLLBACK',
+        data: {}
+      });
+    })
 
     this.registerCommand('clear', () => {
       removeChildren(this.messageContainer);

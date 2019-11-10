@@ -38,10 +38,23 @@ class Server {
     this.freedIDs = [];
   }
 
+  recordEventType(type) {
+    // GM.registerHandler(type, data => {
+    //   const newEvent = { type, data };
+    //   GM.recordEvent(newEvent);
+    // });
+  }
+
   initialize() {
     // Create http server
     const httpServer = serveHTTP();
     NM.initialize(this);
+
+    this.recordEventType('STEP');
+    this.recordEventType('KEY_DOWN');
+    this.recordEventType('KEY_UP');
+    this.recordEventType('MOUSE_DOWN');
+    this.recordEventType('MOUSE_UP');
 
     GM.registerHandler('SYNC_OBJECT', event => {
       WM.receiveSyncObject(event.object);
@@ -143,7 +156,7 @@ class Server {
   }
 
   onOpen(socketIndex) {
-    WM.sync(this, socketIndex);
+    WM.sync(this, socketIndex, true);
   }
 
   onClose(socketIndex) {

@@ -52,10 +52,12 @@ class Timer {
       if (remaining > 0) {
         // Wait the remainder of the time
         // wait(remaining);
+        // console.log(`Frame took ${Math.round(duration * 1000)}ms`);
         await sleep(remaining);
       } else {
         // We can't keep up
-        console.log('Can\'t keep up!');
+        const remainingMS = Math.round(remaining * -1000);
+        console.log(`Can't keep up! Frame took an additional ${remainingMS}ms`);
       }
     }
   }

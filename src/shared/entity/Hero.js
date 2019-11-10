@@ -9,12 +9,13 @@ import Pistol from './Pistol';
 import Shotgun from './Shotgun';
 import Raygun from './Raygun';
 import Weapon from './Weapon';
-import { isServer, isClient } from '../util/util';
+import { isServer, isClient, registerEntity } from '../util/util';
 import NM from '../network/NetworkManager';
 import Explosion from './Explosion';
 import SETTINGS from '../util/settings';
 import WeaponPickUp from './WeaponPickUp';
 import DirectionVector from '../util/DirectionVector';
+import Rocket from './Rocket';
 
 const MOVEMENT_SPEED = 300;
 
@@ -312,7 +313,7 @@ class Hero extends Entity {
       this.updateOpacity(1);
     }
     this.damageAmount = 0;
-    this.setWeapon('Pistol');
+    this.setWeapon('Rocket');
     this.isCollidable = true;
     this.lives = 5;
   }
@@ -364,9 +365,9 @@ class Hero extends Entity {
           data: {
             object: {
               id: this.id,
-              position: this.position,
-              velocity: this.velocity,
-              acceleration: this.acceleration
+              position: this.position.serialize(),
+              velocity: this.velocity.serialize(),
+              acceleration: this.acceleration.serialize()
             }
           }
         });
@@ -430,8 +431,7 @@ class Hero extends Entity {
     // cannonGroup.translation.set(this.position.x, this.position.y);
     this.cannon = cannonGroup;
 
-    this.colorObject = two.makeGroup(object, cannonGroup);
-    this.graphicsObject = this.colorObject;
+    this.graphicsObject = two.makeGroup(object, cannonGroup)
     this.graphicsObject.translation.set(this.position.x, this.position.y);
 
     // Select color
@@ -464,6 +464,9 @@ class Hero extends Entity {
         case 'Shotgun':
           weapon = new Shotgun();
           break;
+        case 'Rocket':
+          weapon = new Rocket();
+          break;
       }
       if (weapon) {
         if (this.weapon) {
@@ -491,5 +494,7 @@ class Hero extends Entity {
     return super.cleanup();
   }
 }
+
+registerEntity(Hero);
 
 export default Hero;

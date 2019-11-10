@@ -3,7 +3,7 @@ import uuid from 'uuid/v1';
 import GM from '../event/GameManager';
 import WM from './WorldManager';
 import Rectangle from '../util/Rectangle';
-import { isClient } from '../util/util';
+import { isClient, registerEntity } from '../util/util';
 
 const getFill = color => {
   const { red, green, blue, alpha = 1 } = color;
@@ -39,6 +39,8 @@ class Entity {
     this.bounce = 0;
     this.isSpectral = false;
     this.hasMoved = true;
+    this.syncMove = true;
+    this.hasSpawned = false;
   }
 
   registerHandler(type, handler) {
@@ -111,6 +113,13 @@ class Entity {
 
   markForDelete() {
     this.markedForDelete = true;
+    const event = {
+      type: 'MARK_FOR_DELETE',
+      data: {
+        id: this.id
+      }
+    };
+    GM.emitEvent(event);
   }
 
   cleanup() {
@@ -137,18 +146,22 @@ class Entity {
     return {
       type: this.type,
       id: this.id,
-      position: this.position,
-      velocity: this.velocity,
-      acceleration: this.acceleration,
+      position: this.position.serialize(),
+      velocity: this.velocity.serialize(),
+      acceleration: this.acceleration.serialize(),
       isCollidable: this.isCollidable,
       isSpectral: this.isSpectral,
-      opacity: this.opacity
+      opacity: this.opacity,
+      syncMove: this.syncMove
     };
   }
 
   deserialize(obj) {
-    const { position, velocity, acceleration, isCollidable, isSpectral, opacity } = obj;
-    if (position) {
+    const { position, velocity, acceleration, isCollidable, isSpectral, opacity, syncMove } = obj;
+    if (syncMove !== undefined) {
+      this.syncMove = syncMove;
+    }
+    if ((this.syncMove || !this.hasSpawned) && position) {
       this.position.set(position);
     }
     if (velocity) {
@@ -166,6 +179,7 @@ class Entity {
     if (opacity !== undefined && opacity !== this.opacity) {
       this.updateOpacity(opacity);
     }
+    this.hasSpawned = true;
   }
 
   updateOpacity(opacity) {
@@ -191,5 +205,7 @@ class Entity {
 
   damage(amount) { }
 }
+
+registerEntity(Entity);
 
 export default Entity;

@@ -1,9 +1,12 @@
 import Entity from "./Entity";
 import Vector from "../util/Vector";
 import Rectangle from '../util/Rectangle';
+import WM from "./WorldManager";
+import { registerEntity } from "../util/util";
 
 const DURATION = 0.375;
-const BORDER_SIZE = 5;
+
+const DEFAULT_COLOR = { red: 200, green: 0, blue: 0 };
 
 class Laser extends Entity {
   constructor(p1, p2) {
@@ -62,8 +65,10 @@ class Laser extends Entity {
     rect.linewidth = 5;
 
     this.graphicsObject = rect;
-    this.setColor({ red: 200, green: 150, blue: 50 });
+    this.setColor(DEFAULT_COLOR);
   }
 }
+
+registerEntity(Laser);
 
 export default Laser;

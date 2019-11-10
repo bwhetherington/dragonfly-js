@@ -96,6 +96,13 @@ class Vector {
     return Math.atan2(dy, dx);
   }
 
+  serialize() {
+    return {
+      x: this.x,
+      y: this.y
+    };
+  }
+
   deserialize(str) {
     const obj = JSON.parse(str);
     this.set(obj);

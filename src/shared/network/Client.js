@@ -68,6 +68,34 @@ const attachInput = (two, root) => {
     };
     GM.emitEvent(newEvent);
   });
+
+  // Turn off all input when the user stops focusin on the game
+  root.addEventListener('focusout', () => {
+    GM.emitEvent({
+      type: 'KEY_UP',
+      data: {
+        key: 'KeyW'
+      }
+    });
+    GM.emitEvent({
+      type: 'KEY_UP',
+      data: {
+        key: 'KeyS'
+      }
+    });
+    GM.emitEvent({
+      type: 'KEY_UP',
+      data: {
+        key: 'KeyA'
+      }
+    });
+    GM.emitEvent({
+      type: 'KEY_UP',
+      data: {
+        key: 'KeyD'
+      }
+    });
+  });
 };
 
 class Client {
