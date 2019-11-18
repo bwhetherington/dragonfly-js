@@ -157,7 +157,7 @@ class Entity {
   }
 
   deserialize(obj) {
-    const { position, velocity, acceleration, isCollidable, isSpectral, opacity, syncMove } = obj;
+    const { position, velocity, acceleration, isCollidable, isSpectral, opacity, syncMove, bounce } = obj;
     if (syncMove !== undefined) {
       this.syncMove = syncMove;
     }
@@ -176,8 +176,11 @@ class Entity {
     if (isSpectral !== undefined) {
       this.isSpectral = isSpectral;
     }
-    if (opacity !== undefined && opacity !== this.opacity) {
+    if (opacity !== undefined) {
       this.updateOpacity(opacity);
+    }
+    if (bounce !== undefined) {
+      this.bounce = bounce;
     }
     this.hasSpawned = true;
   }

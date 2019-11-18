@@ -1,5 +1,4 @@
 import PickUp from './PickUp';
-import WM from './WorldManager';
 import { registerEntity } from '../util/util';
 
 const WEAPON_COLORS = {

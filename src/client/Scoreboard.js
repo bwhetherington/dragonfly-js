@@ -39,7 +39,6 @@ class Scoreboard {
     });
 
     GM.registerHandler('PLAYER_KILLED', event => {
-      console.log(event);
       const { deadID } = event;
       const hero = WM.findByID(deadID);
       if (hero instanceof Hero) {

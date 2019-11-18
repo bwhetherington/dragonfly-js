@@ -1,8 +1,4 @@
-import Entity from './Entity';
 import GM from '../event/GameManager';
-import WM from './WorldManager';
-import { isClient } from '../util/util';
-import AM from '../audio/AudioManager';
 
 class Weapon {
   constructor(name = "Weapon", delayAmount = 0.5) {

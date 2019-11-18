@@ -1,10 +1,8 @@
-import Entity from './Entity';
 import Weapon from './Weapon';
 import Vector from '../util/Vector';
 import Projectile from './Projectile';
 import GM from '../event/GameManager';
 import WM from './WorldManager';
-import { isClient } from '../util/util';
 import AM from '../audio/AudioManager';
 
 class Shotgun extends Weapon {
@@ -52,7 +50,14 @@ class Shotgun extends Weapon {
           }
         }
       });
-      WM.add(bullet);
+      GM.addEntity(bullet);
+
+      // Position the bullet
+      bullet.setPosition(sourceHero.position);
+      vector.setXY(fx - x, fy - y);
+      vector.normalize();
+      vector.scale(30);
+      bullet.addPosition(vector);
     }
     AM.playSound('fire.wav');
   }

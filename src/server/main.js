@@ -8,6 +8,7 @@ import { readFileSync } from 'fs';
 import Rectangle from '../shared/util/Rectangle';
 import WeaponPickUp from '../shared/entity/WeaponPickUp';
 import HealthPickUp from '../shared/entity/HealthPickUp';
+import NM from '../shared/network/NetworkManager';
 
 const REFRESH_RATE = 60;
 
@@ -33,7 +34,7 @@ class GameServer extends Server {
 
       for (const socket in this.connections) {
         if (socket !== socketIndex) {
-          this.send(message, socket);
+          NM.send(message, socket);
         }
       }
     }
@@ -50,10 +51,10 @@ class GameServer extends Server {
       // Create hero for player
       const hero = new Hero(socketIndex);
       hero.name = name;
-      WM.add(hero);
+      GM.addEntity(hero);
       this.heroes[socketIndex] = hero;
 
-      this.send({
+      NM.send({
         type: 'ASSIGN_ID',
         data: {
           playerID: socketIndex,
@@ -93,7 +94,7 @@ class GameServer extends Server {
           heroID
         }
       };
-      this.send(message);
+      NM.send(message);
     });
 
 
@@ -150,7 +151,7 @@ class GameServer extends Server {
         data
       };
 
-      this.send(event);
+      NM.send(event);
     });
 
     GM.registerHandler('CHAT_INPUT', data => {
@@ -159,9 +160,24 @@ class GameServer extends Server {
         type: 'CHAT_OUTPUT',
         data
       };
-      this.send(event);
+      NM.send(event);
       const { id, author, content } = data.message;
       console.log(`[${id}] ${author}: ${content}`);
+    });
+
+    GM.registerHandler('REQUEST_STATS', event => {
+      const { socketIndex } = event;
+      const entityCount = WM.getEntityCount();
+      const listenerCount = GM.getHandlerCount();
+      console.log(GM.createdEntities);
+      NM.send({
+        type: 'SEND_STATS',
+        data: {
+          entityCount,
+          listenerCount,
+          entryCount: Object.entries(GM.createdEntities).length
+        }
+      }, socketIndex);
     });
 
     GM.registerHandler('PLAYER_KILLED', event => {
@@ -183,12 +199,14 @@ class GameServer extends Server {
           winningHeroID
         }
       };
-      this.send(wonEvent);
+      NM.send(wonEvent);
       this.resetGame();
     });
 
     GM.registerHandler('ROLLBACK', event => {
-      WM.rollbackFrom(event.timeElapsed);
+      // const state = WM.getStateAtTime(GM.timeElapsed - 2);
+      // WM.revertState(state);
+      WM.rollbackFrom(event.timeElapsed - 0.5);
     });
 
     // Load level
@@ -213,7 +231,7 @@ class GameServer extends Server {
         healthCount += 1;
         const healthPickUp = new HealthPickUp();
         healthPickUp.setPosition(WM.getRandomPoint());
-        WM.add(healthPickUp);
+        GM.addEntity(healthPickUp);
       }
     });
 
@@ -226,15 +244,15 @@ class GameServer extends Server {
 
     const raygun = new WeaponPickUp('Raygun');
     raygun.setPosition(WM.getRandomPoint());
-    WM.add(raygun);
+    GM.addEntity(raygun);
 
     const rocket = new WeaponPickUp('Rocket');
     rocket.setPosition(WM.getRandomPoint());
-    WM.add(rocket);
+    GM.addEntity(rocket);
 
     const shotgun = new WeaponPickUp('Shotgun');
     shotgun.setPosition(WM.getRandomPoint());
-    WM.add(shotgun);
+    GM.addEntity(shotgun);
   }
 
   resetGame() {
@@ -245,12 +263,12 @@ class GameServer extends Server {
       data: {}
     };
     GM.emitEvent(message);
-    this.send(message);
+    NM.send(message);
   }
 
   onOpen(socketIndex) {
     super.onOpen(socketIndex);
-    this.send({
+    NM.send({
       type: 'DEFINE_ARENA',
       data: {
         friction: WM.friction,
@@ -261,7 +279,8 @@ class GameServer extends Server {
   }
 }
 
-const cleanup = timer => () => {
+const cleanup = (server, timer) => () => {
+  server.stop();
   timer.stop();
 };
 
@@ -287,8 +306,9 @@ const main = async () => {
   });
 
   // Create handler for SIGINT
-  process.on('SIGINT', cleanup(timer));
+  process.on('SIGINT', cleanup(server, timer));
 
+  server.start();
   timer.start();
 };
 

@@ -46,7 +46,6 @@ class PickUp extends Entity {
   }
 
   onPickUp(hero) {
-    console.log('PICKUP');
   }
 }
 

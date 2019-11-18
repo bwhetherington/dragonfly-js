@@ -134,6 +134,7 @@ class Client {
 
     // Batch sync
     GM.registerHandler('SYNC_OBJECT_BATCH', event => {
+      GM.timeElapsed = event.time;
       for (let i = 0; i < event.objects.length; i++) {
         this.syncObject(event.objects[i]);
       }

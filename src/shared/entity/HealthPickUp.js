@@ -1,7 +1,7 @@
 import PickUp from './PickUp';
 import { isClient, registerEntity } from '../util/util';
 import Explosion from './Explosion';
-import WM from './WorldManager';
+import GM from '../event/GameManager';
 
 const COLOR = {
   red: 50,
@@ -21,7 +21,7 @@ class HealthPickUp extends PickUp {
     if (isClient()) {
       const explosion = new Explosion(COLOR, 30);
       explosion.setPosition(this.position);
-      WM.add(explosion);
+      GM.addEntity(explosion);
     }
 
     super.cleanup();

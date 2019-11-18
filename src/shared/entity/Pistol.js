@@ -3,6 +3,7 @@ import Vector from '../util/Vector';
 import Projectile from './Projectile';
 import WM from './WorldManager';
 import AM from '../audio/AudioManager';
+import GM from '../event/GameManager';
 
 class Pistol extends Weapon {
   constructor() {
@@ -26,14 +27,9 @@ class Pistol extends Weapon {
     bullet.maxBounces = 1;
     bullet.velocity.set(vector);
 
-    offset.set(vector);
-    offset.normalize();
-    offset.scale(40);
-
     bullet.velocity.scale(650);
 
-    bullet.setPosition(sourceHero.position);
-    bullet.position.add(offset);
+
     bullet.registerHandler('HIT_OBJECT', event => {
       const { hitID, sourceID, projectileID } = event;
       if (projectileID === bullet.id) {
@@ -43,7 +39,16 @@ class Pistol extends Weapon {
         }
       }
     });
-    WM.add(bullet);
+
+    GM.addEntity(bullet);
+
+    // Position the bullet
+    bullet.setPosition(sourceHero.position);
+    vector.setXY(fx - x, fy - y);
+    vector.normalize();
+    vector.scale(30);
+    bullet.addPosition(vector);
+
     AM.playSound('fire.wav');
   }
 }

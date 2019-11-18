@@ -1,3 +1,5 @@
+import GM from "../event/GameManager";
+
 class NetworkManager {
   constructor() {
     this.node = null;
@@ -9,6 +11,9 @@ class NetworkManager {
 
   send(packet, index = -1) {
     if (this.node) {
+      // Get time from GM
+      const time = GM.timeElapsed;
+      packet.data.timeElapsed = time;
       this.node.send(packet, index);
     }
   }

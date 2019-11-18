@@ -45,7 +45,7 @@ class Explosion extends Entity {
   deserialize(obj) {
     super.deserialize(obj);
     const { color, radius } = obj;
-    if (colo) {
+    if (color) {
       this.color = color;
     }
     if (radius !== undefined) {

@@ -1,6 +1,8 @@
 import Queue from '../util/Queue';
 import SizedQueue from '../util/SizedQueue';
 import uuid from 'uuid/v1';
+import WM from '../entity/WorldManager';
+import { isServer } from '../util/util';
 
 class GameManager {
   constructor() {
@@ -10,7 +12,37 @@ class GameManager {
     this.timeElapsed = 0;
     this.handlerCount = 0;
     this.frameRate = 0;
-    // this.storedEvents = new SizedQueue(1000);
+    this.currentEventID = null;
+    this.createdEntities = {};
+    this.createRootEvent();
+    this.storedEvents = new SizedQueue(1000);
+    this.recordedTypes = {};
+  }
+
+  recordType(type) {
+    this.recordedTypes[type] = true;
+  }
+
+  doesRecordType(type) {
+    // Converts it to a boolean
+    // Yes we meant to have two exclamation marks
+    return !!(this.recordedTypes[type]);
+  }
+
+  createRootEvent() {
+    const id = uuid();
+    const time = this.timeElapsed;
+    const rootEvent = {
+      type: 'ROOT',
+      data: {},
+      id,
+      time
+    };
+    this.createdEntities[id] = {
+      counter: 0,
+      entities: []
+    };
+    this.currentEventID = id;
   }
 
   pollEvents() {
@@ -65,11 +97,37 @@ class GameManager {
   }
 
   recordEvent(event) {
-    // this.storedEvents.enqueue(event);
+    event.time = GM.timeElapsed;
+    const removed = this.storedEvents.enqueue(event);
+
+    if (this.createdEntities[event.id] === undefined) {
+      this.createdEntities[event.id] = {
+        counter: 0,
+        entities: []
+      };
+    }
+
+    // If we popped one off the queue, remove it from the set of event entries
+    if (removed) {
+      delete this.createdEntities[removed.id];
+    }
+  }
+
+  getCurrentEventID() {
+    return this.currentEventID;
   }
 
   handleEvent(event) {
-    const { type, data } = event;
+    const { type, data, id } = event;
+    const record = this.doesRecordType(type);
+    if (record) {
+      this.currentEventID = id;
+    }
+
+    const eventEntry = this.createdEntities[id];
+    if (eventEntry) {
+      eventEntry.counter = 0;
+    }
 
     if (type === 'ANY') {
       for (const type in this.handlers) {
@@ -87,30 +145,82 @@ class GameManager {
         handler(data, () => this.removeHandler(type, id));
       }
     }
+
+    if (record) {
+      this.currentEventID = null;
+    }
+  }
+
+  addEntity(entity) {
+    // We check if we've already added an entity for this event
+    const eventID = this.getCurrentEventID();
+    const eventEntry = this.createdEntities[eventID];
+
+    if (isServer() && eventEntry) {
+      const serialized = eventEntry.entities[eventEntry.counter];
+      // console.log(eventEntry);
+
+      if (serialized) {
+        // Deserialize to that state
+        entity.deserialize(serialized);
+      } else {
+        // Created a new entity; add it to the list
+        eventEntry.entities[eventEntry.counter] = entity.serialize();
+      }
+
+      eventEntry.counter += 1;
+    }
+    WM.add(entity);
+  }
+
+  prepEvent(event) {
+    if (event.id === undefined) {
+      event.id = uuid();
+    } else {
+      const entry = this.createdEntities[event.id];
+    }
+  }
+
+  emitEventFirst(event) {
+    this.prepEvent(event);
+    this.eventQueue.prepend(event);
+
+    // Check if we record this type of event
+    if (this.doesRecordType(event.type)) {
+      this.recordEvent(event);
+    }
   }
 
   emitEvent(event) {
+    this.prepEvent(event);
     this.eventQueue.enqueue(event);
+
+    // Check if we record this type of event
+    if (this.doesRecordType(event.type)) {
+      this.recordEvent(event);
+    }
   }
 
   /**
    * This method should be called by a separate timer on the client and the
    * server for accuracy's sake.
    */
-  step(dt) {
+  step(dt, id = undefined) {
     this.timeElapsed += dt;
 
     this.frameRate = 1.0 / dt;
 
     const stepEvent = {
       type: 'STEP',
+      id,
       data: {
         step: this.stepCount,
         dt
       }
     };
+
     this.stepCount += 1;
-    this.handleEvent(stepEvent);
+    this.emitEventFirst(stepEvent);
     this.pollEvents();
   }
 
@@ -119,9 +229,9 @@ class GameManager {
   }
 
   *eventsAfterTime(time) {
-    for (const event of this.storedEvents) {
+    for (const event of this.storedEvents.iterateForward()) {
       // Yield every event from the frame after the state
-      if (event.data.timeStamp > time) {
+      if (event.time > time) {
         yield event;
       }
     }

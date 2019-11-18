@@ -70,6 +70,24 @@ class ChatManager {
       this.addLine(line);
     });
 
+    this.registerCommand('stats', () => {
+      NM.send({
+        type: 'REQUEST_STATS',
+        data: {}
+      });
+    });
+
+    GM.registerHandler('SEND_STATS', event => {
+      const { entityCount, listenerCount, entryCount } = event;
+      const line = this.renderMessage({
+        author: 'Server',
+        time: Date.now(),
+        id: -1,
+        content: `Entities: ${entityCount}, Handlers: ${listenerCount}, Entries: ${entryCount}`
+      });
+      this.addLine(line);
+    });
+
     this.registerCommand('noclip', () => {
       const { hero } = this;
       if (hero) {

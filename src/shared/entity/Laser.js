@@ -1,7 +1,6 @@
 import Entity from "./Entity";
 import Vector from "../util/Vector";
 import Rectangle from '../util/Rectangle';
-import WM from "./WorldManager";
 import { registerEntity } from "../util/util";
 
 const DURATION = 0.375;

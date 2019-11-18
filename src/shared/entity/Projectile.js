@@ -2,7 +2,6 @@ import Entity from './Entity';
 import GM from '../event/GameManager';
 import Rectangle from '../util/Rectangle';
 import Explosion from './Explosion';
-import WM from './WorldManager';
 import { isClient, isServer, registerEntity } from '../util/util';
 import Hero from '../entity/Hero';
 import PickUp from './PickUp';
@@ -88,13 +87,15 @@ class Projectile extends Entity {
       ...super.serialize(),
       sourceID: this.sourceID,
       explosionRadius: this.explosionRadius,
-      color: this.color
+      color: this.color,
+      bounces: this.bounces,
+      maxBounces: this.maxBounces
     };
   }
 
   deserialize(object) {
     super.deserialize(object);
-    const { color, sourceID, explosionRadius } = object;
+    const { color, sourceID, explosionRadius, bounces, maxBounces } = object;
     if (sourceID) {
       this.sourceID = sourceID;
     }
@@ -104,14 +105,20 @@ class Projectile extends Entity {
     if (explosionRadius !== undefined) {
       this.explosionRadius = explosionRadius;
     }
+    if (bounces !== undefined) {
+      this.bounces = bounces;
+    }
+    if (maxBounces !== undefined) {
+      this.maxBounces = maxBounces;
+    }
   }
 
   cleanup() {
-    if (isClient()) {
-      const explosion = new Explosion(this.color, this.explosionRadius);
-      explosion.setPosition(this.position);
-      WM.add(explosion);
-    }
+    // if (isClient()) {
+    //   const explosion = new Explosion(this.color, this.explosionRadius);
+    //   explosion.setPosition(this.position);
+    //   GM.addEntity(explosion);
+    // }
     super.cleanup();
   }
 }

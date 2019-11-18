@@ -7,6 +7,18 @@ class SizedQueue {
     this.isEmptyInternal = true;
   }
 
+  prepend(obj) {
+    const node = {
+      next: this.head,
+      prev: null,
+      value: obj
+    };
+    if (this.head) {
+      this.head.prev = node;
+    }
+    this.head = node;
+  }
+
   enqueue(obj) {
     const node = {
       next: null,
@@ -52,12 +64,14 @@ class SizedQueue {
   pop() {
     const node = this.tail;
     if (node) {
+      this.size -= 1;
       if (node.prev) {
         node.prev.next = null;
         this.tail = node.prev;
       } else {
         this.tail = null;
         this.head = null;
+        this.isEmptyInternal = true;
       }
       return node.value;
     } else {

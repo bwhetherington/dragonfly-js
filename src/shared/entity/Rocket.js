@@ -3,6 +3,7 @@ import Vector from '../util/Vector';
 import Projectile from './Projectile';
 import WM from './WorldManager';
 import AM from '../audio/AudioManager';
+import GM from '../event/GameManager';
 import { isServer } from '../util/util';
 
 const RADIUS = 100;
@@ -36,8 +37,6 @@ class Rocket extends Weapon {
 
     bullet.velocity.scale(500);
 
-    bullet.setPosition(sourceHero.position);
-    bullet.position.add(offset);
     bullet.registerHandler('HIT_OBJECT', event => {
       if (isServer()) {
         const { sourceID, projectileID } = event;
@@ -50,7 +49,15 @@ class Rocket extends Weapon {
         }
       }
     });
-    WM.add(bullet);
+    GM.addEntity(bullet);
+
+    // Position the bullet
+    bullet.setPosition(sourceHero.position);
+    vector.setXY(fx - x, fy - y);
+    vector.normalize();
+    vector.scale(30);
+    bullet.addPosition(vector);
+
     AM.playSound('fire.wav');
   }
 }

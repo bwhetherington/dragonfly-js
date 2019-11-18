@@ -46,11 +46,13 @@ class GameClient extends Client {
     const row = document.createElement('tr');
     const type = document.createElement('td');
     const position = document.createElement('td');
+    const id = document.createElement('td');
 
     type.innerText = entity.type;
     position.innerText = `(${Math.round(entity.position.x)}, ${Math.round(entity.position.y)})`;
+    id.innerText = entity.id;
 
-    row.append(type, position);
+    row.append(type, position, id);
     this.entities.appendChild(row);
   }
 
@@ -139,9 +141,7 @@ class GameClient extends Client {
         };
       }
 
-      event.time = GM.timeElapsed;
-
-      this.send({
+      NM.send({
         type: 'KEY_DOWN',
         data: event
       });
@@ -170,9 +170,7 @@ class GameClient extends Client {
         };
       }
 
-      event.time = GM.timeElapsed;
-
-      this.send({
+      NM.send({
         type: 'KEY_UP',
         data: event
       });
@@ -181,11 +179,9 @@ class GameClient extends Client {
     GM.registerHandler('MOUSE_DOWN', event => {
       // Create a laser to test
       // const laser = new Laser(this.hero.position, new Vector(event.position.x, event.position.y));
-      // WM.add(laser);
+      // GM.addEntity(laser);
 
-      event.time = GM.timeElapsed;
-
-      this.send({
+      NM.send({
         type: 'MOUSE_DOWN',
         data: event
       });
@@ -193,9 +189,7 @@ class GameClient extends Client {
 
     GM.registerHandler('MOUSE_UP', event => {
 
-      event.time = GM.timeElapsed;
-
-      this.send({
+      NM.send({
         type: 'MOUSE_UP',
         data: event
       });
@@ -304,11 +298,11 @@ class GameClient extends Client {
       const p0 = new Vector(start.x, start.y);
       const p1 = new Vector(end.x, end.y);
       const laser = new Laser(p0, p1);
-      WM.add(laser);
+      GM.addEntity(laser);
 
       const explosion = new Explosion({ red: 200, green: 0, blue: 0 }, 10);
       explosion.setPosition(p1);
-      WM.add(explosion);
+      GM.addEntity(explosion);
     });
 
     GM.registerHandler('ROTATE_CANNON', event => {
@@ -316,7 +310,7 @@ class GameClient extends Client {
         type: 'ROTATE_CANNON',
         data: event
       };
-      this.send(packet);
+      NM.send(packet);
     });
 
     GM.registerHandler('PLAY_AUDIO', data => {

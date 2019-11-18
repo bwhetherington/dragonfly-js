@@ -1,15 +1,12 @@
 import GM from '../event/GameManager';
-import { isClient, diff } from '../util/util';
+import { diff, sizeOf } from '../util/util';
 import Rectangle from '../util/Rectangle';
 import InverseRectangle from '../util/InverseRectangle';
 import Projectile from '../entity/Projectile';
 import { Vector } from 'twojs-ts';
 import Hero from './Hero';
-import SETTINGS from '../util/settings';
 import SizedQueue from '../util/SizedQueue';
-import Explosion from './Explosion';
-import WeaponPickUp from './WeaponPickUp';
-import HealthPickUp from './HealthPickUp';
+import NM from '../network/NetworkManager';
 
 class WorldManager {
   constructor() {
@@ -24,7 +21,7 @@ class WorldManager {
     this.foreground = null;
     this.previousState = [];
     this.entityTable = {};
-    // this.previousStates = new SizedQueue(600);
+    this.previousStates = new SizedQueue(600);
   }
 
   registerEntity(EntityType) {
@@ -94,6 +91,19 @@ class WorldManager {
   initialize() {
     GM.registerHandler('STEP', ({ step, dt }) => {
       this.step(step, dt);
+
+      // Save this step
+      const objects = [];
+      for (const object of this.getEntities()) {
+        objects.push(object.serialize());
+      }
+
+      // Store state for rollback
+      const state = {
+        time: GM.timeElapsed,
+        state: objects
+      };
+      this.previousStates.enqueue(state);
     });
   }
 
@@ -299,10 +309,12 @@ class WorldManager {
     let foundState = null;
     for (let i = this.previousStates.size - 1; i >= 0; i--) {
       const state = this.previousStates.pop();
+
       toAddBack[i] = state;
       if (state.time <= time) {
         // We good
         foundState = state;
+        break;
       }
     }
 
@@ -322,18 +334,55 @@ class WorldManager {
     const state = this.getStateAtTime(time);
     this.revertState(state);
 
+    let elapsed = time;
+
     // Find the events after this
+    const listener = GM.registerHandler('STEP', event => {
+      const { dt } = event;
+      elapsed += dt;
+      const state = [];
+      for (const entity of this.getEntities()) {
+        state.push(entity.serialize());
+      }
+      const stateEntry = {
+        time: elapsed,
+        state: this.previousState
+      };
+      this.previousStates.enqueue(stateEntry);
+    });
+
+    GM.timeElapsed = time;
+
+    // const listener2 = GM.registerHandler('HIT_OBJECT', console.log);
+
+    const events = [];
     for (const event of GM.eventsAfterTime(time)) {
-      GM.emitEvent(event);
-      GM.pollEvents();
+      events.push(event);
     }
+
+    console.log('BEGIN ROLLBACK');
+    GM.rollback = true;
+
+    for (const event of events) {
+      if (event.type === 'STEP') {
+        GM.step(event.data.dt, event.id);
+      } else {
+        GM.emitEvent(event);
+      }
+    }
+    GM.rollback = false;
+
+    console.log('END ROLLBACK');
+
+    // GM.removeHandler('HIT_OBJECT', listener2);
+    GM.removeHandler('STEP', listener);
   }
 
   revertState(state) {
     const ids = {};
 
     // Sync all objects
-    for (const obj of state) {
+    for (const obj of state.state) {
       this.receiveSyncObject(obj);
       ids[obj.id] = true;
     }
@@ -363,71 +412,77 @@ class WorldManager {
     return batch;
   }
 
+  /**
+   * Syncs the state of the world to the specified socket using the specified
+   * server. If the `forceSync` parameter is set to `true`, the current state
+   * will be synced in full. If it is `false`, only the changes since the last
+   * state will be synced.
+   * @param server The server to send the sync message from
+   * @param socket The socket to send the sync message to
+   * @param forceSync Whether or not to sync the full world state
+   */
   sync(server, socket = -1, forceSync = true) {
-    const batch = [];
-    if (forceSync) {
-      for (const entity of this.getEntities()) {
-        if (entity.doSynchronize) {
-          batch.push(entity.serialize());
-        }
-      }
-    } else {
-      // Check each object against the previous state
-      const state = {};
-      for (const entity of this.getEntities()) {
-        // Only synchronize entities with synchronize enabled
-        if (entity.doSynchronize) {
-          const serialized = entity.serialize();
-
-          // Add it to the state
-          state[entity.id] = serialized;
-
-          // Compare it to the previous state
-          const previous = this.previousState[entity.id];
-
-          if (previous !== undefined) {
-            // Only record diffs
-            const change = diff(previous, serialized);
-            if (Object.keys(change).length > 0) {
-              // console.log((previous.position, serialized.position));
-              change.id = serialized.id;
-              batch.push(change);
-            } else {
-              // Objects are identical; do nothing
-            }
-          } else {
-            // New entity
-            batch.push(serialized);
+    if (server.numConnections > 0) {
+      const batch = [];
+      if (forceSync) {
+        for (const entity of this.getEntities()) {
+          if (entity.doSynchronize) {
+            batch.push(entity.serialize());
           }
         }
+      } else {
+        // Check each object against the previous state
+        const state = {};
+        for (const entity of this.getEntities()) {
+          // Only synchronize entities with synchronize enabled
+          if (entity.doSynchronize) {
+            const serialized = entity.serialize();
+
+            // Add it to the state
+            state[entity.id] = serialized;
+
+            // Compare it to the previous state
+            const previous = this.previousState[entity.id];
+
+            if (previous !== undefined) {
+              // Only record diffs
+              const change = diff(previous, serialized);
+              if (Object.keys(change).length > 0) {
+                change.id = serialized.id;
+                batch.push(change);
+              } else {
+                // Objects are identical; do nothing
+              }
+            } else {
+              // New entity
+              batch.push(serialized);
+            }
+          }
+        }
+        this.previousState = state;
       }
-      this.previousState = state;
-    }
 
-    if (batch.length > 0) {
-      server.send({
-        type: 'SYNC_OBJECT_BATCH',
-        data: {
-          objects: batch
-        }
-      }, socket);
+      if (batch.length > 0) {
+        // Determine size of batch
+        const size = sizeOf(batch);
+        NM.send({
+          type: 'SYNC_OBJECT_BATCH',
+          data: {
+            time: GM.timeElapsed,
+            objects: batch
+          }
+        }, socket);
+      }
+      if (this.deleted.length > 0) {
+        NM.send({
+          type: 'SYNC_DELETE_OBJECT_BATCH',
+          data: {
+            ids: this.deleted
+          }
+        }, socket);
+        this.deleted = [];
+      }
     }
-    if (this.deleted.length > 0) {
-      server.send({
-        type: 'SYNC_DELETE_OBJECT_BATCH',
-        data: {
-          ids: this.deleted
-        }
-      }, socket);
-      this.deleted = [];
-    }
-
-    // Store state for rollback
-    // const state = {
-    //   time: GM.timeElapsed,
-    //   state: batch
-    // };
-    // this.previousStates.enqueue(state);
   }
 
   getEntityCount() {
@@ -441,7 +496,7 @@ class WorldManager {
         object: object.serialize()
       }
     };
-    client.send(packet);
+    NM.send(packet);
   }
 
   receiveSyncObject(object) {

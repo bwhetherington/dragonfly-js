@@ -38,16 +38,17 @@ class Server {
     this.freedIDs = [];
   }
 
+  get numConnections() {
+    return Object.keys(this.connections).length;
+  }
+
   recordEventType(type) {
-    // GM.registerHandler(type, data => {
-    //   const newEvent = { type, data };
-    //   GM.recordEvent(newEvent);
-    // });
+    GM.recordType(type);
   }
 
   initialize() {
     // Create http server
-    const httpServer = serveHTTP();
+    this.httpServer = serveHTTP();
     NM.initialize(this);
 
     this.recordEventType('STEP');
@@ -68,7 +69,7 @@ class Server {
     })
 
     // Attach websocket server to http server
-    this.wsServer = new WebsocketServer({ httpServer });
+    this.wsServer = new WebsocketServer({ httpServer: this.httpServer });
 
     // Handle incoming requests
     this.wsServer.on('request', request => {
@@ -76,12 +77,18 @@ class Server {
         this.accept(request);
       }
     });
+  }
 
+  start() {
     const port = process.env.PORT || 3000;
-    const time = new Date().toISOString();
-    httpServer.listen(port, () => {
+    this.httpServer.listen(port, () => {
+      const time = new Date().toISOString();
       console.log(`[${time}] Listening on port ${port}...`);
     });
+  }
+
+  stop() {
+    this.httpServer.close();
   }
 
   get numConnections() {

@@ -1,10 +1,7 @@
 import Entity from './Entity';
 import Vector from '../util/Vector';
 import GM from '../event/GameManager';
-import Projectile from './Projectile';
 import WM from './WorldManager';
-import AM from '../audio/AudioManager';
-import Ray from './Ray';
 import Pistol from './Pistol';
 import Shotgun from './Shotgun';
 import Raygun from './Raygun';
@@ -14,12 +11,11 @@ import NM from '../network/NetworkManager';
 import Explosion from './Explosion';
 import SETTINGS from '../util/settings';
 import WeaponPickUp from './WeaponPickUp';
-import DirectionVector from '../util/DirectionVector';
 import Rocket from './Rocket';
 
 const MOVEMENT_SPEED = 300;
 
-const colorOptions = ['white', 'black', 'yellow', 'green', 'white', 'black'];
+const colorOptions = ['red', 'blue', 'yellow', 'green', 'white', 'black'];
 
 const COLORS = {
   red: {
@@ -190,7 +186,7 @@ class Hero extends Entity {
       if (isServer()) {
         const pickup = new WeaponPickUp(weapon.type);
         pickup.setPosition(this.position);
-        WM.add(pickup);
+        GM.addEntity(pickup);
       }
       this.weapon = new Pistol();
       GM.emitEvent({
@@ -247,7 +243,7 @@ class Hero extends Entity {
     if (isClient()) {
       const explosion = new Explosion(2);
       explosion.setPosition(this.position);
-      WM.add(explosion);
+      GM.addEntity(explosion);
     } else {
       this.dropWeapon();
     }
@@ -342,6 +338,10 @@ class Hero extends Entity {
     }
   }
 
+  getCannonTip() {
+    return this.vectorBuffer2;
+  }
+
   isCurrentHero() {
     return GM.hero && this.playerID === GM.hero.playerID;
   }
@@ -356,7 +356,7 @@ class Hero extends Entity {
       const dx = x1 - x0;
       const dy = y1 - y0;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (0 < dist && dist < 200 && obj.deathTimer === -1) {
+      if (0 < dist && dist < 200) {
         this.position.setXY(x0, y0);
         this.velocity.setXY(vx, vy);
         this.acceleration.setXY(ax, ay);
