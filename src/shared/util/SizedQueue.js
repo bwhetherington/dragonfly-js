@@ -7,6 +7,10 @@ class SizedQueue {
     this.isEmptyInternal = true;
   }
 
+  getSize() {
+    return this.size;
+  }
+
   prepend(obj) {
     const node = {
       next: this.head,

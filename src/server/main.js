@@ -206,7 +206,7 @@ class GameServer extends Server {
     GM.registerHandler('ROLLBACK', event => {
       // const state = WM.getStateAtTime(GM.timeElapsed - 2);
       // WM.revertState(state);
-      WM.rollbackFrom(event.timeElapsed - 0.5);
+      WM.rollbackFrom(event.timeElapsed - 1);
     });
 
     // Load level

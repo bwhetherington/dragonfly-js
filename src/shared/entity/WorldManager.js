@@ -331,25 +331,9 @@ class WorldManager {
 
   rollbackFrom(time) {
     // Revert to the state
+    // console.log('BEGIN ROLLBACK');
     const state = this.getStateAtTime(time);
     this.revertState(state);
-
-    let elapsed = time;
-
-    // Find the events after this
-    const listener = GM.registerHandler('STEP', event => {
-      const { dt } = event;
-      elapsed += dt;
-      const state = [];
-      for (const entity of this.getEntities()) {
-        state.push(entity.serialize());
-      }
-      const stateEntry = {
-        time: elapsed,
-        state: this.previousState
-      };
-      this.previousStates.enqueue(stateEntry);
-    });
 
     GM.timeElapsed = time;
 
@@ -359,8 +343,6 @@ class WorldManager {
     for (const event of GM.eventsAfterTime(time)) {
       events.push(event);
     }
-
-    console.log('BEGIN ROLLBACK');
     GM.rollback = true;
 
     for (const event of events) {
@@ -372,10 +354,12 @@ class WorldManager {
     }
     GM.rollback = false;
 
-    console.log('END ROLLBACK');
+    // console.log(GM.storedEvents.getSize(), this.previousStates.getSize());
+
+    // console.log('END ROLLBACK');
 
     // GM.removeHandler('HIT_OBJECT', listener2);
-    GM.removeHandler('STEP', listener);
+    // GM.removeHandler('STEP', listener);
   }
 
   revertState(state) {

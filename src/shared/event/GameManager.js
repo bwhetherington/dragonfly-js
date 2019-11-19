@@ -228,13 +228,26 @@ class GameManager {
     return this.handlerCount;
   }
 
-  *eventsAfterTime(time) {
-    for (const event of this.storedEvents.iterateForward()) {
-      // Yield every event from the frame after the state
-      if (event.time > time) {
-        yield event;
+  eventsAfterTime(time) {
+    const toRepeat = [];
+    let event;
+    while ((event = this.storedEvents.pop()) !== null) {
+      if (event.time < time) {
+        break;
+      } else {
+        toRepeat.push(event);
       }
     }
+
+    // for (const event of this.storedEvents.iterateBack()) {
+    //   // Yield every event from the frame after the state
+    //   if (event.time < time) {
+    //     break;
+    //   } else {
+    //     toRepeat.push(event);
+    //   }
+    // }
+    return toRepeat;
   }
 }
 
