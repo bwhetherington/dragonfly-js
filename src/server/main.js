@@ -302,7 +302,7 @@ const cleanup = (server, timer) => () => {
 };
 
 const main = async () => {
-  const server = new (delayServer(GameServer, 0.2))(8);
+  const server = new (delayServer(GameServer, 0))(8);
   server.initialize();
 
   WM.initialize();
