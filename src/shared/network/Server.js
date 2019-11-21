@@ -51,10 +51,11 @@ class Server {
     this.httpServer = serveHTTP();
     NM.initialize(this);
 
+    this.recordEventType('JOIN_GAME');
     this.recordEventType('STEP');
     this.recordEventType('KEY_DOWN');
     this.recordEventType('KEY_UP');
-    this.recordEventType('MOUSE_DOWN');
+    this.recordEventType('TIME_WARPED_MOUSE_DOWN');
     this.recordEventType('MOUSE_UP');
 
     GM.registerHandler('SYNC_OBJECT', event => {
@@ -137,12 +138,16 @@ class Server {
       // If the index is -1, send to all connections
       for (const index in this.connections) {
         const connection = this.connections[index];
-        connection.sendUTF(data);
+        if (connection) {
+          connection.sendUTF(data);
+        }
       }
     } else {
       // Otherwise send it to only the specified client
       const connection = this.connections[socketIndex];
-      connection.sendUTF(data);
+      if (connection) {
+        connection.sendUTF(data);
+      }
     }
   }
 

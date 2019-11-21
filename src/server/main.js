@@ -9,6 +9,7 @@ import Rectangle from '../shared/util/Rectangle';
 import WeaponPickUp from '../shared/entity/WeaponPickUp';
 import HealthPickUp from '../shared/entity/HealthPickUp';
 import NM from '../shared/network/NetworkManager';
+import { diff } from '../shared/util/util';
 
 const REFRESH_RATE = 60;
 
@@ -62,7 +63,17 @@ class GameServer extends Server {
         }
       }, socketIndex);
 
-      hero.registerHandler('MOUSE_DOWN', event => {
+      hero.registerHandler('MOUSE_DOWN', data => {
+        const event = {
+          type: 'TIME_WARPED_MOUSE_DOWN',
+          data
+        };
+        console.log('rollback', GM.timeElapsed - data.timeElapsed);
+        WM.rollbackFrom(data.timeElapsed, event);
+      });
+
+      hero.registerHandler('TIME_WARPED_MOUSE_DOWN', event => {
+        console.log(event);
         const { position, socketIndex } = event;
         if (hero.playerID === socketIndex) {
           const { x, y } = position;
@@ -206,7 +217,13 @@ class GameServer extends Server {
     GM.registerHandler('ROLLBACK', event => {
       // const state = WM.getStateAtTime(GM.timeElapsed - 2);
       // WM.revertState(state);
+      const before = WM.serializeAll();
       WM.rollbackFrom(event.timeElapsed - 1);
+      const after = WM.serializeAll();
+      console.log('BEFORE');
+      console.log(before);
+      console.log('AFTER');
+      console.log(after);
     });
 
     // Load level
@@ -285,7 +302,7 @@ const cleanup = (server, timer) => () => {
 };
 
 const main = async () => {
-  const server = new (delayServer(GameServer, 0))(8);
+  const server = new (delayServer(GameServer, 0.2))(8);
   server.initialize();
 
   WM.initialize();

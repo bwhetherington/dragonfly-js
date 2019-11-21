@@ -152,14 +152,14 @@ class WorldManager {
     let { friction } = this;
     const { boundingBox } = entity;
 
-    if (entity.friction > 0) {
-      for (const icePatch of this.icePatches) {
-        if (icePatch.intersects(boundingBox)) {
-          friction /= 20;
-          break;
-        }
-      }
-    }
+    // if (entity.friction > 0) {
+    //   for (const icePatch of this.icePatches) {
+    //     if (icePatch.intersects(boundingBox)) {
+    //       friction /= 20;
+    //       break;
+    //     }
+    //   }
+    // }
 
     entity.vectorBuffer1.set(entity.acceleration);
     entity.vectorBuffer1.scale(entity.friction * friction * dt);
@@ -329,21 +329,27 @@ class WorldManager {
     }
   }
 
-  rollbackFrom(time) {
+  rollbackFrom(time, event = null) {
     // Revert to the state
     // console.log('BEGIN ROLLBACK');
     const state = this.getStateAtTime(time);
     this.revertState(state);
 
+    // Reset the time
     GM.timeElapsed = time;
 
-    // const listener2 = GM.registerHandler('HIT_OBJECT', console.log);
-
+    // Figure out which events to replay
     const events = [];
     for (const event of GM.eventsAfterTime(time)) {
       events.push(event);
     }
+
     GM.rollback = true;
+
+    // Insert the event at the appropriate time
+    if (event) {
+      GM.emitEvent(event);
+    }
 
     for (const event of events) {
       if (event.type === 'STEP') {
@@ -352,14 +358,9 @@ class WorldManager {
         GM.emitEvent(event);
       }
     }
+
     GM.rollback = false;
-
-    // console.log(GM.storedEvents.getSize(), this.previousStates.getSize());
-
     // console.log('END ROLLBACK');
-
-    // GM.removeHandler('HIT_OBJECT', listener2);
-    // GM.removeHandler('STEP', listener);
   }
 
   revertState(state) {
@@ -389,9 +390,9 @@ class WorldManager {
   }
 
   serializeAll() {
-    const batch = [];
-    for (const entity of this.getEntities()) {
-      batch.push(entity.serialize());
+    const batch = {};
+    for (const id in this.entities) {
+      batch[id] = this.findByID(id).serialize();
     }
     return batch;
   }
