@@ -134,6 +134,12 @@ class GameClient extends Client {
           case 'KeyE':
             this.entityMenu.hidden = !this.entityMenu.hidden;
             break;
+          case 'KeyR':
+            NM.send({
+              type: 'ROLLBACK',
+              data: {}
+            });
+            break;
           case 'ShiftLeft':
           case 'ShiftRight':
             hero.setSlow(true);

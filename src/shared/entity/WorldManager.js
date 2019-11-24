@@ -91,19 +91,6 @@ class WorldManager {
   initialize() {
     GM.registerHandler('STEP', ({ step, dt }) => {
       this.step(step, dt);
-
-      // Save this step
-      const objects = [];
-      for (const object of this.getEntities()) {
-        objects.push(object.serialize());
-      }
-
-      // Store state for rollback
-      const state = {
-        time: GM.timeElapsed,
-        state: objects
-      };
-      this.previousStates.enqueue(state);
     });
   }
 
@@ -143,6 +130,19 @@ class WorldManager {
         entity.step(step, dt);
       }
     }
+
+    // Save this step
+    const objects = [];
+    for (const object of this.getEntities()) {
+      objects.push(object.serialize());
+    }
+
+    // Store state for rollback
+    const state = {
+      time: GM.timeElapsed,
+      state: objects
+    };
+    this.previousStates.enqueue(state);
   }
 
 
@@ -314,6 +314,7 @@ class WorldManager {
       if (state.time <= time) {
         // We good
         foundState = state;
+        this.previousStates.push(foundState);
         break;
       }
     }
@@ -322,8 +323,8 @@ class WorldManager {
       return foundState;
     } else {
       // Add the states back to the queue
-      for (let i = 0; i < toAddBack.length; i++) {
-        this.previousStates.push(toAddBack[i]);
+      for (const state of toAddBack) {
+        this.previousStates.push(state);
       }
       return null;
     }
@@ -333,34 +334,43 @@ class WorldManager {
     // Revert to the state
     // console.log('BEGIN ROLLBACK');
     const state = this.getStateAtTime(time);
-    this.revertState(state);
+    if (state) {
+      this.revertState(state);
 
-    // Reset the time
-    GM.timeElapsed = time;
+      console.log('BEGIN');
 
-    // Figure out which events to replay
-    const events = [];
-    for (const event of GM.eventsAfterTime(time)) {
-      events.push(event);
-    }
+      // Reset the time
+      GM.timeElapsed = time;
 
-    GM.rollback = true;
+      // Figure out which events to replay
+      const events = [];
+      for (const event of GM.eventsAfterTime(time)) {
+        events.push(event);
+      }
 
-    // Insert the event at the appropriate time
-    if (event) {
-      GM.emitEvent(event);
-    }
+      GM.rollback = true;
 
-    for (const event of events) {
-      if (event.type === 'STEP') {
-        GM.step(event.data.dt, event.id);
-      } else {
+      // Insert the event at the appropriate time
+      if (event) {
         GM.emitEvent(event);
       }
-    }
 
-    GM.rollback = false;
-    // console.log('END ROLLBACK');
+      for (const event of events) {
+        if (event.type === 'STEP') {
+          GM.step(event.data.dt, event.id);
+        } else {
+          console.log(event);
+          GM.emitEvent(event);
+        }
+      }
+
+      GM.rollback = false;
+      // console.log('END ROLLBACK');
+
+      console.log('END');
+    } else if (event) {
+      GM.emitEvent(event);
+    }
   }
 
   revertState(state) {

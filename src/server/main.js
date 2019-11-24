@@ -9,7 +9,7 @@ import Rectangle from '../shared/util/Rectangle';
 import WeaponPickUp from '../shared/entity/WeaponPickUp';
 import HealthPickUp from '../shared/entity/HealthPickUp';
 import NM from '../shared/network/NetworkManager';
-import { diff } from '../shared/util/util';
+import { diff, deepDiff } from '../shared/util/util';
 
 const REFRESH_RATE = 60;
 
@@ -217,13 +217,11 @@ class GameServer extends Server {
     GM.registerHandler('ROLLBACK', event => {
       // const state = WM.getStateAtTime(GM.timeElapsed - 2);
       // WM.revertState(state);
-      const before = WM.serializeAll();
+      // const before = WM.serializeAll();
       WM.rollbackFrom(event.timeElapsed - 1);
-      const after = WM.serializeAll();
-      console.log('BEFORE');
-      console.log(before);
-      console.log('AFTER');
-      console.log(after);
+      // const after = WM.serializeAll();
+      // console.log('rollback');
+      // console.log(deepDiff(before, after));
     });
 
     // Load level

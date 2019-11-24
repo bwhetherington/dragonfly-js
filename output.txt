@@ -1,0 +1,159 @@
+
+> fp@1.0.0 start /Users/benhetherington/classwork/mqp/dragonfly-js
+> node dist/server/main.js
+
+[2019-11-24T03:51:29.834Z] Listening on port 3000...
+Can't keep up! Frame took an additional 32ms
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'KeyW',
+     timeElapsed: 0.036469999999999995,
+     socketIndex: 0 },
+  time: 0.33773608040064573,
+  id: 'b2cf0fc0-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'KeyS',
+     timeElapsed: 0.036469999999999995,
+     socketIndex: 0 },
+  time: 0.33773608040064573,
+  id: 'b2d06f50-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'KeyA',
+     timeElapsed: 0.036469999999999995,
+     socketIndex: 0 },
+  time: 0.33773608040064573,
+  id: 'b2d09660-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'KeyD',
+     timeElapsed: 0.036469999999999995,
+     socketIndex: 0 },
+  time: 0.33773608040064573,
+  id: 'b2d09661-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'JOIN_GAME',
+  data:
+   { name: 'Ben', timeElapsed: 1.094011238310486, socketIndex: 0 },
+  time: 1.1111552552320063,
+  id: 'b34c07f0-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'KeyE',
+     shift: false,
+     ctrl: false,
+     timeElapsed: 1.1454502552320063,
+     socketIndex: 0 },
+  time: 1.1323310702573508,
+  id: 'b351d450-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'KeyN',
+     shift: false,
+     ctrl: false,
+     timeElapsed: 1.1850051472429186,
+     socketIndex: 0 },
+  time: 1.1850051472429186,
+  id: 'b35b7140-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'Enter',
+     shift: false,
+     ctrl: false,
+     timeElapsed: 1.2516351351514459,
+     socketIndex: 0 },
+  time: 1.2516351351514459,
+  id: 'b3658360-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_DOWN',
+  data:
+   { key: 'KeyA',
+     shift: false,
+     ctrl: false,
+     timeElapsed: 1.5177177604793013,
+     socketIndex: 0 },
+  time: 1.5371880736202002,
+  id: 'b393bf50-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_DOWN',
+  data:
+   { key: 'KeyA',
+     shift: false,
+     ctrl: false,
+     timeElapsed: 1.9912456107436864,
+     socketIndex: 0 },
+  time: 2.003034337889403,
+  id: 'b3e0f4f1-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_DOWN',
+  data:
+   { key: 'KeyA',
+     shift: false,
+     ctrl: false,
+     timeElapsed: 2.066204632856548,
+     socketIndex: 0 },
+  time: 2.0646061247680336,
+  id: 'b3ec66a0-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_DOWN',
+  data:
+   { key: 'KeyA',
+     shift: false,
+     ctrl: false,
+     timeElapsed: 2.147941680912152,
+     socketIndex: 0 },
+  time: 2.148324863985181,
+  id: 'b3f8e9c0-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'KeyA',
+     shift: false,
+     ctrl: false,
+     timeElapsed: 2.1834458969533443,
+     socketIndex: 0 },
+  time: 2.1834458969533443,
+  id: 'b40063d1-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_DOWN',
+  data:
+   { key: 'KeyD',
+     shift: false,
+     ctrl: false,
+     timeElapsed: 3.1081386297009885,
+     socketIndex: 0 },
+  time: 3.1081386297009885,
+  id: 'b496fe80-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_DOWN',
+  data:
+   { key: 'KeyD',
+     shift: false,
+     ctrl: false,
+     timeElapsed: 3.5755242452512683,
+     socketIndex: 0 },
+  time: 3.574621227104217,
+  id: 'b4e2fba0-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'KeyD',
+     shift: false,
+     ctrl: false,
+     timeElapsed: 3.592496227104217,
+     socketIndex: 0 },
+  time: 3.591396556003019,
+  id: 'b4e62ff0-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'KeyW', timeElapsed: 4.791132706217468, socketIndex: 0 },
+  time: 4.87296393699944,
+  id: 'b5bc92c1-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'KeyS', timeElapsed: 4.791132706217468, socketIndex: 0 },
+  time: 4.87296393699944,
+  id: 'b5bc92c2-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'KeyA', timeElapsed: 4.791132706217468, socketIndex: 0 },
+  time: 4.87296393699944,
+  id: 'b5bce0e0-0e6d-11ea-9984-8bdc11d72f8d' }
+RECORD { type: 'KEY_UP',
+  data:
+   { key: 'KeyD', timeElapsed: 4.791132706217468, socketIndex: 0 },
+  time: 4.87296393699944,
+  id: 'b5bce0e1-0e6d-11ea-9984-8bdc11d72f8d' }
+Can't keep up! Frame took an additional 0ms

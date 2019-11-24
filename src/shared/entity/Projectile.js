@@ -114,11 +114,11 @@ class Projectile extends Entity {
   }
 
   cleanup() {
-    // if (isClient()) {
-    //   const explosion = new Explosion(this.color, this.explosionRadius);
-    //   explosion.setPosition(this.position);
-    //   GM.addEntity(explosion);
-    // }
+    if (isClient()) {
+      const explosion = new Explosion(this.color, this.explosionRadius);
+      explosion.setPosition(this.position);
+      GM.addEntity(explosion);
+    }
     super.cleanup();
   }
 }

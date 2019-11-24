@@ -9,99 +9,11 @@ const transformClientCoordinates = (two, x, y) => {
   };
 }
 
-const attachInput = (two, root) => {
-  root.addEventListener('keydown', event => {
-    const newEvent = {
-      type: 'KEY_DOWN',
-      data: {
-        key: event.code,
-        shift: event.shiftKey,
-        ctrl: event.ctrlKey
-      }
-    };
-    GM.emitEvent(newEvent);
-  });
-
-  root.addEventListener('keyup', event => {
-    const newEvent = {
-      type: 'KEY_UP',
-      data: {
-        key: event.code,
-        shift: event.shiftKey,
-        ctrl: event.ctrlKey
-      }
-    };
-    GM.emitEvent(newEvent);
-  });
-
-  root.addEventListener('mousedown', event => {
-    const { x, y } = transformClientCoordinates(two, event.clientX, event.clientY);
-    const newEvent = {
-      type: 'MOUSE_DOWN',
-      data: {
-        button: event.button,
-        position: { x, y }
-      }
-    };
-    GM.emitEvent(newEvent);
-  });
-
-  root.addEventListener('mouseup', event => {
-    const { x, y } = transformClientCoordinates(two, event.clientX, event.clientY);
-    const newEvent = {
-      type: 'MOUSE_UP',
-      data: {
-        button: event.button,
-        position: { x, y }
-      }
-    };
-    GM.emitEvent(newEvent);
-  });
-
-  root.addEventListener('mousemove', event => {
-    const { x, y } = transformClientCoordinates(two, event.clientX, event.clientY);
-    const newEvent = {
-      type: 'MOUSE_MOVE',
-      data: {
-        position: { x, y }
-      }
-    };
-    GM.emitEvent(newEvent);
-  });
-
-  // Turn off all input when the user stops focusin on the game
-  root.addEventListener('focusout', () => {
-    GM.emitEvent({
-      type: 'KEY_UP',
-      data: {
-        key: 'KeyW'
-      }
-    });
-    GM.emitEvent({
-      type: 'KEY_UP',
-      data: {
-        key: 'KeyS'
-      }
-    });
-    GM.emitEvent({
-      type: 'KEY_UP',
-      data: {
-        key: 'KeyA'
-      }
-    });
-    GM.emitEvent({
-      type: 'KEY_UP',
-      data: {
-        key: 'KeyD'
-      }
-    });
-  });
-};
-
 class Client {
   constructor(two, addr) {
     this.two = two;
     this.sendBuffer = [];
+    this.keyStates = {};
     if (!addr) {
       addr = `ws://${location.host}`;
     }
@@ -120,12 +32,112 @@ class Client {
     this.socket.onerror = console.log;
   }
 
+  attachInput(two, root) {
+    root.addEventListener('keydown', event => {
+      const { code, shiftKey, ctrlKey } = event;
+      if (!this.keyStates[code]) {
+        this.keyStates[code] = true;
+        const newEvent = {
+          type: 'KEY_DOWN',
+          data: {
+            key: code,
+            shift: shiftKey,
+            ctrl: ctrlKey
+          }
+        };
+        GM.emitEvent(newEvent);
+      }
+    });
+
+    root.addEventListener('keyup', event => {
+      const { code, shiftKey, ctrlKey } = event;
+      if (this.keyStates[code]) {
+        delete this.keyStates[code];
+        const newEvent = {
+          type: 'KEY_UP',
+          data: {
+            key: code,
+            shift: shiftKey,
+            ctrl: ctrlKey
+          }
+        };
+        GM.emitEvent(newEvent);
+      }
+    });
+
+    root.addEventListener('mousedown', event => {
+      const { x, y } = transformClientCoordinates(two, event.clientX, event.clientY);
+      const newEvent = {
+        type: 'MOUSE_DOWN',
+        data: {
+          button: event.button,
+          position: { x, y }
+        }
+      };
+      GM.emitEvent(newEvent);
+    });
+
+    root.addEventListener('mouseup', event => {
+      const { x, y } = transformClientCoordinates(two, event.clientX, event.clientY);
+      const newEvent = {
+        type: 'MOUSE_UP',
+        data: {
+          button: event.button,
+          position: { x, y }
+        }
+      };
+      GM.emitEvent(newEvent);
+    });
+
+    root.addEventListener('mousemove', event => {
+      const { x, y } = transformClientCoordinates(two, event.clientX, event.clientY);
+      const newEvent = {
+        type: 'MOUSE_MOVE',
+        data: {
+          position: { x, y }
+        }
+      };
+      GM.emitEvent(newEvent);
+    });
+
+    GM.registerHandler('KEY_DOWN', e => console.log('KEY_DOWN', e));
+    GM.registerHandler('KEY_UP', e => console.log('KEY_UP', e));
+
+    // Turn off all input when the user stops focusin on the game
+    // root.addEventListener('focusout', () => {
+    //   GM.emitEvent({
+    //     type: 'KEY_UP',
+    //     data: {
+    //       key: 'KeyW'
+    //     }
+    //   });
+    //   GM.emitEvent({
+    //     type: 'KEY_UP',
+    //     data: {
+    //       key: 'KeyS'
+    //     }
+    //   });
+    //   GM.emitEvent({
+    //     type: 'KEY_UP',
+    //     data: {
+    //       key: 'KeyA'
+    //     }
+    //   });
+    //   GM.emitEvent({
+    //     type: 'KEY_UP',
+    //     data: {
+    //       key: 'KeyD'
+    //     }
+    //   });
+    // });
+  };
+
   syncObject(object) {
     WM.receiveSyncObject(object);
   }
 
   initialize(window) {
-    attachInput(this.two, window);
+    this.attachInput(this.two, window);
     NM.initialize(this);
 
     GM.registerHandler('CREATE_OBJECT', event => {

@@ -26,14 +26,18 @@ class Weapon {
   serialize() {
     return {
       type: this.type,
-      delayTimer: this.delayTimer
+      delayTimer: this.delayTimer,
+      delayAmount: this.delayAmount
     };
   }
 
   deserialize(obj) {
-    const { delayTimer } = obj;
+    const { delayTimer, delayAmount } = obj;
     if (delayTimer !== undefined) {
       this.delayTimer = delayTimer;
+    }
+    if (delayAmount !== undefined) {
+      this.delayAmount = delayAmount;
     }
   }
 

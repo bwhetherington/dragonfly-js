@@ -74,6 +74,29 @@ export const diff = (a, b) => {
   return obj;
 };
 
+export const deepDiff = (a, b) => {
+  if (typeof a === 'object' && typeof b === 'object') {
+    let obj;
+    if (b instanceof Array) {
+      obj = [];
+    } else {
+      obj = {};
+    }
+    for (const key in b) {
+      if (!equals(a[key], b[key])) {
+        // console.log(a[key], b[key]);
+        obj[key] = deepDiff(a[key], b[key]);
+      }
+    }
+    // if (b.id && !) {
+    //   obj.id = b.id;
+    // }
+    return obj;
+  } else {
+    return `${a} => ${b}`;
+  }
+};
+
 export const equals = (a, b) => {
   if (typeof a === 'object' && typeof b === 'object') {
     const aKeys = Object.keys(a);
