@@ -74,6 +74,27 @@ export const diff = (a, b) => {
   return obj;
 };
 
+const isEmpty = obj => {
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      return false;
+    }
+  }
+  return true;
+};
+
+export const pruneEmpty = obj => {
+  if (typeof obj === 'object') {
+    for (const key in obj) {
+      if (isEmpty(obj[key])) {
+        delete obj[key];
+      } else {
+        pruneEmpty(obj[key]);
+      }
+    }
+  }
+};
+
 export const deepDiff = (a, b) => {
   if (typeof a === 'object' && typeof b === 'object') {
     let obj;
@@ -85,7 +106,10 @@ export const deepDiff = (a, b) => {
     for (const key in b) {
       if (!equals(a[key], b[key])) {
         // console.log(a[key], b[key]);
-        obj[key] = deepDiff(a[key], b[key]);
+        const diff = deepDiff(a[key], b[key]);
+        if (!isEmpty(diff)) {
+          obj[key] = diff;
+        }
       }
     }
     // if (b.id && !) {
@@ -93,7 +117,10 @@ export const deepDiff = (a, b) => {
     // }
     return obj;
   } else {
-    return `${a} => ${b}`;
+    return {
+      from: a,
+      to: b
+    };
   }
 };
 

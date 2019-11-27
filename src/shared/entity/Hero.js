@@ -270,7 +270,7 @@ class Hero extends Entity {
 
   setInput(direction, on) {
     const { input } = this;
-    this.input[direction] = on;
+    input[direction] = on;
 
     // Calculate velocity from this
     this.acceleration.setXY(0, 0);
@@ -317,6 +317,7 @@ class Hero extends Entity {
   serialize() {
     const obj = {
       ...super.serialize(),
+      input: { ...this.input },
       playerID: this.playerID,
       cannonAngle: this.cannonAngle,
       damageAmount: this.damageAmount,
@@ -351,6 +352,14 @@ class Hero extends Entity {
     const { x: vx, y: vy } = this.velocity;
     const { x: ax, y: ay } = this.acceleration;
     super.deserialize(obj);
+
+    if (obj.input) {
+      this.acceleration.setXY(0, 0);
+      for (const key in obj.input) {
+        this.setInput(key, obj.input[key]);
+      }
+    }
+
     const { x: x1, y: y1 } = this.position;
     if (SETTINGS.predictionEnabled && this.isCurrentHero()) {
       const dx = x1 - x0;

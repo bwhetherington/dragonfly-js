@@ -197,7 +197,7 @@ class ChatManager {
     authorLabel.append(author, ': ');
 
     const messageComponent = document.createElement('span');
-    messageComponent.innerText = content;
+    messageComponent.innerHTML = content;
 
     element.append(idTag, ' ', authorLabel, messageComponent);
 

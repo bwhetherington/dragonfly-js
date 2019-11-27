@@ -15,7 +15,7 @@ class GameManager {
     this.currentEventID = null;
     this.createdEntities = {};
     this.createRootEvent();
-    this.storedEvents = new SizedQueue(1000);
+    this.storedEvents = new SizedQueue(5000);
     this.recordedTypes = {};
   }
 
@@ -148,6 +148,7 @@ class GameManager {
 
     if (record) {
       this.currentEventID = null;
+      this.recordEvent(event);
     }
   }
 
@@ -176,39 +177,39 @@ class GameManager {
   prepEvent(event) {
     if (event.id === undefined) {
       event.id = uuid();
-    } else {
-      const entry = this.createdEntities[event.id];
     }
   }
 
   emitEventFirst(event) {
     this.prepEvent(event);
     this.eventQueue.prepend(event);
-
-    // Check if we record this type of event
-    if (this.doesRecordType(event.type)) {
-      this.recordEvent(event);
-    }
   }
 
   emitEvent(event) {
     this.prepEvent(event);
     this.eventQueue.enqueue(event);
-
-    // Check if we record this type of event
-    if (this.doesRecordType(event.type)) {
-      this.recordEvent(event);
-    }
   }
+
+  // get timeElapsed() {
+  //   return this.timeElapsedInternal;
+  // }
+
+  // set timeElapsed(val) {
+  //   if (this.rollback) {
+  //     console.log('set timeElapsed', val);
+  //     console.log('dt', val - this.timeElapsed);
+  //   }
+  //   this.timeElapsedInternal = val;
+  // }
 
   /**
    * This method should be called by a separate timer on the client and the
    * server for accuracy's sake.
    */
   step(dt, id = undefined) {
-    this.timeElapsed += dt;
-
     this.frameRate = 1.0 / dt;
+
+    WM.recordState();
 
     const stepEvent = {
       type: 'STEP',
@@ -219,9 +220,11 @@ class GameManager {
       }
     };
 
-    this.stepCount += 1;
     this.emitEventFirst(stepEvent);
     this.pollEvents();
+
+    this.stepCount += 1;
+    this.timeElapsed += dt;
   }
 
   getHandlerCount() {
@@ -233,7 +236,7 @@ class GameManager {
 
     let event;
     while ((event = this.storedEvents.pop()) !== null) {
-      if (event.time < time) {
+      if (event.time <= time) {
         this.storedEvents.push(event);
         break;
       } else {

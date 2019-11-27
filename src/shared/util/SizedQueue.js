@@ -7,6 +7,12 @@ class SizedQueue {
     this.isEmptyInternal = true;
   }
 
+  validateSize() {
+    if (this.size > this.maxSize) {
+      console.log('size warning');
+    }
+  }
+
   getSize() {
     return this.size;
   }
@@ -21,6 +27,7 @@ class SizedQueue {
       this.head.prev = node;
     }
     this.head = node;
+    this.validateSize();
   }
 
   enqueue(obj) {
@@ -37,8 +44,11 @@ class SizedQueue {
     }
     this.tail = node;
     this.size += 1;
+
     if (this.size > this.maxSize) {
-      return this.dequeue();
+      const old = this.dequeue();
+      this.validateSize();
+      return old;
     } else {
       return null;
     }
@@ -55,8 +65,11 @@ class SizedQueue {
         this.head.prev = null;
       }
       this.size -= 1;
+      this.validateSize();
       return value;
     } else {
+
+      this.validateSize();
       return null;
     }
   }
@@ -77,8 +90,12 @@ class SizedQueue {
         this.head = null;
         this.isEmptyInternal = true;
       }
+
+      this.validateSize();
       return node.value;
     } else {
+
+      this.validateSize();
       return null;
     }
   }
@@ -87,7 +104,7 @@ class SizedQueue {
     return this.isEmptyInternal;
   }
 
-  toList() {
+  toArray() {
     const list = new Array(this.size);
     let current = this.head;
     for (let i = 0; current !== null; i++) {

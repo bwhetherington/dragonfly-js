@@ -93,7 +93,7 @@ class GameClient extends Client {
       const curFPS = 1 / event.dt;
       fpsQueue.enqueue(curFPS);
       // Smooth fps slightly
-      const fps = Math.round(average(fpsQueue.toList()));
+      const fps = Math.round(average(fpsQueue.toArray()));
 
       const entityCount = WM.entityCount;
       const listenerCount = GM.handlerCount;

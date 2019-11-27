@@ -130,7 +130,10 @@ class WorldManager {
         entity.step(step, dt);
       }
     }
+  }
 
+  recordState() {
+    // console.log('STORE', GM.timeElapsed);
     // Save this step
     const objects = [];
     for (const object of this.getEntities()) {
@@ -140,12 +143,11 @@ class WorldManager {
     // Store state for rollback
     const state = {
       time: GM.timeElapsed,
+      step: GM.stepCount,
       state: objects
     };
     this.previousStates.enqueue(state);
   }
-
-
 
   move(entity, dt) {
     // vb1 = a * t
@@ -314,7 +316,7 @@ class WorldManager {
       if (state.time <= time) {
         // We good
         foundState = state;
-        this.previousStates.push(foundState);
+        // this.previousStates.push(foundState);
         break;
       }
     }
@@ -334,17 +336,38 @@ class WorldManager {
     // Revert to the state
     // console.log('BEGIN ROLLBACK');
     const state = this.getStateAtTime(time);
+    // console.log('ROLLBACK_TO', state.time);
+    // console.log('FROM', GM.timeElapsed);
+    const oldTime = GM.timeElapsed;
+    const oldStep = GM.stepCount;
     if (state) {
+
+      let prevHero = null;
+      let curHero = null;
+
+      // Check for input states
+      for (const object of state.state) {
+        if (object.hasOwnProperty('input')) {
+          prevHero = object;
+          curHero = this.findByID(prevHero.id);
+          break;
+        }
+      }
+
+      if (prevHero && curHero) {
+        const prevInput = prevHero.input;
+        const curInput = curHero.input;
+        console.log(prevInput, curInput);
+      }
+
       this.revertState(state);
 
       console.log('BEGIN');
-
-      // Reset the time
-      GM.timeElapsed = time;
+      NM.messageClients('BEGIN');
 
       // Figure out which events to replay
       const events = [];
-      for (const event of GM.eventsAfterTime(time)) {
+      for (const event of GM.eventsAfterTime(state.time)) {
         events.push(event);
       }
 
@@ -355,19 +378,35 @@ class WorldManager {
         GM.emitEvent(event);
       }
 
+      const times = [];
+
       for (const event of events) {
+        // console.log('EVENT_TIME', event.time, event);
+        times.push(event.time);
         if (event.type === 'STEP') {
           GM.step(event.data.dt, event.id);
         } else {
-          console.log(event);
+          if (event.type === 'KEY_DOWN' || event.type === 'KEY_UP') {
+            if (event.data.key !== 'KeyR') {
+              NM.messageClients(Math.round((GM.timeElapsed - state.time) * 1000), event.type, event.data.key);
+            }
+          }
           GM.emitEvent(event);
         }
       }
 
+      NM.messageClients('events', events.length);
+
+      // console.log(state.time, times);
+
+      NM.messageClients(oldTime, GM.timeElapsed);
+      NM.messageClients(oldStep, GM.stepCount);
+
       GM.rollback = false;
+
       // console.log('END ROLLBACK');
 
-      console.log('END');
+      NM.messageClients('END');
     } else if (event) {
       GM.emitEvent(event);
     }
@@ -375,6 +414,9 @@ class WorldManager {
 
   revertState(state) {
     const ids = {};
+
+    GM.timeElapsed = state.time;
+    GM.stepCount = state.step;
 
     // Sync all objects
     for (const obj of state.state) {

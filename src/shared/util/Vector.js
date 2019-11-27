@@ -29,6 +29,9 @@ class Vector {
   }
 
   set(vector) {
+    // if (!vector) {
+    //   debugger;
+    // }
     const { x, y } = vector;
     this.x = x;
     this.y = y;

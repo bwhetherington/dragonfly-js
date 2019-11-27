@@ -138,9 +138,9 @@ input[type='text']:focus {
 }
 
 .chatbox-container {
-  visibility: hidden;
+  visibility: visible;
   /* opacity: 50%; */
-  pointer-events: none;
+  pointer-events: auto;
   bottom: 50px;
 }
 

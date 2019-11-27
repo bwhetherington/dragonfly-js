@@ -1,52 +1,35 @@
-const deepDiff = (a, b) => {
-  if (typeof a === 'object' && typeof b === 'object') {
-    let obj;
-    if (b instanceof Array) {
-      obj = [];
-    } else {
-      obj = {};
-    }
-    for (const key in b) {
-      if (!equals(a[key], b[key])) {
-        obj[key] = deepDiff(a[key], b[key]);
-      }
-    }
-    if (b.id) {
-      obj.id = b.id;
-    }
-    return obj;
-  } else {
-    return b;
-  }
-};
-
-const equals = (a, b) => {
-  if (typeof a === 'object' && typeof b === 'object') {
-    const aKeys = Object.keys(a);
-    const bKeys = Object.keys(b);
-
-    if (aKeys.length !== bKeys.length) {
+const isEmpty = obj => {
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
       return false;
     }
+  }
+  return true;
+}
 
-    for (const key of aKeys) {
-      if (a[key] !== b[key]) {
-        return false;
+const pruneEmpty = obj => {
+  if (typeof obj === 'object') {
+    for (const key in obj) {
+      if (isEmpty(obj[key])) {
+        delete obj[key];
+      } else {
+        pruneEmpty(obj[key]);
       }
     }
-
-    return true;
-  } else {
-    return a === b;
   }
 }
 
-const a = [{
-  position: { x: 10, y: 20 }
-}];
+const obj = {
+  '796fc740-0fb4-11ea-99c0-3bde5e03f9bf': {},
+  '797174f0-0fb4-11ea-99c0-3bde5e03f9bf': {},
+  '79719c01-0fb4-11ea-99c0-3bde5e03f9bf': {},
+  '7a138151-0fb4-11ea-99c0-3bde5e03f9bf': {},
+  '7ab40711-0fb4-11ea-99c0-3bde5e03f9bf': {},
+  '7af8ff50-0fb4-11ea-99c0-3bde5e03f9bf': {},
+  '7b58ab81-0fb4-11ea-99c0-3bde5e03f9bf': {},
+  '7c8dd020-0fb4-11ea-99c0-3bde5e03f9bf': {}
+};
 
-const b = [{
-  position: { x: 10, y: 21 }
-}];
+pruneEmpty(obj);
 
-console.log(deepDiff(a, b));
+console.log(obj);
