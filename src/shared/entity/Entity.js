@@ -41,6 +41,7 @@ class Entity {
     this.hasMoved = true;
     this.syncMove = true;
     this.hasSpawned = false;
+    this.opacity = 1;
   }
 
   registerHandler(type, handler) {
@@ -204,6 +205,9 @@ class Entity {
     const object = two.makeRectangle(this.position.x, this.position.y, 30, 30);
     object.linewidth = 5;
     this.graphicsObject = object;
+    if (this.graphicsObject) {
+      this.graphicsObject.opacity = this.opacity;
+    }
   }
 
   damage(amount) { }

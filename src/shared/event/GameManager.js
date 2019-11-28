@@ -220,9 +220,9 @@ class GameManager {
       }
     };
 
-    this.emitEventFirst(stepEvent);
     this.pollEvents();
-
+    this.emitEvent(stepEvent);
+    this.pollEvents();
     this.stepCount += 1;
     this.timeElapsed += dt;
   }
@@ -236,7 +236,7 @@ class GameManager {
 
     let event;
     while ((event = this.storedEvents.pop()) !== null) {
-      if (event.time <= time) {
+      if (event.time < time) {
         this.storedEvents.push(event);
         break;
       } else {

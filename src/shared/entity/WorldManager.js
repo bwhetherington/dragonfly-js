@@ -340,6 +340,10 @@ class WorldManager {
     // console.log('FROM', GM.timeElapsed);
     const oldTime = GM.timeElapsed;
     const oldStep = GM.stepCount;
+    const oldEventQueue = GM.eventQueue.toArray();
+    while (!GM.eventQueue.isEmpty()) {
+      GM.eventQueue.pop();
+    }
     if (state) {
 
       let prevHero = null;
@@ -388,7 +392,7 @@ class WorldManager {
         } else {
           if (event.type === 'KEY_DOWN' || event.type === 'KEY_UP') {
             if (event.data.key !== 'KeyR') {
-              NM.messageClients(Math.round((GM.timeElapsed - state.time) * 1000), event.type, event.data.key);
+              NM.messageClients('Key Print', Math.round((GM.timeElapsed - state.time) * 1000), event.type, event.data.key);
             }
           }
           GM.emitEvent(event);
@@ -399,8 +403,8 @@ class WorldManager {
 
       // console.log(state.time, times);
 
-      NM.messageClients(oldTime, GM.timeElapsed);
-      NM.messageClients(oldStep, GM.stepCount);
+      NM.messageClients('Time diff', oldTime, GM.timeElapsed);
+      NM.messageClients('Step Diff', oldStep, GM.stepCount);
 
       GM.rollback = false;
 
@@ -408,6 +412,11 @@ class WorldManager {
 
       NM.messageClients('END');
     } else if (event) {
+      GM.emitEvent(event);
+    }
+
+    // Add back the stored events
+    for (const event of oldEventQueue) {
       GM.emitEvent(event);
     }
   }

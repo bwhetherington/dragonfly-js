@@ -75,7 +75,7 @@ class Hero extends Entity {
     this.invilTimer = -1;
     this.invilAmount = 2;
     this.regen = 2;
-    this.lives = 5;
+    this.lives = 2;
 
 
     this.registerHandler('OBJECT_COLLISION', event => {
@@ -309,9 +309,9 @@ class Hero extends Entity {
       this.updateOpacity(1);
     }
     this.damageAmount = 0;
-    this.setWeapon('Rocket');
+    this.resetWeapon();
     this.isCollidable = true;
-    this.lives = 5;
+    this.lives = 2;
   }
 
   serialize() {
@@ -457,6 +457,16 @@ class Hero extends Entity {
     if (this.graphicsObject) {
       this.graphicsObject.opacity = this.opacity;
     }
+  }
+
+  resetWeapon(){
+    this.weapon = new Pistol();
+    GM.emitEvent({
+      type: 'EQUIP_WEAPON',
+      data: {
+        type: 'Pistol'
+      }
+    });
   }
 
   setWeapon(type) {

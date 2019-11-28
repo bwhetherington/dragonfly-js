@@ -50,50 +50,58 @@ class GameServer extends Server {
       const { name, socketIndex } = event;
 
       // Create hero for player
-      const hero = new Hero(socketIndex);
-      hero.name = name;
-      GM.addEntity(hero);
-      this.heroes[socketIndex] = hero;
+      this.heroes[socketIndex] = name;
+      if (Object.keys(this.heroes).length === 2) {
+        for (const curKey in this.heroes) {
+          const curSocketIndex = parseInt(curKey);
+          const curHero = new Hero(curSocketIndex);
+          const curName = this.heroes[curKey];
+          curHero.name = curName;
+          this.heroes[curSocketIndex] = curHero;
+          GM.addEntity(curHero);
 
-      NM.send({
-        type: 'ASSIGN_ID',
-        data: {
-          playerID: socketIndex,
-          serverTime: GM.timeElapsed
+          NM.send({
+            type: 'ASSIGN_ID',
+            data: {
+              playerID: curSocketIndex,
+              serverTime: GM.timeElapsed
+            }
+          }, curSocketIndex);
+
+          curHero.registerHandler('MOUSE_DOWN', data => {
+            const event = {
+              type: 'TIME_WARPED_MOUSE_DOWN',
+              data
+            };
+            // console.log('rollback', GM.timeElapsed - data.timeElapsed);
+            // GM.emitEvent(event);
+            WM.rollbackFrom(data.timeElapsed, event);
+          });
+
+          curHero.registerHandler('TIME_WARPED_MOUSE_DOWN', event => {
+            // console.log(event);
+            const { position, socketIndex } = event;
+            if (curHero.playerID === socketIndex) {
+              const { x, y } = position;
+              curHero.fireXY(x, y);
+            }
+          });
+
+          curHero.registerHandler('ROTATE_CANNON', event => {
+            const { playerID, angle, socketIndex } = event;
+            if (playerID === socketIndex && curHero.playerID === playerID) {
+              curHero.rotateCannon(angle);
+            }
+          });
+
+          curHero.registerHandler('PLAYER_KILLED', event => {
+            const { killerID } = event;
+            if (curHero.id === killerID) {
+              curHero.score += curHero.maxDamage;
+            }
+          });
         }
-      }, socketIndex);
-
-      hero.registerHandler('MOUSE_DOWN', data => {
-        const event = {
-          type: 'TIME_WARPED_MOUSE_DOWN',
-          data
-        };
-        console.log('rollback', GM.timeElapsed - data.timeElapsed);
-        WM.rollbackFrom(data.timeElapsed, event);
-      });
-
-      hero.registerHandler('TIME_WARPED_MOUSE_DOWN', event => {
-        console.log(event);
-        const { position, socketIndex } = event;
-        if (hero.playerID === socketIndex) {
-          const { x, y } = position;
-          hero.fireXY(x, y);
-        }
-      });
-
-      hero.registerHandler('ROTATE_CANNON', event => {
-        const { playerID, angle, socketIndex } = event;
-        if (playerID === socketIndex && hero.playerID === playerID) {
-          hero.rotateCannon(angle);
-        }
-      });
-
-      hero.registerHandler('PLAYER_KILLED', event => {
-        const { killerID } = event;
-        if (hero.id === killerID) {
-          hero.score += hero.maxDamage;
-        }
-      });
+      }
     });
 
     GM.registerHandler('REJOIN_GAME', event => {
@@ -230,7 +238,7 @@ class GameServer extends Server {
       const after = WM.serializeAll();
       // const afterEvents = GM.storedEvents.toArray();
       const diff = deepDiff(before, after);
-      NM.messageClients('diff', diff);
+      // NM.messageClients('diff', diff);
     });
 
     // Load level
@@ -281,7 +289,7 @@ class GameServer extends Server {
 
   resetGame() {
     WM.deleteAllNonHero();
-    this.generatePickups();
+    // this.generatePickups();
     const message = {
       type: 'RESET_GAME',
       data: {}

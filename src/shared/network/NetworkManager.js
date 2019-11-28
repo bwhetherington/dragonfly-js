@@ -24,7 +24,7 @@ class NetworkManager {
   }
 
   messageClients(...items) {
-    console.log(items);
+    // console.log(items);
     const message = {
       author: 'Server',
       content: format(items),
