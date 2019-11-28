@@ -177,7 +177,7 @@ class Entity {
     if (isSpectral !== undefined) {
       this.isSpectral = isSpectral;
     }
-    if (opacity !== undefined) {
+    if (opacity !== undefined && opacity !== this.opacity) {
       this.updateOpacity(opacity);
     }
     if (bounce !== undefined) {
