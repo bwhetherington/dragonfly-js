@@ -27,6 +27,7 @@ class SizedQueue {
       this.head.prev = node;
     }
     this.head = node;
+    this.size += 1;
     this.validateSize();
   }
 
