@@ -340,6 +340,8 @@ class WorldManager {
     // console.log('FROM', GM.timeElapsed);
     const oldTime = GM.timeElapsed;
     const oldStep = GM.stepCount;
+
+    console.log(GM.eventQueue);
     const oldEventQueue = GM.eventQueue.toArray();
     while (!GM.eventQueue.isEmpty()) {
       GM.eventQueue.pop();
@@ -361,13 +363,13 @@ class WorldManager {
       if (prevHero && curHero) {
         const prevInput = prevHero.input;
         const curInput = curHero.input;
-        console.log(prevInput, curInput);
+        // console.log(prevInput, curInput);
       }
 
       this.revertState(state);
 
-      console.log('BEGIN');
-      NM.messageClients('BEGIN');
+      // console.log('BEGIN');
+      // NM.messageClients('BEGIN');
 
       // Figure out which events to replay
       const events = [];
@@ -392,25 +394,25 @@ class WorldManager {
         } else {
           if (event.type === 'KEY_DOWN' || event.type === 'KEY_UP') {
             if (event.data.key !== 'KeyR') {
-              NM.messageClients('Key Print', Math.round((GM.timeElapsed - state.time) * 1000), event.type, event.data.key);
+              // NM.messageClients('Key Print', Math.round((GM.timeElapsed - state.time) * 1000), event.type, event.data.key);
             }
           }
           GM.emitEvent(event);
         }
       }
 
-      NM.messageClients('events', events.length);
+      // NM.messageClients('events', events.length);
 
       // console.log(state.time, times);
 
-      NM.messageClients('Time diff', oldTime, GM.timeElapsed);
-      NM.messageClients('Step Diff', oldStep, GM.stepCount);
+      // NM.messageClients('Time diff', oldTime, GM.timeElapsed);
+      // NM.messageClients('Step Diff', oldStep, GM.stepCount);
 
       GM.rollback = false;
 
       // console.log('END ROLLBACK');
 
-      NM.messageClients('END');
+      // NM.messageClients('END');
     } else if (event) {
       GM.emitEvent(event);
     }

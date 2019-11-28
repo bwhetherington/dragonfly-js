@@ -6,6 +6,7 @@ class Weapon {
     this.delayAmount = delayAmount;
     this.removeHandler = null;
     this.name = name;
+    this.useTimeWarp = false;
 
     GM.registerHandler('STEP', (event, remove) => {
       this.removeHandler = remove;

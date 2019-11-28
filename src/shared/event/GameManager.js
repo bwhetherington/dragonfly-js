@@ -221,8 +221,12 @@ class GameManager {
     };
 
     this.pollEvents();
-    this.emitEvent(stepEvent);
-    this.pollEvents();
+
+    // We are deliberately not polling events here
+    // This means that any events emitted in a step event handler get handled
+    // in the next step, and ensures that the step event is the absolute last
+    // event handled in any given step
+    this.handleEvent(stepEvent);
     this.stepCount += 1;
     this.timeElapsed += dt;
   }

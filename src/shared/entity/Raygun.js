@@ -7,6 +7,7 @@ import Ray from './Ray';
 class Raygun extends Weapon {
   constructor() {
     super("Raygun", 1);
+    this.useTimeWarp = true;
   }
 
   fire(fx, fy, sourceHero) {

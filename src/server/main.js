@@ -51,7 +51,7 @@ class GameServer extends Server {
 
       // Create hero for player
       this.heroes[socketIndex] = name;
-      if (Object.keys(this.heroes).length === 2) {
+      if (Object.keys(this.heroes).length > 0) {
         for (const curKey in this.heroes) {
           const curSocketIndex = parseInt(curKey);
           const curHero = new Hero(curSocketIndex);
@@ -75,7 +75,19 @@ class GameServer extends Server {
             };
             // console.log('rollback', GM.timeElapsed - data.timeElapsed);
             // GM.emitEvent(event);
-            WM.rollbackFrom(data.timeElapsed, event);
+
+
+            const { socketIndex } = data;
+            if (curHero.playerID === socketIndex) {
+              const { weapon } = curHero;
+              if (weapon.useTimeWarp) {
+                // If we use time warp, roll back and insert the event
+                WM.rollbackFrom(data.timeElapsed, event);
+              } else {
+                // Otherwise just process it right now
+                GM.emitEventFirst(event);
+              }
+            }
           });
 
           curHero.registerHandler('TIME_WARPED_MOUSE_DOWN', event => {
