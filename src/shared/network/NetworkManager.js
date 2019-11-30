@@ -1,10 +1,11 @@
 import GM from "../event/GameManager";
+import { formatJSON } from '../util/util';
 
 const format = (items = []) => {
   let output = '';
   for (const arg of items) {
     if (typeof arg === 'object') {
-      output += '<pre><code>' + JSON.stringify(arg, null, 2) + '</code></pre>';
+      output += formatJSON(arg);
     } else {
       output += arg;
     }
@@ -23,13 +24,19 @@ class NetworkManager {
     this.node = node;
   }
 
-  messageClients(...items) {
-    // console.log(items);
+  logOptions(items, options = {}) {
+    let content;
+    if (options.batch) {
+      content = items.map(format).join('\n');
+    } else {
+      content = format(items);
+    }
     const message = {
       author: 'Server',
-      content: format(items),
+      content,
       id: -1,
-      time: Date.now()
+      time: Date.now(),
+      pre: options.pre || false
     };
     this.send({
       type: 'CHAT_OUTPUT',
@@ -37,6 +44,14 @@ class NetworkManager {
         message
       }
     });
+  }
+
+  log(...items) {
+    this.logOptions(items, { pre: false });
+  }
+
+  logCode(...items) {
+    this.logOptions(items, { pre: true });
   }
 
   send(packet, index = -1) {

@@ -3,6 +3,7 @@ import SizedQueue from '../util/SizedQueue';
 import uuid from 'uuid/v1';
 import WM from '../entity/WorldManager';
 import { isServer } from '../util/util';
+import NM from '../network/NetworkManager';
 
 class GameManager {
   constructor() {
@@ -157,12 +158,16 @@ class GameManager {
     const eventID = this.getCurrentEventID();
     const eventEntry = this.createdEntities[eventID];
 
+    // NM.log(!!this.rollback, eventID);
+
+    // console.log(this.createdEntities);
+
     if (isServer() && eventEntry) {
       const serialized = eventEntry.entities[eventEntry.counter];
-      // console.log(eventEntry);
 
       if (serialized) {
         // Deserialize to that state
+        console.log('restoring to', serialized);
         entity.deserialize(serialized);
       } else {
         // Created a new entity; add it to the list
@@ -172,6 +177,9 @@ class GameManager {
       eventEntry.counter += 1;
     }
     WM.add(entity);
+    if (eventEntry) {
+      // NM.logCode('isReplay', !!this.rollback, eventEntry);
+    }
   }
 
   prepEvent(event) {
@@ -226,6 +234,7 @@ class GameManager {
     // This means that any events emitted in a step event handler get handled
     // in the next step, and ensures that the step event is the absolute last
     // event handled in any given step
+    this.prepEvent(stepEvent);
     this.handleEvent(stepEvent);
     this.stepCount += 1;
     this.timeElapsed += dt;

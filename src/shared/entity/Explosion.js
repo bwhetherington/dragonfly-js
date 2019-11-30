@@ -2,14 +2,14 @@ import Entity from "./Entity";
 import Rectangle from "../util/Rectangle";
 import AM from "../audio/AudioManager";
 import WM from "./WorldManager";
-import { registerEntity } from "../util/util";
+import { registerEntity, color } from "../util/util";
 
 const DURATION = 0.5;
 const BORDER_SIZE = 10;
 
 const CENTER_SIZE = 5;
 
-const DEFAULT_COLOR = { red: 200, green: 150, blue: 50 };
+const DEFAULT_COLOR = color(200, 150, 50);
 
 class Explosion extends Entity {
   constructor(color = DEFAULT_COLOR, radius = 5) {

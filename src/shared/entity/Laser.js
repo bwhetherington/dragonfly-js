@@ -1,11 +1,11 @@
 import Entity from "./Entity";
 import Vector from "../util/Vector";
 import Rectangle from '../util/Rectangle';
-import { registerEntity } from "../util/util";
+import { registerEntity, color } from "../util/util";
 
 const DURATION = 0.375;
 
-const DEFAULT_COLOR = { red: 200, green: 0, blue: 0 };
+const DEFAULT_COLOR = color(200, 0, 0);
 
 class Laser extends Entity {
   constructor(p1, p2) {
@@ -31,14 +31,6 @@ class Laser extends Entity {
     });
 
     // AM.playSound('fire.wav', 0.1);
-  }
-
-  getFill(opacity) {
-    return 'rgba(200, 0, 0, ' + opacity + ')';
-  }
-
-  getStroke(opacity) {
-    return 'rgba(150, 0, 0, ' + opacity + ')';
   }
 
   updateSize() {

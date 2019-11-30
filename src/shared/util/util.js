@@ -95,9 +95,10 @@ export const pruneEmpty = obj => {
   }
 };
 
-export const deepDiff = (a, b) => {
+export const deepDiff = (a, b, keepProperties = []) => {
   if (typeof a === 'object' && typeof b === 'object') {
     let obj;
+    let isDifferent = false;
     if (b instanceof Array) {
       obj = [];
     } else {
@@ -105,16 +106,20 @@ export const deepDiff = (a, b) => {
     }
     for (const key in b) {
       if (!equals(a[key], b[key])) {
-        // console.log(a[key], b[key]);
+        isDifferent = true;
         const diff = deepDiff(a[key], b[key]);
         if (!isEmpty(diff)) {
           obj[key] = diff;
         }
       }
     }
-    // if (b.id && !) {
-    //   obj.id = b.id;
-    // }
+
+    if (isDifferent) {
+      for (const key of keepProperties) {
+        obj[key] = b[key];
+      }
+    }
+
     return obj;
   } else {
     return {
@@ -160,5 +165,142 @@ export const sizeOf = object => {
     return size;
   } else {
     return 1;
+  }
+};
+
+const ensureString = value => {
+  if (typeof value !== 'string') {
+    if (value === undefined) {
+      return 'undefined';
+    } else if (value === null) {
+      return 'null';
+    } else {
+      return value.toString();
+    }
+  } else {
+    return value;
+  }
+}
+
+const line = (content, depth = 0) => {
+  content = ensureString(content);
+
+  const lines = [];
+
+  for (const line of content.split('\n')) {
+    let lineOutput = '';
+    for (let i = 0; i < depth * 2; i++) {
+      lineOutput += ' ';
+    }
+    lineOutput += line;
+    lines.push(lineOutput);
+  }
+
+  return lines.join('\n');
+};
+
+const formatArray = (arr, depth = 0) => {
+  let content = '';
+  if (arr.length > 0) {
+    content += line('[', depth) + '\n';
+
+    // Each item besides the first should have a comma
+    for (let i = 0; i < arr.length - 1; i++) {
+      content += formatJSON(arr[i], depth + 1) + ',\n';
+    }
+
+    // Final item should not have comma
+    content += formatJSON(arr[arr.length - 1], depth + 1) + '\n';
+
+    content += line(']', depth);
+  } else {
+    content += line('[]');
+  }
+  return content;
+};
+
+const isDiff = obj => {
+  const keys = Object.keys(obj);
+  if (keys.length === 2) {
+    const [a, b] = keys;
+    return (a === 'from' && b === 'to') || (a === 'to' && b === 'from');
+  } else {
+    return false;
+  }
+}
+
+const formatDiff = ({ from, to }, depth = 0) => line(`${formatJSON(from)} => ${formatJSON(to)}`, depth);
+
+const formatObject = (obj, depth = 0) => {
+  if (isDiff(obj)) {
+    return formatDiff(obj, depth);
+  }
+  const { type, ...rest } = obj;
+  const keys = Object.keys(rest);
+  let content = '';
+  if (keys.length > 0) {
+    if (type) {
+      content += line(type + ' {', depth) + '\n';
+    } else {
+      content += line('{', depth) + '\n';
+    }
+
+    // Each item besides the first should have a comma
+    for (let i = 0; i < keys.length - 1; i++) {
+      const key = keys[i];
+      const keyDisplay = isIdentifier(key) ? key : '"' + key + '"';
+      content += line(keyDisplay + ': ' + formatJSON(rest[key], 0), depth + 1) + ',\n';
+    }
+
+    // Final item should not have comma
+    const key = keys[keys.length - 1];
+    const keyDisplay = isIdentifier(key) ? key : '"' + key + '"';
+    content += line(keyDisplay + ': ' + formatJSON(rest[key], 0), depth + 1) + '\n';
+
+    content += line('}', depth);
+  } else {
+    if (type) {
+      content += line(type + ' {}', depth);
+    } else {
+      content += line('{}', depth);
+    }
+  }
+  return content;
+}
+
+export const formatJSON = (obj, depth = 0) => {
+  if (typeof obj === 'object') {
+    if (obj instanceof Array) {
+      return formatArray(obj, depth);
+    } else {
+      return formatObject(obj, depth);
+    }
+  } else if (typeof obj === 'number') {
+    return line(round(obj, 2), depth);
+  } else if (typeof obj === 'string') {
+    return line('"' + obj + '"', depth);
+  } else {
+    return line(obj, depth);
+  }
+}
+
+export const round = (number, places = 0) => {
+  const multiplier = 10 ** places;
+  return Math.round(number * multiplier) / multiplier;
+};
+
+export const color = (red, green, blue) => ({
+  type: 'Color',
+  red,
+  green,
+  blue
+});
+
+export const isIdentifier = str => {
+  try {
+    eval('let ' + str + ';');
+    return true;
+  } catch (_) {
+    return false;
   }
 };

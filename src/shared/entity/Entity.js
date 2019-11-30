@@ -199,6 +199,7 @@ class Entity {
       two.remove(this.graphicsObject);
     }
     this.initializeGraphics(two);
+    this.updateOpacity(this.opacity);
   }
 
   initializeGraphics(two) {

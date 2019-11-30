@@ -1,5 +1,5 @@
 import GM from '../event/GameManager';
-import { diff, sizeOf } from '../util/util';
+import { diff, sizeOf, deepDiff } from '../util/util';
 import Rectangle from '../util/Rectangle';
 import InverseRectangle from '../util/InverseRectangle';
 import Projectile from '../entity/Projectile';
@@ -340,13 +340,19 @@ class WorldManager {
     // console.log('FROM', GM.timeElapsed);
     const oldTime = GM.timeElapsed;
     const oldStep = GM.stepCount;
-
-    console.log(GM.eventQueue);
-    const oldEventQueue = GM.eventQueue.toArray();
-    while (!GM.eventQueue.isEmpty()) {
-      GM.eventQueue.pop();
-    }
     if (state) {
+      const logStatements = [];
+
+      const oldState = this.serializeAll();
+
+      const oldEventQueue = GM.eventQueue.toArray();
+      if (oldEventQueue.length > 0) {
+        logStatements.push(['recording events', oldEventQueue]);
+        // NM.logCode('recording events', oldEventQueue);
+      }
+      while (!GM.eventQueue.isEmpty()) {
+        GM.eventQueue.pop();
+      }
 
       let prevHero = null;
       let curHero = null;
@@ -386,20 +392,20 @@ class WorldManager {
 
       const times = [];
 
+      logStatements.push(['replay', events]);
+
       for (const event of events) {
         // console.log('EVENT_TIME', event.time, event);
         times.push(event.time);
         if (event.type === 'STEP') {
           GM.step(event.data.dt, event.id);
         } else {
-          if (event.type === 'KEY_DOWN' || event.type === 'KEY_UP') {
-            if (event.data.key !== 'KeyR') {
-              // NM.messageClients('Key Print', Math.round((GM.timeElapsed - state.time) * 1000), event.type, event.data.key);
-            }
-          }
           GM.emitEvent(event);
         }
       }
+
+      // Run any remaining events
+      GM.pollEvents();
 
       // NM.messageClients('events', events.length);
 
@@ -413,12 +419,26 @@ class WorldManager {
       // console.log('END ROLLBACK');
 
       // NM.messageClients('END');
-    } else if (event) {
-      GM.emitEvent(event);
-    }
 
-    // Add back the stored events
-    for (const event of oldEventQueue) {
+      const newState = this.serializeAll();
+      const stateDiff = deepDiff(oldState, newState);
+
+      logStatements.push(['diff', stateDiff]);
+
+      // Add back the stored events
+      for (const event of oldEventQueue) {
+        GM.emitEvent(event);
+      }
+
+      if (Object.keys(stateDiff).length > 0) {
+        // Log everything
+        NM.logOptions(logStatements, {
+          pre: true,
+          batch: true
+        });
+      }
+
+    } else if (event) {
       GM.emitEvent(event);
     }
   }
@@ -450,6 +470,14 @@ class WorldManager {
     } else {
       return null;
     }
+  }
+
+  serializeArray() {
+    const batch = [];
+    for (const entity of this.getEntities()) {
+      batch.push(entity.serialize());
+    }
+    return batch;
   }
 
   serializeAll() {

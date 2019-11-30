@@ -20,7 +20,7 @@ class Pistol extends Weapon {
     vector.setXY(fx - x, fy - y);
     vector.normalize();
 
-    vector.addXY(sourceHero.createOffset(0.1), sourceHero.createOffset(0.1));
+    vector.addXY(sourceHero.createOffset(1), sourceHero.createOffset(1));
     vector.normalize();
 
     const bullet = new Projectile(sourceHero.id);

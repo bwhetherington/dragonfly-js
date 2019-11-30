@@ -19,7 +19,7 @@ html, body, #game {
   padding: 5px;
   -webkit-user-select: none;
   -moz-user-select: none;
-  font-size: 0.8em;
+  font-size: 0.75em;
   pointer-events: auto;
 }
 
@@ -125,6 +125,8 @@ input[type='text']:focus {
   width: 400px;
   height: 150px;
   overflow-y: auto;
+  resize: both;
+  margin-bottom: 5px;
 }
 
 .chatbox-input {
@@ -142,6 +144,10 @@ input[type='text']:focus {
   /* opacity: 50%; */
   pointer-events: auto;
   bottom: 50px;
+}
+
+.chat-line {
+  white-space: pre;
 }
 
 .chatbox-container:focus-within {

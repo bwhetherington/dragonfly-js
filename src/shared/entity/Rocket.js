@@ -4,9 +4,11 @@ import Projectile from './Projectile';
 import WM from './WorldManager';
 import AM from '../audio/AudioManager';
 import GM from '../event/GameManager';
-import { isServer } from '../util/util';
+import { isServer, color } from '../util/util';
 
 const RADIUS = 100;
+
+const COLOR = color(100, 200, 255);
 
 class Rocket extends Weapon {
   constructor() {
@@ -26,7 +28,7 @@ class Rocket extends Weapon {
     vector.addXY(sourceHero.createOffset(0.1), sourceHero.createOffset(0.1));
     vector.normalize();
 
-    const bullet = new Projectile(sourceHero.id, { red: 100, green: 200, blue: 255 }, RADIUS);
+    const bullet = new Projectile(sourceHero.id, COLOR, RADIUS);
     bullet.bounce = 0;
     bullet.maxBounces = 0;
     bullet.velocity.set(vector);

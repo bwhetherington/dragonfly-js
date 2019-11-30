@@ -186,8 +186,12 @@ class ChatManager {
   }
 
   renderMessage(message) {
-    const { author, time, id, content } = message;
+    const { author, time, id, content, pre } = message;
     const element = document.createElement('div');
+
+    if (pre) {
+      element.style.whiteSpace = 'pre';
+    }
 
     const idTag = document.createElement('span');
     idTag.append('[', id, ']');
@@ -213,7 +217,10 @@ class ChatManager {
   renderContent(line) {
     const { color = 'white', text } = line;
     const element = document.createElement('div');
-    element.style = `color: ${color}`;
+    element.className = 'chat-line';
+    element.style = {
+      color
+    }
     element.innerHTML = text;
     return element;
   }

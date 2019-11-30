@@ -2,11 +2,11 @@ import Entity from './Entity';
 import GM from '../event/GameManager';
 import Rectangle from '../util/Rectangle';
 import Explosion from './Explosion';
-import { isClient, isServer, registerEntity } from '../util/util';
+import { isClient, isServer, registerEntity, color } from '../util/util';
 import Hero from '../entity/Hero';
 import PickUp from './PickUp';
 
-const DEFAULT_COLOR = { red: 200, green: 150, blue: 50 };
+const DEFAULT_COLOR = color(200, 150, 50);
 
 class Projectile extends Entity {
   constructor(sourceID = null, color = DEFAULT_COLOR, explosionRadius = 30) {

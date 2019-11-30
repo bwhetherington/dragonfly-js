@@ -18,38 +18,46 @@ class SizedQueue {
   }
 
   prepend(obj) {
-    const node = {
-      next: this.head,
-      prev: null,
-      value: obj
-    };
-    if (this.head) {
-      this.head.prev = node;
+    if (this.maxSize > 0) {
+      const node = {
+        next: this.head,
+        prev: null,
+        value: obj
+      };
+      if (this.head) {
+        this.head.prev = node;
+      }
+      this.head = node;
+      this.size += 1;
+      this.validateSize();
+    } else {
+      return null;
     }
-    this.head = node;
-    this.size += 1;
-    this.validateSize();
   }
 
   enqueue(obj) {
-    const node = {
-      next: null,
-      prev: this.tail,
-      value: obj
-    };
-    if (this.tail) {
-      this.tail.next = node;
-    } else {
-      this.head = node;
-      this.isEmptyInternal = false;
-    }
-    this.tail = node;
-    this.size += 1;
+    if (this.maxSize > 0) {
+      const node = {
+        next: null,
+        prev: this.tail,
+        value: obj
+      };
+      if (this.tail) {
+        this.tail.next = node;
+      } else {
+        this.head = node;
+        this.isEmptyInternal = false;
+      }
+      this.tail = node;
+      this.size += 1;
 
-    if (this.size > this.maxSize) {
-      const old = this.dequeue();
-      this.validateSize();
-      return old;
+      if (this.size > this.maxSize) {
+        const old = this.dequeue();
+        this.validateSize();
+        return old;
+      } else {
+        return null;
+      }
     } else {
       return null;
     }

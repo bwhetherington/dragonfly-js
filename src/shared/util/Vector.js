@@ -101,6 +101,7 @@ class Vector {
 
   serialize() {
     return {
+      type: 'Vector',
       x: this.x,
       y: this.y
     };

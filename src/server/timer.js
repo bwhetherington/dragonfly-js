@@ -1,3 +1,5 @@
+import NM from "../shared/network/NetworkManager";
+
 const toSeconds = (seconds, nanoseconds) => seconds + nanoseconds * 0.000000001;
 
 const now = () => {

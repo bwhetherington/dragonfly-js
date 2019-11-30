@@ -235,22 +235,11 @@ class GameServer extends Server {
     });
 
     GM.registerHandler('ROLLBACK', event => {
-      // const state = WM.getStateAtTime(GM.timeElapsed - 1);
-      // WM.revertState(state);
-
-      // for (const object of WM.getEntities()) {
-      //   if (object.hasOwnProperty('input')) {
-      //     console.log(object.input);
-      //   }
-      // }
-
-      const before = WM.serializeAll();
-      // const beforeEvents = GM.storedEvents.toArray();
+      // const oldState = WM.serializeAll();
       WM.rollbackFrom(GM.timeElapsed - 0.5);
-      const after = WM.serializeAll();
-      // const afterEvents = GM.storedEvents.toArray();
-      const diff = deepDiff(before, after);
-      // NM.messageClients('diff', diff);
+      // const newState = WM.serializeAll();
+      // const diff = deepDiff(oldState, newState);
+      // NM.logCode('diff', diff);
     });
 
     // Load level
