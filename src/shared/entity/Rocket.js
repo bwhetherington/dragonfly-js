@@ -45,7 +45,7 @@ class Rocket extends Weapon {
         if (projectileID === bullet.id) {
           for (const hitObject of WM.getEntitiesByRadius(bullet.position, RADIUS)) {
             if (!(hitObject.id === projectileID)) {
-              hitObject.damage(20);
+              hitObject.damage(40);
             }
           }
         }

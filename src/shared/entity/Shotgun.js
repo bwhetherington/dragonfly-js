@@ -46,7 +46,7 @@ class Shotgun extends Weapon {
         if (projectileID === bullet.id) {
           const object = WM.findByID(hitID);
           if (object) {
-            object.damage(8, sourceID);
+            object.damage(12, sourceID);
           }
         }
       });

@@ -15,7 +15,7 @@ class Projectile extends Entity {
     this.explosionRadius = explosionRadius;
     this.sourceID = sourceID;
     this.boundingBox = new Rectangle(0, 0, 20, 20);
-    this.bounce = 0;
+    this.bounce = 1;
     this.maxBounces = 0;
     this.bounces = 0;
     this.isSpectral = true;
