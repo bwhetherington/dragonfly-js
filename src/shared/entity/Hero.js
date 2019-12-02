@@ -75,7 +75,7 @@ class Hero extends Entity {
     this.invilTimer = -1;
     this.invilAmount = 2;
     this.regen = 2;
-    this.totalLives = 1;
+    this.totalLives = 3;
     this.lives = this.totalLives;
 
 
@@ -371,6 +371,7 @@ class Hero extends Entity {
     const { x: x0, y: y0 } = this.position;
     const { x: vx, y: vy } = this.velocity;
     const { x: ax, y: ay } = this.acceleration;
+    const { ...oldInput } = this.input;
 
     if (super.deserialize(obj)) {
 
@@ -390,6 +391,11 @@ class Hero extends Entity {
           this.position.setXY(x0, y0);
           this.velocity.setXY(vx, vy);
           this.acceleration.setXY(ax, ay);
+
+          for (const key in oldInput) {
+            this.setInput(key, oldInput[key]);
+          }
+
           NM.send({
             type: 'SYNC_OBJECT',
             data: {
