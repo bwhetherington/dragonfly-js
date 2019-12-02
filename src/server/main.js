@@ -10,6 +10,7 @@ import WeaponPickUp from '../shared/entity/WeaponPickUp';
 import HealthPickUp from '../shared/entity/HealthPickUp';
 import NM from '../shared/network/NetworkManager';
 import { diff, deepDiff, pruneEmpty } from '../shared/util/util';
+import LM from '../shared/network/LogManager';
 
 const REFRESH_RATE = 60;
 
@@ -20,6 +21,8 @@ class GameServer extends Server {
     this.heroNames = {};
     this.heroesToCreate = {};
     this.messages = [];
+    this.numberOfHeroes = 0;
+    this.minPlayers = 2;
   }
 
   onClose(socketIndex) {
@@ -138,14 +141,14 @@ class GameServer extends Server {
 
     GM.registerHandler('REJOIN_GAME', event => {
       const { heroID } = event;
-
-      const message = {
-        type: 'REJOIN_GAME',
-        data: {
-          heroID
-        }
-      };
-      NM.send(message);
+      this.numberOfHeroes++;
+      if (this.numberOfHeroes >= this.minPlayers) {
+        const event = {
+          type: 'RESPAWN_PLAYERS',
+          data: {}
+        };
+        GM.emitEvent(event)
+      }
     });
 
 
@@ -309,6 +312,7 @@ class GameServer extends Server {
   }
 
   resetGame() {
+    this.numberOfHeroes = 0;
     WM.deleteAllNonHero();
     // this.generatePickups();
     const message = {
@@ -335,6 +339,7 @@ class GameServer extends Server {
 const cleanup = (server, timer) => () => {
   server.stop();
   timer.stop();
+  LM.closeAllStreams();
 };
 
 const main = async () => {
