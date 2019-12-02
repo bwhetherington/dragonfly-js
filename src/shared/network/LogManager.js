@@ -23,6 +23,7 @@ class LogManager {
     GM.registerHandler('PLAYER_DISCONNECT', data => {
       this.closeStream(data.socketIndex);
     })
+    makeDir('game-logs/');
     makeDir('game-logs/game-' + this.gameNum.toString());
   }
 
