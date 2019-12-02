@@ -161,8 +161,9 @@ class Client {
       for (let i = 0; i < event.ids.length; i++) {
         const id = event.ids[i];
         const entity = WM.findByID(id);
-        console
-        if (entity) {
+
+        // Only delete the entity if it is synchronizable
+        if (entity && (entity.doSynchronize || event.forceDelete)) {
           entity.markForDelete();
         }
       }

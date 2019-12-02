@@ -21,7 +21,7 @@ class HealthPickUp extends PickUp {
     if (isClient()) {
       const explosion = new Explosion(COLOR, 30);
       explosion.setPosition(this.position);
-      GM.addEntity(explosion);
+      WM.add(explosion);
     }
 
     super.cleanup();

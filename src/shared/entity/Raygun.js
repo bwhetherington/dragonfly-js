@@ -1,5 +1,4 @@
 import Weapon from './Weapon';
-import GM from '../event/GameManager';
 import WM from './WorldManager';
 import AM from '../audio/AudioManager';
 import Ray from './Ray';
@@ -13,7 +12,7 @@ class Raygun extends Weapon {
   fire(fx, fy, sourceHero) {
     AM.playSound('fire.wav');
     const ray = new Ray(sourceHero.id);
-    GM.addEntity(ray);
+    WM.add(ray);
     ray.position.set(sourceHero.position);
     ray.castRay({ x: fx, y: fy });
     ray.registerHandler('HIT_OBJECT', event => {

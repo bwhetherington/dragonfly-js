@@ -17,6 +17,8 @@ class GameServer extends Server {
   constructor(maxConnections) {
     super(maxConnections);
     this.heroes = {};
+    this.heroNames = {};
+    this.heroesToCreate = {};
     this.messages = [];
   }
 
@@ -43,6 +45,83 @@ class GameServer extends Server {
     super.onClose(socketIndex);
   }
 
+  addHeroes() {
+    for (let index in this.heroesToCreate) {
+      index = parseInt(index);
+      if (this.heroes[index] === undefined) {
+        console.log('createHero', index);
+        this.createHero(index);
+      }
+    }
+  }
+
+  scheduleHeroToCreate(socketIndex, name) {
+    this.heroesToCreate[socketIndex] = name;
+  }
+
+  createHero(socketIndex) {
+    const hero = new Hero(socketIndex);
+    hero.name = this.heroesToCreate[socketIndex] || 'Hero';
+    this.heroes[socketIndex] = hero;
+    WM.add(hero);
+
+    // Assign player ID to player
+    NM.send({
+      type: 'ASSIGN_ID',
+      data: {
+        playerID: socketIndex,
+        serverTime: GM.timeElapsed
+      }
+    }, socketIndex);
+
+    hero.registerHandler('MOUSE_DOWN', data => {
+      console.log(data);
+
+      const event = {
+        type: 'TIME_WARPED_MOUSE_DOWN',
+        data
+      };
+
+      const { socketIndex } = data;
+      if (hero.playerID === socketIndex) {
+        const { weapon } = hero;
+        if (weapon.useTimeWarp) {
+          // If we use time warp, roll back and insert the event
+          WM.rollbackFrom(data.timeElapsed, event);
+        } else {
+          // Otherwise just process it right now
+          GM.emitEventFirst(event);
+        }
+      }
+    });
+
+    hero.registerHandler('TIME_WARPED_MOUSE_DOWN', event => {
+      const { position, socketIndex } = event;
+      if (hero.playerID === socketIndex) {
+        const { x, y } = position;
+        hero.fireXY(x, y);
+      }
+    });
+
+    hero.registerHandler('ROTATE_CANNON', event => {
+      const { playerID, angle, socketIndex } = event;
+      if (playerID === socketIndex && hero.playerID === playerID) {
+        hero.rotateCannon(angle);
+      }
+    });
+
+    hero.registerHandler('PLAYER_KILLED', event => {
+      const { killerID } = event;
+      if (hero.id === killerID) {
+        hero.score += hero.maxDamage;
+      }
+    });
+  }
+
+  isFull() {
+    return Object.keys(this.heroesToCreate).length > 1;
+  }
+
   initialize() {
     super.initialize();
 
@@ -50,69 +129,10 @@ class GameServer extends Server {
       const { name, socketIndex } = event;
 
       // Create hero for player
-      this.heroes[socketIndex] = name;
-      if (Object.keys(this.heroes).length > 0) {
-        for (const curKey in this.heroes) {
-          const curSocketIndex = parseInt(curKey);
-          const curHero = new Hero(curSocketIndex);
-          const curName = this.heroes[curKey];
-          curHero.name = curName;
-          this.heroes[curSocketIndex] = curHero;
-          GM.addEntity(curHero);
+      this.scheduleHeroToCreate(socketIndex, name);
 
-          NM.send({
-            type: 'ASSIGN_ID',
-            data: {
-              playerID: curSocketIndex,
-              serverTime: GM.timeElapsed
-            }
-          }, curSocketIndex);
-
-          curHero.registerHandler('MOUSE_DOWN', data => {
-            const event = {
-              type: 'TIME_WARPED_MOUSE_DOWN',
-              data
-            };
-            // console.log('rollback', GM.timeElapsed - data.timeElapsed);
-            // GM.emitEvent(event);
-
-
-            const { socketIndex } = data;
-            if (curHero.playerID === socketIndex) {
-              const { weapon } = curHero;
-              if (weapon.useTimeWarp) {
-                // If we use time warp, roll back and insert the event
-                WM.rollbackFrom(data.timeElapsed, event);
-              } else {
-                // Otherwise just process it right now
-                GM.emitEventFirst(event);
-              }
-            }
-          });
-
-          curHero.registerHandler('TIME_WARPED_MOUSE_DOWN', event => {
-            // console.log(event);
-            const { position, socketIndex } = event;
-            if (curHero.playerID === socketIndex) {
-              const { x, y } = position;
-              curHero.fireXY(x, y);
-            }
-          });
-
-          curHero.registerHandler('ROTATE_CANNON', event => {
-            const { playerID, angle, socketIndex } = event;
-            if (playerID === socketIndex && curHero.playerID === playerID) {
-              curHero.rotateCannon(angle);
-            }
-          });
-
-          curHero.registerHandler('PLAYER_KILLED', event => {
-            const { killerID } = event;
-            if (curHero.id === killerID) {
-              curHero.score += curHero.maxDamage;
-            }
-          });
-        }
+      if (this.isFull()) {
+        this.addHeroes();
       }
     });
 
@@ -258,34 +278,34 @@ class GameServer extends Server {
   }
 
   generatePickups() {
-    let healthCount = 0;
-    GM.runTimer(1, () => {
-      if (healthCount < 5) {
-        healthCount += 1;
-        const healthPickUp = new HealthPickUp();
-        healthPickUp.setPosition(WM.getRandomPoint());
-        GM.addEntity(healthPickUp);
-      }
-    });
+    // let healthCount = 0;
+    // GM.runTimer(1, () => {
+    //   if (healthCount < 5) {
+    //     healthCount += 1;
+    //     const healthPickUp = new HealthPickUp();
+    //     healthPickUp.setPosition(WM.getRandomPoint());
+    //     WM.add(healthPickUp);
+    //   }
+    // });
 
-    GM.registerHandler('MARK_FOR_DELETE', event => {
-      const entity = WM.findByID(event.id);
-      if (entity && entity.type === 'HealthPickUp') {
-        healthCount -= 1;
-      }
-    });
+    // GM.registerHandler('MARK_FOR_DELETE', event => {
+    //   const entity = WM.findByID(event.id);
+    //   if (entity && entity.type === 'HealthPickUp') {
+    //     healthCount -= 1;
+    //   }
+    // });
 
     const raygun = new WeaponPickUp('Raygun');
     raygun.setPosition(WM.getRandomPoint());
-    GM.addEntity(raygun);
+    WM.add(raygun);
 
     const rocket = new WeaponPickUp('Rocket');
     rocket.setPosition(WM.getRandomPoint());
-    GM.addEntity(rocket);
+    WM.add(rocket);
 
     const shotgun = new WeaponPickUp('Shotgun');
     shotgun.setPosition(WM.getRandomPoint());
-    GM.addEntity(shotgun);
+    WM.add(shotgun);
   }
 
   resetGame() {

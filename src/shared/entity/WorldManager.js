@@ -334,48 +334,18 @@ class WorldManager {
 
   rollbackFrom(time, event = null) {
     // Revert to the state
-    // console.log('BEGIN ROLLBACK');
     const state = this.getStateAtTime(time);
-    // console.log('ROLLBACK_TO', state.time);
-    // console.log('FROM', GM.timeElapsed);
-    const oldTime = GM.timeElapsed;
-    const oldStep = GM.stepCount;
     if (state) {
       const logStatements = [];
 
       const oldState = this.serializeAll();
 
       const oldEventQueue = GM.eventQueue.toArray();
-      if (oldEventQueue.length > 0) {
-        logStatements.push(['recording events', oldEventQueue]);
-        // NM.logCode('recording events', oldEventQueue);
-      }
       while (!GM.eventQueue.isEmpty()) {
         GM.eventQueue.pop();
       }
 
-      let prevHero = null;
-      let curHero = null;
-
-      // Check for input states
-      for (const object of state.state) {
-        if (object.hasOwnProperty('input')) {
-          prevHero = object;
-          curHero = this.findByID(prevHero.id);
-          break;
-        }
-      }
-
-      if (prevHero && curHero) {
-        const prevInput = prevHero.input;
-        const curInput = curHero.input;
-        // console.log(prevInput, curInput);
-      }
-
       this.revertState(state);
-
-      // console.log('BEGIN');
-      // NM.messageClients('BEGIN');
 
       // Figure out which events to replay
       const events = [];
@@ -404,7 +374,8 @@ class WorldManager {
         }
       }
 
-      // Run any remaining events
+      // We may have events remaining in the queue from after the last step
+      // event, so we poll events to run any that are still there.
       GM.pollEvents();
 
       // NM.messageClients('events', events.length);
@@ -421,7 +392,7 @@ class WorldManager {
       // NM.messageClients('END');
 
       const newState = this.serializeAll();
-      const stateDiff = deepDiff(oldState, newState);
+      const stateDiff = deepDiff(oldState, newState, ['type']);
 
       logStatements.push(['diff', stateDiff]);
 
@@ -437,6 +408,8 @@ class WorldManager {
           batch: true
         });
       }
+
+      this.sync(NM.node, -1, true, true);
 
     } else if (event) {
       GM.emitEvent(event);
@@ -497,7 +470,7 @@ class WorldManager {
    * @param socket The socket to send the sync message to
    * @param forceSync Whether or not to sync the full world state
    */
-  sync(server, socket = -1, forceSync = true) {
+  sync(server, socket = -1, forceSync = true, forceDelete = false) {
     if (server.numConnections > 0) {
       const batch = [];
       if (forceSync) {
@@ -553,7 +526,8 @@ class WorldManager {
         NM.send({
           type: 'SYNC_DELETE_OBJECT_BATCH',
           data: {
-            ids: this.deleted
+            ids: this.deleted,
+            forceDelete
           }
         }, socket);
         this.deleted = [];
@@ -591,13 +565,6 @@ class WorldManager {
       if (created) {
         this.add(existing);
       }
-      // if (SETTINGS.predictionEnabled && isClient()) {
-      //   if (existing instanceof Hero && existing.isCurrentHero()) {
-      //     // foo
-      //   } else {
-      //     // existing.step(-1, 1);
-      //   }
-      // }
     }
   }
 

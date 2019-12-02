@@ -185,7 +185,7 @@ class GameClient extends Client {
     GM.registerHandler('MOUSE_DOWN', event => {
       // Create a laser to test
       // const laser = new Laser(this.hero.position, new Vector(event.position.x, event.position.y));
-      // GM.addEntity(laser);
+      // WM.add(laser);
 
       NM.send({
         type: 'MOUSE_DOWN',
@@ -304,11 +304,11 @@ class GameClient extends Client {
       const p0 = new Vector(start.x, start.y);
       const p1 = new Vector(end.x, end.y);
       const laser = new Laser(p0, p1);
-      GM.addEntity(laser);
+      WM.add(laser);
 
       const explosion = new Explosion({ red: 200, green: 0, blue: 0 }, 10);
       explosion.setPosition(p1);
-      GM.addEntity(explosion);
+      WM.add(explosion);
     });
 
     GM.registerHandler('ROTATE_CANNON', event => {

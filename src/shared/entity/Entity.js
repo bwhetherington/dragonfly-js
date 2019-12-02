@@ -42,6 +42,7 @@ class Entity {
     this.syncMove = true;
     this.hasSpawned = false;
     this.opacity = 1;
+    this.isActive = true;
   }
 
   registerHandler(type, handler) {
@@ -52,6 +53,17 @@ class Entity {
       this.handlers[type] = handlers;
     }
     handlers.push(id);
+  }
+
+  /**
+   * Disables an entity, hiding it and removing its collision. This does not
+   * remove the entity.
+   */
+  disable() {
+    this.doSynchronize = false;
+    this.isActive = false;
+    this.updateOpacity(0);
+    this.isCollidable = false;
   }
 
   setColor(color) {
@@ -158,32 +170,37 @@ class Entity {
   }
 
   deserialize(obj) {
-    const { position, velocity, acceleration, isCollidable, isSpectral, opacity, syncMove, bounce } = obj;
-    if (syncMove !== undefined) {
-      this.syncMove = syncMove;
+    if (this.doSynchronize) {
+      const { position, velocity, acceleration, isCollidable, isSpectral, opacity, syncMove, bounce } = obj;
+      if (syncMove !== undefined) {
+        this.syncMove = syncMove;
+      }
+      if (position) {
+        this.position.set(position);
+      }
+      if (velocity) {
+        this.velocity.set(velocity);
+      }
+      if (acceleration) {
+        this.acceleration.set(acceleration);
+      }
+      if (isCollidable !== undefined) {
+        this.isCollidable = isCollidable;
+      }
+      if (isSpectral !== undefined) {
+        this.isSpectral = isSpectral;
+      }
+      if (opacity !== undefined && opacity !== this.opacity) {
+        this.updateOpacity(opacity);
+      }
+      if (bounce !== undefined) {
+        this.bounce = bounce;
+      }
+      this.hasSpawned = true;
+      return true;
+    } else {
+      return false;
     }
-    if ((this.syncMove || !this.hasSpawned) && position) {
-      this.position.set(position);
-    }
-    if (velocity) {
-      this.velocity.set(velocity);
-    }
-    if (acceleration) {
-      this.acceleration.set(acceleration);
-    }
-    if (isCollidable !== undefined) {
-      this.isCollidable = isCollidable;
-    }
-    if (isSpectral !== undefined) {
-      this.isSpectral = isSpectral;
-    }
-    if (opacity !== undefined && opacity !== this.opacity) {
-      this.updateOpacity(opacity);
-    }
-    if (bounce !== undefined) {
-      this.bounce = bounce;
-    }
-    this.hasSpawned = true;
   }
 
   updateOpacity(opacity) {

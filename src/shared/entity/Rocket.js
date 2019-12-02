@@ -25,8 +25,8 @@ class Rocket extends Weapon {
     vector.setXY(fx - x, fy - y);
     vector.normalize();
 
-    vector.addXY(sourceHero.createOffset(0.1), sourceHero.createOffset(0.1));
-    vector.normalize();
+    // vector.addXY(sourceHero.createOffset(0.1), sourceHero.createOffset(0.1));
+    // vector.normalize();
 
     const bullet = new Projectile(sourceHero.id, COLOR, RADIUS);
     bullet.bounce = 0;
@@ -51,7 +51,7 @@ class Rocket extends Weapon {
         }
       }
     });
-    GM.addEntity(bullet);
+    WM.add(bullet);
 
     // Position the bullet
     bullet.setPosition(sourceHero.position);

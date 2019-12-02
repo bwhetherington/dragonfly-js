@@ -186,7 +186,7 @@ class Hero extends Entity {
       if (isServer()) {
         const pickup = new WeaponPickUp(weapon.type);
         pickup.setPosition(this.position);
-        GM.addEntity(pickup);
+        WM.add(pickup);
       }
       this.weapon = new Pistol();
       GM.emitEvent({
@@ -241,9 +241,9 @@ class Hero extends Entity {
   kill(x = 0, y = 0) {
     // Show explosion
     if (isClient()) {
-      const explosion = new Explosion(2);
+      const explosion = new Explosion(40);
       explosion.setPosition(this.position);
-      GM.addEntity(explosion);
+      WM.add(explosion);
     } else {
       this.dropWeapon();
     }
@@ -351,72 +351,77 @@ class Hero extends Entity {
     const { x: x0, y: y0 } = this.position;
     const { x: vx, y: vy } = this.velocity;
     const { x: ax, y: ay } = this.acceleration;
-    super.deserialize(obj);
 
-    if (obj.input) {
-      this.acceleration.setXY(0, 0);
-      for (const key in obj.input) {
-        this.setInput(key, obj.input[key]);
-      }
-    }
+    if (super.deserialize(obj)) {
 
-    const { x: x1, y: y1 } = this.position;
-    if (SETTINGS.predictionEnabled && this.isCurrentHero()) {
-      const dx = x1 - x0;
-      const dy = y1 - y0;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (0 < dist && dist < 200) {
-        this.position.setXY(x0, y0);
-        this.velocity.setXY(vx, vy);
-        this.acceleration.setXY(ax, ay);
-        NM.send({
-          type: 'SYNC_OBJECT',
-          data: {
-            object: {
-              id: this.id,
-              position: this.position.serialize(),
-              velocity: this.velocity.serialize(),
-              acceleration: this.acceleration.serialize()
-            }
-          }
-        });
-      }
-      this.updatePosition();
-    }
-
-    if (obj.playerID > -1) {
-      this.playerID = obj.playerID;
-    }
-    if (obj.cannonAngle !== undefined && !this.isCurrentHero()) {
-      this.rotateCannon(obj.cannonAngle);
-    }
-    if (obj.score !== undefined && this.score !== obj.score) {
-      this.score = obj.score;
-
-      const event = {
-        type: 'UPDATE_SCORE',
-        data: {
-          id: this.playerID,
-          score: this.score
+      if (obj.input) {
+        this.acceleration.setXY(0, 0);
+        for (const key in obj.input) {
+          this.setInput(key, obj.input[key]);
         }
-      };
-      GM.emitEvent(event);
-    }
-    if (obj.damageAmount !== undefined) {
-      this.damageAmount = obj.damageAmount;
-    }
-    if (obj.weapon !== undefined) {
-      if (obj.weapon.type !== this.weapon.type) {
-        this.setWeapon(obj.weapon.type)
       }
-      this.weapon.deserialize(obj.weapon);
 
-    }
-    if (obj.name !== undefined) {
-      this.name = obj.name;
-    }
-    if (obj.lives !== undefined && obj.lives !== this.lives) {
-      this.lives = obj.lives;
+      const { x: x1, y: y1 } = this.position;
+      if (SETTINGS.predictionEnabled && this.isCurrentHero()) {
+        const dx = x1 - x0;
+        const dy = y1 - y0;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (0 < dist && dist < 200) {
+          this.position.setXY(x0, y0);
+          this.velocity.setXY(vx, vy);
+          this.acceleration.setXY(ax, ay);
+          NM.send({
+            type: 'SYNC_OBJECT',
+            data: {
+              object: {
+                id: this.id,
+                position: this.position.serialize(),
+                velocity: this.velocity.serialize(),
+                acceleration: this.acceleration.serialize()
+              }
+            }
+          });
+        }
+        this.updatePosition();
+      }
+
+      if (obj.playerID > -1) {
+        this.playerID = obj.playerID;
+      }
+      if (obj.cannonAngle !== undefined && !this.isCurrentHero()) {
+        this.rotateCannon(obj.cannonAngle);
+      }
+      if (obj.score !== undefined && this.score !== obj.score) {
+        this.score = obj.score;
+
+        const event = {
+          type: 'UPDATE_SCORE',
+          data: {
+            id: this.playerID,
+            score: this.score
+          }
+        };
+        GM.emitEvent(event);
+      }
+      if (obj.damageAmount !== undefined) {
+        this.damageAmount = obj.damageAmount;
+      }
+      if (obj.weapon !== undefined) {
+        if (obj.weapon.type !== this.weapon.type) {
+          this.setWeapon(obj.weapon.type)
+        }
+        this.weapon.deserialize(obj.weapon);
+
+      }
+      if (obj.name !== undefined) {
+        this.name = obj.name;
+      }
+      if (obj.lives !== undefined && obj.lives !== this.lives) {
+        this.lives = obj.lives;
+      }
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -459,7 +464,7 @@ class Hero extends Entity {
     }
   }
 
-  resetWeapon(){
+  resetWeapon() {
     this.weapon = new Pistol();
     GM.emitEvent({
       type: 'EQUIP_WEAPON',

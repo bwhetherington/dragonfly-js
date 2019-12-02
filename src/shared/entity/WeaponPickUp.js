@@ -33,9 +33,13 @@ class WeaponPickUp extends PickUp {
   }
 
   deserialize(obj) {
-    super.deserialize(obj);
-    if (obj.weaponType) {
-      this.setWeaponType(obj.weaponType);
+    if (super.deserialize(obj)) {
+      if (obj.weaponType) {
+        this.setWeaponType(obj.weaponType);
+      }
+      return true;
+    } else {
+      return false;
     }
   }
 

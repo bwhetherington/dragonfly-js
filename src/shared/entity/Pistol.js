@@ -20,11 +20,8 @@ class Pistol extends Weapon {
     vector.setXY(fx - x, fy - y);
     vector.normalize();
 
-    vector.addXY(sourceHero.createOffset(1), sourceHero.createOffset(1));
-    vector.normalize();
-
     const bullet = new Projectile(sourceHero.id);
-    bullet.maxBounces = 1;
+    bullet.maxBounces = 0;
     bullet.velocity.set(vector);
 
     bullet.velocity.scale(650);
@@ -40,7 +37,7 @@ class Pistol extends Weapon {
       }
     });
 
-    GM.addEntity(bullet);
+    WM.add(bullet);
 
     // Position the bullet
     bullet.setPosition(sourceHero.position);

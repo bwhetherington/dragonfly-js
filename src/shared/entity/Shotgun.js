@@ -29,8 +29,8 @@ class Shotgun extends Weapon {
       bullet.maxBounces = 0;
 
       const velocity = Vector.fromPolar(1, (i - (this.projectileNum - 1) / 2) * spread + baseAngle);
-      velocity.addXY(sourceHero.createOffset(0.1), sourceHero.createOffset(0.1));
-      velocity.normalize();
+      // velocity.addXY(sourceHero.createOffset(0.1), sourceHero.createOffset(0.1));
+      // velocity.normalize();
       velocity.scale(650);
 
       bullet.velocity.set(velocity);
@@ -50,7 +50,7 @@ class Shotgun extends Weapon {
           }
         }
       });
-      GM.addEntity(bullet);
+      WM.add(bullet);
 
       // Position the bullet
       bullet.setPosition(sourceHero.position);

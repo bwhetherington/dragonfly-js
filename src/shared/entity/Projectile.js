@@ -1,5 +1,6 @@
 import Entity from './Entity';
 import GM from '../event/GameManager';
+import WM from './WorldManager';
 import Rectangle from '../util/Rectangle';
 import Explosion from './Explosion';
 import { isClient, isServer, registerEntity, color } from '../util/util';
@@ -14,51 +15,57 @@ class Projectile extends Entity {
     this.explosionRadius = explosionRadius;
     this.sourceID = sourceID;
     this.boundingBox = new Rectangle(0, 0, 20, 20);
-    this.bounce = 1;
+    this.bounce = 0;
     this.maxBounces = 0;
     this.bounces = 0;
     this.isSpectral = true;
     this.syncMove = false;
     this.color = color;
+    this.isFirstSync = true;
     this.updatePosition();
 
-    if (isServer()) {
-      this.registerHandler('GEOMETRY_COLLISION', event => {
-        const { object } = event;
-        if (object.id === this.id) {
-          this.bounces += 1;
-          if (this.bounces > this.maxBounces) {
-            this.hit(null);
-            this.markForDelete();
-          }
+    // if (isServer()) {
+    this.registerHandler('GEOMETRY_COLLISION', event => {
+      const { object } = event;
+      if (object.id === this.id) {
+        this.bounces += 1;
+        if (this.bounces > this.maxBounces) {
+          this.hit(null);
+          this.end();
         }
-      });
+      }
+    });
 
-      this.registerHandler('OBJECT_COLLISION', event => {
-        const { object1, object2 } = event;
-        let other = null;
-        if (object1.id === this.id) {
-          if (object2.id !== this.sourceID) {
-            other = object2;
-          }
-        } else if (object2.id === this.id) {
-          if (object1.id !== this.sourceID) {
-            other = object1;
-          }
+    this.registerHandler('OBJECT_COLLISION', event => {
+      const { object1, object2 } = event;
+      let other = null;
+      if (object1.id === this.id) {
+        if (object2.id !== this.sourceID) {
+          other = object2;
         }
-        if (other !== null) {
-          this.hit(other);
-          if (other instanceof Hero && !other.isInvincible) {
-            const scale = ((other.damageAmount / other.maxDamage) * 0.8 + 0.2) * 200;
-            this.velocity.normalize();
-            this.velocity.scale(scale);
-            other.applyForce(this.velocity);
-          }
-          if (!(other instanceof PickUp) && isServer()) {
-            this.markForDelete();
-          }
+      } else if (object2.id === this.id) {
+        if (object1.id !== this.sourceID) {
+          other = object1;
         }
-      });
+      }
+      if (other !== null) {
+        this.hit(other);
+        this.end();
+      }
+    });
+    // }
+  }
+
+  end() {
+    if (isServer()) {
+      this.markForDelete();
+    } else {
+      this.disable();
+
+      // Spawn explosion
+      const explosion = new Explosion(this.color, this.explosionRadius);
+      explosion.setPosition(this.position);
+      WM.add(explosion);
     }
   }
 
@@ -71,6 +78,12 @@ class Projectile extends Entity {
   }
 
   hit(entity) {
+    if (entity instanceof Hero && !entity.isInvincible) {
+      const scale = ((entity.damageAmount / entity.maxDamage) * 0.8 + 0.2) * 200;
+      this.velocity.normalize();
+      this.velocity.scale(scale);
+      entity.applyForce(this.velocity);
+    }
     const event = {
       type: 'HIT_OBJECT',
       data: {
@@ -94,33 +107,32 @@ class Projectile extends Entity {
   }
 
   deserialize(object) {
-    super.deserialize(object);
-    const { color, sourceID, explosionRadius, bounces, maxBounces } = object;
-    if (sourceID) {
-      this.sourceID = sourceID;
-    }
-    if (color) {
-      this.color = color;
-    }
-    if (explosionRadius !== undefined) {
-      this.explosionRadius = explosionRadius;
-    }
-    if (bounces !== undefined) {
-      this.bounces = bounces;
-    }
-    if (maxBounces !== undefined) {
-      this.maxBounces = maxBounces;
+    if (super.deserialize(object)) {
+      // Only synchronize once
+      this.doSynchronize = false;
+
+      const { color, sourceID, explosionRadius, bounces, maxBounces } = object;
+      if (sourceID) {
+        this.sourceID = sourceID;
+      }
+      if (color) {
+        this.color = color;
+      }
+      if (explosionRadius !== undefined) {
+        this.explosionRadius = explosionRadius;
+      }
+      if (bounces !== undefined) {
+        this.bounces = bounces;
+      }
+      if (maxBounces !== undefined) {
+        this.maxBounces = maxBounces;
+      }
+      return true;
+    } else {
+      return false;
     }
   }
 
-  cleanup() {
-    if (isClient()) {
-      const explosion = new Explosion(this.color, this.explosionRadius);
-      explosion.setPosition(this.position);
-      GM.addEntity(explosion);
-    }
-    super.cleanup();
-  }
 }
 
 registerEntity(Projectile);

@@ -99,16 +99,18 @@ export const deepDiff = (a, b, keepProperties = []) => {
   if (typeof a === 'object' && typeof b === 'object') {
     let obj;
     let isDifferent = false;
+
     if (b instanceof Array) {
       obj = [];
     } else {
       obj = {};
     }
+
     for (const key in b) {
       if (!equals(a[key], b[key])) {
-        isDifferent = true;
-        const diff = deepDiff(a[key], b[key]);
+        const diff = deepDiff(a[key], b[key], keepProperties);
         if (!isEmpty(diff)) {
+          isDifferent = true;
           obj[key] = diff;
         }
       }
@@ -116,7 +118,9 @@ export const deepDiff = (a, b, keepProperties = []) => {
 
     if (isDifferent) {
       for (const key of keepProperties) {
-        obj[key] = b[key];
+        if (b.hasOwnProperty(key)) {
+          obj[key] = b[key];
+        }
       }
     }
 
