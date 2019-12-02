@@ -18,11 +18,12 @@ class GameServer extends Server {
   constructor(maxConnections) {
     super(maxConnections);
     this.heroes = {};
-    this.heroNames = {};
+    this.lastGameHeroes = {};
     this.heroesToCreate = {};
     this.messages = [];
     this.numberOfHeroes = 0;
     this.minPlayers = 2;
+    this.spawnPoints = [];
   }
 
   onClose(socketIndex) {
@@ -45,6 +46,9 @@ class GameServer extends Server {
       }
     }
 
+    delete this.heroes[socketIndex];
+    delete this.heroesToCreate[socketIndex];
+
     super.onClose(socketIndex);
   }
 
@@ -52,7 +56,6 @@ class GameServer extends Server {
     for (let index in this.heroesToCreate) {
       index = parseInt(index);
       if (this.heroes[index] === undefined) {
-        console.log('createHero', index);
         this.createHero(index);
       }
     }
@@ -62,11 +65,28 @@ class GameServer extends Server {
     this.heroesToCreate[socketIndex] = name;
   }
 
+  getSpawnPoint(index) {
+    const len = this.spawnPoints.length;
+    console.log('getSpawnPoint', index, this.spawnPoints);
+    if (len > 0) {
+      return this.spawnPoints[index % len] || { x: 0, y: 0 };
+    } else {
+      return {
+        x: 0,
+        y: 0
+      };
+    }
+  }
+
   createHero(socketIndex) {
     const hero = new Hero(socketIndex);
     hero.name = this.heroesToCreate[socketIndex] || 'Hero';
     this.heroes[socketIndex] = hero;
     WM.add(hero);
+
+    // Get spawn point
+    const spawnPoint = this.getSpawnPoint(socketIndex);
+    hero.setPosition(spawnPoint);
 
     // Assign player ID to player
     NM.send({
@@ -78,8 +98,6 @@ class GameServer extends Server {
     }, socketIndex);
 
     hero.registerHandler('MOUSE_DOWN', data => {
-      console.log(data);
-
       const event = {
         type: 'TIME_WARPED_MOUSE_DOWN',
         data
@@ -122,13 +140,14 @@ class GameServer extends Server {
   }
 
   isFull() {
-    return Object.keys(this.heroesToCreate).length > 1;
+    return Object.keys(this.heroesToCreate).length >= 1;
   }
 
   initialize() {
     super.initialize();
 
     GM.registerHandler('JOIN_GAME', event => {
+      console.log('join', event);
       const { name, socketIndex } = event;
 
       // Create hero for player
@@ -140,15 +159,18 @@ class GameServer extends Server {
     });
 
     GM.registerHandler('REJOIN_GAME', event => {
-      const { heroID } = event;
-      this.numberOfHeroes++;
-      if (this.numberOfHeroes >= this.minPlayers) {
-        const event = {
-          type: 'RESPAWN_PLAYERS',
-          data: {}
-        };
-        GM.emitEvent(event)
-      }
+      console.log('REJOIN_GAME', event);
+
+      const { socketIndex } = event;
+      const name = this.lastGameHeroes[socketIndex];
+      const rejoin = {
+        type: 'JOIN_GAME',
+        data: {
+          name,
+          socketIndex
+        }
+      };
+      GM.emitEvent(rejoin);
     });
 
 
@@ -223,7 +245,6 @@ class GameServer extends Server {
       const { socketIndex } = event;
       const entityCount = WM.getEntityCount();
       const listenerCount = GM.getHandlerCount();
-      console.log(GM.createdEntities);
       NM.send({
         type: 'SEND_STATS',
         data: {
@@ -257,17 +278,19 @@ class GameServer extends Server {
       this.resetGame();
     });
 
-    GM.registerHandler('ROLLBACK', event => {
-      // const oldState = WM.serializeAll();
-      WM.rollbackFrom(GM.timeElapsed - 0.5);
-      // const newState = WM.serializeAll();
-      // const diff = deepDiff(oldState, newState);
-      // NM.logCode('diff', diff);
-    });
+    // GM.registerHandler('ROLLBACK', event => {
+    //   // const oldState = WM.serializeAll();
+    //   WM.rollbackFrom(GM.timeElapsed - 0.5);
+    //   // const newState = WM.serializeAll();
+    //   // const diff = deepDiff(oldState, newState);
+    //   // NM.logCode('diff', diff);
+    // });
 
     // Load level
     const levelString = readFileSync('level.json', 'utf-8');
     const level = JSON.parse(levelString);
+
+    this.spawnPoints = level.spawnPoints;
 
     WM.setGeomtetry(level.geometry);
     if (level.friction !== undefined) {
@@ -312,8 +335,22 @@ class GameServer extends Server {
   }
 
   resetGame() {
+    console.log('reset game');
     this.numberOfHeroes = 0;
-    WM.deleteAllNonHero();
+
+    // Delete all heroes
+    for (const id in this.heroes) {
+      delete this.heroes[id];
+    }
+
+    WM.deleteAllEntities();
+
+    // Save player names
+    for (const id in this.heroesToCreate) {
+      this.lastGameHeroes[id] = this.heroesToCreate[id];
+      delete this.heroesToCreate[id];
+    }
+
     // this.generatePickups();
     const message = {
       type: 'RESET_GAME',

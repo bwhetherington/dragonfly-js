@@ -3,7 +3,7 @@ import fs from 'fs';
 import { isServer } from '../util/util';
 
 const makeDir = path => {
-  if(!fs.existsSync(path)){
+  if (!fs.existsSync(path)) {
     fs.mkdirSync(path)
   }
 }
@@ -18,23 +18,24 @@ class LogManager {
     GM.registerHandler('RESET_GAME', data => {
       this.closeAllStreams();
       this.gameNum++;
-      makeDir('game-logs/game-' + this.gameNum.toString());
+      makeDir(`game-logs/game:${this.gameNum}`);
     })
     GM.registerHandler('PLAYER_DISCONNECT', data => {
       this.closeStream(data.socketIndex);
     })
     makeDir('game-logs/');
-    makeDir('game-logs/game-' + this.gameNum.toString());
+    makeDir(`game-logs/game:${this.gameNum}`);
   }
 
   logData(data, id = -1) {
     if (isServer()) {
-      if (!(id in this.streamMap)) {
-        this.streamMap.id = fs.createWriteStream('game-logs/game-' + this.gameNum.toString() + '/player-' + id.toString() + '.txt', { flags: 'a' })
-          .on('finish', function () {
+      if (!this.streamMap.hasOwnProperty(id)) {
+        const file = `game-logs/game:${this.gameNum}/player:${id}.log`;
+        this.streamMap[id] = fs.createWriteStream(file, { flags: 'a' })
+          .on('finish', () => {
             console.log("Write Finish.");
           })
-          .on('error', function (err) {
+          .on('error', err => {
             console.log(err.stack);
           });
       }
@@ -45,7 +46,7 @@ class LogManager {
         rollback: GM.rollback
       }
       const stringData = JSON.stringify(finalData);
-      this.streamMap.id.write(stringData + '\n', (err) => {
+      this.streamMap[id].write(stringData + '\n', err => {
         if (err) {
           throw err;
         }
@@ -54,14 +55,13 @@ class LogManager {
   }
 
   closeAllStreams() {
-    for (const curKey in this.streamMap) {
-      this.streamMap[curKey].end();
+    for (const key in this.streamMap) {
+      this.closeStream(key);
     }
-    this.streamMap = {};
   }
 
   closeStream(id) {
-    if (id in this.streamMap) {
+    if (this.streamMap.hasOwnProperty(id)) {
       this.streamMap[id].end();
       delete this.streamMap[id];
     }

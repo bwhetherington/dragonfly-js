@@ -150,7 +150,7 @@ class GameManager {
       this.recordEvent(event);
     }
 
-    if('socketIndex' in data){
+    if ('socketIndex' in data) {
       LM.logData(event, data.socketIndex);
     } else {
       LM.logData(event);
@@ -162,16 +162,11 @@ class GameManager {
     const eventID = this.getCurrentEventID();
     const eventEntry = this.createdEntities[eventID];
 
-    // NM.log(!!this.rollback, eventID);
-
-    // console.log(this.createdEntities);
-
     if (isServer() && eventEntry) {
       const serialized = eventEntry.entities[eventEntry.counter];
 
       if (serialized) {
         // Deserialize to that state
-        console.log('restoring to', serialized);
         entity.deserialize(serialized);
       } else {
         // Created a new entity; add it to the list
@@ -201,18 +196,6 @@ class GameManager {
     this.prepEvent(event);
     this.eventQueue.enqueue(event);
   }
-
-  // get timeElapsed() {
-  //   return this.timeElapsedInternal;
-  // }
-
-  // set timeElapsed(val) {
-  //   if (this.rollback) {
-  //     console.log('set timeElapsed', val);
-  //     console.log('dt', val - this.timeElapsed);
-  //   }
-  //   this.timeElapsedInternal = val;
-  // }
 
   /**
    * This method should be called by a separate timer on the client and the

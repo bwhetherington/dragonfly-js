@@ -169,13 +169,13 @@ class Hero extends Entity {
       }
     });
 
-    this.registerHandler('RESET_GAME', event => {
-      this.despawn();
-    });
+    // this.registerHandler('RESET_GAME', event => {
+    //   this.despawn();
+    // });
 
-    this.registerHandler('RESPAWN_PLAYERS', event => {
-      this.spawn();
-    });
+    // this.registerHandler('RESPAWN_PLAYERS', event => {
+    //   this.spawn();
+    // });
   }
 
   dropWeapon() {
@@ -295,14 +295,14 @@ class Hero extends Entity {
 
   addPosition(vector) {
     //don't move player if not collidable (dead or not spawned)
-    if(this.isCollidable){
+    if (this.isCollidable) {
       super.addPosition(vector);
     }
   }
 
   addPositionXY(x, y) {
     //don't move player if not collidable (dead or not spawned)
-    if(this.isCollidable){
+    if (this.isCollidable) {
       super.addPositionXY(x, y);
     }
   }
@@ -319,7 +319,7 @@ class Hero extends Entity {
     this.lives = 0;
     this.setPositionXY(0, 0);
     this.isCollidable = false;
-    for(const key in this.input){
+    for (const key in this.input) {
       this.input[key] = false;
     }
   }
@@ -447,7 +447,7 @@ class Hero extends Entity {
 
   fireXY(fx, fy) {
     //don't fire weapon if not collidable (dead or not spawned)
-    if(this.isCollidable){
+    if (this.isCollidable) {
       this.weapon.fireInternal(fx, fy, this);
     }
   }

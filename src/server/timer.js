@@ -53,8 +53,6 @@ class Timer {
       remaining = this.interval - duration;
       if (remaining > 0) {
         // Wait the remainder of the time
-        // wait(remaining);
-        // console.log(`Frame took ${Math.round(duration * 1000)}ms`);
         await sleep(remaining);
       } else {
         // We can't keep up

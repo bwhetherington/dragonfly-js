@@ -100,9 +100,6 @@ class Client {
       GM.emitEvent(newEvent);
     });
 
-    GM.registerHandler('KEY_DOWN', e => console.log('KEY_DOWN', e));
-    GM.registerHandler('KEY_UP', e => console.log('KEY_UP', e));
-
     // Turn off all input when the user stops focusin on the game
     // root.addEventListener('focusout', () => {
     //   GM.emitEvent({

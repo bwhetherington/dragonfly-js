@@ -1,5 +1,6 @@
 const SETTINGS = {
-  predictionEnabled: true
+  predictionEnabled: true,
+  timeWarpEnabled: true
 };
 
 export default SETTINGS;

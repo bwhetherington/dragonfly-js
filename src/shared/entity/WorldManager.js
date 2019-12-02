@@ -7,6 +7,8 @@ import { Vector } from 'twojs-ts';
 import Hero from './Hero';
 import SizedQueue from '../util/SizedQueue';
 import NM from '../network/NetworkManager';
+import SETTINGS from '../util/settings';
+import LM from '../network/LogManager';
 
 class WorldManager {
   constructor() {
@@ -112,10 +114,6 @@ class WorldManager {
     GM.emitEvent(event);
   }
 
-  deleteEntities() {
-
-  }
-
   step(step, dt) {
     // Update all entities
     for (const id in this.entities) {
@@ -133,7 +131,6 @@ class WorldManager {
   }
 
   recordState() {
-    // console.log('STORE', GM.timeElapsed);
     // Save this step
     const objects = [];
     for (const object of this.getEntities()) {
@@ -334,85 +331,90 @@ class WorldManager {
 
   rollbackFrom(time, event = null) {
     // Revert to the state
-    const state = this.getStateAtTime(time);
-    if (state) {
-      const logStatements = [];
+    if (SETTINGS.timeWarpEnabled) {
+      const state = this.getStateAtTime(time);
+      if (state) {
+        const logStatements = [];
 
-      const oldState = this.serializeAll();
+        const oldState = this.serializeAll();
 
-      const oldEventQueue = GM.eventQueue.toArray();
-      while (!GM.eventQueue.isEmpty()) {
-        GM.eventQueue.pop();
-      }
+        const oldEventQueue = GM.eventQueue.toArray();
+        while (!GM.eventQueue.isEmpty()) {
+          GM.eventQueue.pop();
+        }
 
-      this.revertState(state);
+        this.revertState(state);
 
-      // Figure out which events to replay
-      const events = [];
-      for (const event of GM.eventsAfterTime(state.time)) {
-        events.push(event);
-      }
+        // Figure out which events to replay
+        const events = [];
+        for (const event of GM.eventsAfterTime(state.time)) {
+          events.push(event);
+        }
 
-      GM.rollback = true;
+        GM.rollback = true;
 
-      // Insert the event at the appropriate time
-      if (event) {
-        GM.emitEvent(event);
-      }
-
-      const times = [];
-
-      logStatements.push(['replay', events]);
-
-      for (const event of events) {
-        // console.log('EVENT_TIME', event.time, event);
-        times.push(event.time);
-        if (event.type === 'STEP') {
-          GM.step(event.data.dt, event.id);
-        } else {
+        // Insert the event at the appropriate time
+        if (event) {
           GM.emitEvent(event);
         }
+
+        const times = [];
+
+        logStatements.push(['replay', events]);
+
+        for (const event of events) {
+          times.push(event.time);
+          if (event.type === 'STEP') {
+            GM.step(event.data.dt, event.id);
+          } else {
+            GM.emitEvent(event);
+          }
+        }
+
+        // We may have events remaining in the queue from after the last step
+        // event, so we poll events to run any that are still there.
+        GM.pollEvents();
+
+        GM.rollback = false;
+
+        const newState = this.serializeAll();
+        const stateDiff = deepDiff(oldState, newState, ['type']);
+
+        logStatements.push(['diff', stateDiff]);
+
+        // Add back the stored events
+        for (const event of oldEventQueue) {
+          GM.emitEvent(event);
+        }
+
+        if (Object.keys(stateDiff).length > 0) {
+          // Log everything
+          NM.logOptions(logStatements, {
+            pre: true,
+            batch: true
+          });
+        }
+
+        this.sync(NM.node, -1, true, true);
+        return;
+      } else {
+        LM.logData('Attempted to rollback, but state could not be found');
       }
+    }
 
-      // We may have events remaining in the queue from after the last step
-      // event, so we poll events to run any that are still there.
-      GM.pollEvents();
+    // If we did not roll back, still process the event
+    if (event) {
+      GM.emitEventFirst(event);
+    }
+  }
 
-      // NM.messageClients('events', events.length);
-
-      // console.log(state.time, times);
-
-      // NM.messageClients('Time diff', oldTime, GM.timeElapsed);
-      // NM.messageClients('Step Diff', oldStep, GM.stepCount);
-
-      GM.rollback = false;
-
-      // console.log('END ROLLBACK');
-
-      // NM.messageClients('END');
-
-      const newState = this.serializeAll();
-      const stateDiff = deepDiff(oldState, newState, ['type']);
-
-      logStatements.push(['diff', stateDiff]);
-
-      // Add back the stored events
-      for (const event of oldEventQueue) {
-        GM.emitEvent(event);
+  deleteAllEntities() {
+    for (const id in this.entities) {
+      this.entities[id].cleanup();
+      this.deleted.push(id);
+      if (delete this.entities[id]) {
+        this.entityCount -= 1;
       }
-
-      if (Object.keys(stateDiff).length > 0) {
-        // Log everything
-        NM.logOptions(logStatements, {
-          pre: true,
-          batch: true
-        });
-      }
-
-      this.sync(NM.node, -1, true, true);
-
-    } else if (event) {
-      GM.emitEvent(event);
     }
   }
 
@@ -512,8 +514,6 @@ class WorldManager {
       }
 
       if (batch.length > 0) {
-        // Determine size of batch
-        const size = sizeOf(batch);
         NM.send({
           type: 'SYNC_OBJECT_BATCH',
           data: {
