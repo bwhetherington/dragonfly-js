@@ -6,6 +6,7 @@ import GM from '../event/GameManager';
 import NM from '../network/NetworkManager';
 import WM from '../entity/WorldManager';
 import uuid from 'uuid/v1';
+import LM from './LogManager';
 
 const toSeconds = (seconds, nanoseconds) => seconds + nanoseconds * 0.000000001;
 
@@ -50,6 +51,7 @@ class Server {
     // Create http server
     this.httpServer = serveHTTP();
     NM.initialize(this);
+    LM.initialize();
 
     this.recordEventType('JOIN_GAME');
     this.recordEventType('STEP');
@@ -173,6 +175,11 @@ class Server {
 
   onClose(socketIndex) {
     this.freedIDs.push(socketIndex);
+    const message = {
+      type: 'PLAYER_DISCONNECT',
+      data: {socketIndex}
+    };
+    GM.emitEvent(message);
   }
 
   assignPlayerID() {

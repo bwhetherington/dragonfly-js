@@ -75,7 +75,8 @@ class Hero extends Entity {
     this.invilTimer = -1;
     this.invilAmount = 2;
     this.regen = 2;
-    this.lives = 2;
+    this.totalLives = 1;
+    this.lives = this.totalLives;
 
 
     this.registerHandler('OBJECT_COLLISION', event => {
@@ -172,11 +173,8 @@ class Hero extends Entity {
       this.despawn();
     });
 
-    this.registerHandler('REJOIN_GAME', event => {
-      const { heroID } = event;
-      if (this.id === heroID) {
-        this.spawn();
-      }
+    this.registerHandler('RESPAWN_PLAYERS', event => {
+      this.spawn();
     });
   }
 
@@ -272,6 +270,11 @@ class Hero extends Entity {
     const { input } = this;
     input[direction] = on;
 
+    // //quit out early if not collidable (dead or not spawned)
+    // if(!this.isCollidable){
+    //   return;
+    // }
+
     // Calculate velocity from this
     this.acceleration.setXY(0, 0);
     if (input.up) {
@@ -290,6 +293,20 @@ class Hero extends Entity {
     this.acceleration.scale(this.movementSpeed);
   }
 
+  addPosition(vector) {
+    //don't move player if not collidable (dead or not spawned)
+    if(this.isCollidable){
+      super.addPosition(vector);
+    }
+  }
+
+  addPositionXY(x, y) {
+    //don't move player if not collidable (dead or not spawned)
+    if(this.isCollidable){
+      super.addPositionXY(x, y);
+    }
+  }
+
   createOffset(magnitude = 0.1) {
     return (Math.random() - 0.5) * 2 * magnitude;
   }
@@ -302,6 +319,9 @@ class Hero extends Entity {
     this.lives = 0;
     this.setPositionXY(0, 0);
     this.isCollidable = false;
+    for(const key in this.input){
+      this.input[key] = false;
+    }
   }
 
   spawn() {
@@ -311,7 +331,7 @@ class Hero extends Entity {
     this.damageAmount = 0;
     this.resetWeapon();
     this.isCollidable = true;
-    this.lives = 2;
+    this.lives = this.totalLives;
   }
 
   serialize() {
@@ -421,7 +441,10 @@ class Hero extends Entity {
   }
 
   fireXY(fx, fy) {
-    this.weapon.fireInternal(fx, fy, this);
+    //don't fire weapon if not collidable (dead or not spawned)
+    if(this.isCollidable){
+      this.weapon.fireInternal(fx, fy, this);
+    }
   }
 
   get isInvincible() {

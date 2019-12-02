@@ -16,6 +16,7 @@ import CM from './ChatManager';
 import SizedQueue from '../shared/util/SizedQueue';
 import HealthPickUp from '../shared/entity/HealthPickUp';
 import NM from '../shared/network/NetworkManager';
+import LM from '../shared/network/LogManager';
 
 const average = list => {
   let sum = 0;
@@ -29,6 +30,21 @@ const removeChildren = element => {
   while (element.firstChild) {
     element.removeChild(element.firstChild);
   }
+}
+
+const gatherFormData = formElements => {
+  let formResults = {};
+  for(let i = 0, element; element = formElements[i++];){
+    if(element.checked){
+      if(element.name in formResults){
+        formResults[element.name].push(element.value);
+      } else {
+        formResults[element.name] = [element.value];
+      }
+      element.checked = false;
+    }
+  }
+  return formResults;
 }
 
 class GameClient extends Client {
@@ -228,6 +244,8 @@ class GameClient extends Client {
     }
     modal.hidden = false;
     form.onsubmit = event => {
+      let formElements = document.getElementById('rejoin-game').elements;
+      let formResults = gatherFormData(formElements);
       event.preventDefault();
 
       const message = {
@@ -236,7 +254,12 @@ class GameClient extends Client {
           heroID: hero.id
         }
       };
+      const formMessage  = {
+        type: 'LOG_DATA',
+        data: formResults
+      };
       NM.send(message);
+      NM.send(formMessage);
       modal.hidden = true;
       if (game) {
         game.focus();

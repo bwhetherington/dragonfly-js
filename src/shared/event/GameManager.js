@@ -4,6 +4,7 @@ import uuid from 'uuid/v1';
 import WM from '../entity/WorldManager';
 import { isServer } from '../util/util';
 import NM from '../network/NetworkManager';
+import LM from '../network/LogManager';
 
 class GameManager {
   constructor() {
@@ -130,15 +131,6 @@ class GameManager {
       eventEntry.counter = 0;
     }
 
-    if (type === 'ANY') {
-      for (const type in this.handlers) {
-        for (const handlerID in this.handlers[type]) {
-          const handler = this.handlers[type][handlerID];
-          handler(event, handlerID);
-        }
-      }
-    }
-
     const handlers = this.handlers[type];
     if (handlers) {
       for (const id in handlers) {
@@ -147,9 +139,21 @@ class GameManager {
       }
     }
 
+    const anyHandlers = this.handlers['ANY'];
+    for (const id in anyHandlers) {
+      const handler = anyHandlers[id];
+      handler(data, () => this.removeHandler('ANY', id));
+    }
+
     if (record) {
       this.currentEventID = null;
       this.recordEvent(event);
+    }
+
+    if('socketIndex' in data){
+      LM.logData(event, data.socketIndex);
+    } else {
+      LM.logData(event);
     }
   }
 

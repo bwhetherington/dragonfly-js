@@ -10,6 +10,7 @@ import WeaponPickUp from '../shared/entity/WeaponPickUp';
 import HealthPickUp from '../shared/entity/HealthPickUp';
 import NM from '../shared/network/NetworkManager';
 import { diff, deepDiff, pruneEmpty } from '../shared/util/util';
+import LM from '../shared/network/LogManager';
 
 const REFRESH_RATE = 60;
 
@@ -17,7 +18,10 @@ class GameServer extends Server {
   constructor(maxConnections) {
     super(maxConnections);
     this.heroes = {};
+    this.heroNames = {};
     this.messages = [];
+    this.numberOfHeroes = 0;
+    this.minPlayers = 2;
   }
 
   onClose(socketIndex) {
@@ -50,12 +54,13 @@ class GameServer extends Server {
       const { name, socketIndex } = event;
 
       // Create hero for player
-      this.heroes[socketIndex] = name;
-      if (Object.keys(this.heroes).length > 0) {
-        for (const curKey in this.heroes) {
+      this.heroNames[socketIndex] = name;
+      this.numberOfHeroes++;
+      if (this.numberOfHeroes >= this.minPlayers) {
+        for (const curKey in this.heroNames) {
           const curSocketIndex = parseInt(curKey);
           const curHero = new Hero(curSocketIndex);
-          const curName = this.heroes[curKey];
+          const curName = this.heroNames[curKey];
           curHero.name = curName;
           this.heroes[curSocketIndex] = curHero;
           GM.addEntity(curHero);
@@ -118,14 +123,14 @@ class GameServer extends Server {
 
     GM.registerHandler('REJOIN_GAME', event => {
       const { heroID } = event;
-
-      const message = {
-        type: 'REJOIN_GAME',
-        data: {
-          heroID
-        }
-      };
-      NM.send(message);
+      this.numberOfHeroes++;
+      if (this.numberOfHeroes >= this.minPlayers) {
+        const event = {
+          type: 'RESPAWN_PLAYERS',
+          data: {}
+        };
+        GM.emitEvent(event)
+      }
     });
 
 
@@ -289,6 +294,7 @@ class GameServer extends Server {
   }
 
   resetGame() {
+    this.numberOfHeroes = 0;
     WM.deleteAllNonHero();
     // this.generatePickups();
     const message = {
@@ -315,6 +321,7 @@ class GameServer extends Server {
 const cleanup = (server, timer) => () => {
   server.stop();
   timer.stop();
+  LM.closeAllStreams();
 };
 
 const main = async () => {

@@ -106,11 +106,29 @@
     </div>
   </div>
   <div hidden class="modal-parent" id="game-end-page">
+  <!-- <div class="modal-parent" id="game-end-page"> -->
     <div class="modal menu">
       <div class="game-end-page">
         <h1 class="center" id="game-end-text"></h1>
-        <form class="center" id="rejoin-game">
-          <input autofocus type="submit" id="rejoin-submit" value="Rejoin"></input>
+        <form id="rejoin-game">
+          <p class="radio-label">On a scale of 1 to 5 how disruptive did you find visual glitches?</p>
+          <input type="radio" name="v-glitch" value="1"> 1 (Not Often)</input>
+          <input type="radio" name="v-glitch" value="2"> 2</input>
+          <input type="radio" name="v-glitch" value="3"> 3 </input>
+          <input type="radio" name="v-glitch" value="4"> 4</input>
+          <input type="radio" name="v-glitch" value="5"> 5 (Very Often)</input><br>
+          <p class="radio-label">On a scale of 1 to 5 how noticeable was the latency?</p>
+          <input type="radio" name="latency" value="1"> 1 (Not Noticeable)</input>
+          <input type="radio" name="latency" value="2"> 2</input>
+          <input type="radio" name="latency" value="3"> 3 </input>
+          <input type="radio" name="latency" value="4"> 4</input>
+          <input type="radio" name="latency" value="5"> 5 (Very Noticeable)</input><br>
+          <p class="checkbox-label">Which player(s) do you think had high latency last round?</p>
+          <input type="checkbox" name="player-lat" value="Red"> Red</input>
+          <input type="checkbox" name="player-lat" value="Blue"> Blue</input>
+          <input type="checkbox" name="player-lat" value="Green"> Green</input>
+          <input type="checkbox" name="player-lat" value="Yellow"> Yellow</input>
+          <input type="submit" id="rejoin-submit" value="Rejoin"></input>
         </form>
       </div>
     </div>
