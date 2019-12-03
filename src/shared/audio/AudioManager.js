@@ -54,7 +54,7 @@ import Vector from '../util/Vector';
 
 class AudioManager {
 
-  calculateVolume(distance, dropoffFactor = 100) {
+  calculateVolume(distance, dropoffFactor = 150) {
     distance /= dropoffFactor;
     return Math.min(1, 1 / (distance * distance));
   }
