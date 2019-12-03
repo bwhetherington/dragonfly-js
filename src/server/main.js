@@ -93,6 +93,7 @@ class GameServer extends Server {
       type: 'ASSIGN_ID',
       data: {
         playerID: socketIndex,
+        entityID: hero.id,
         serverTime: GM.timeElapsed
       }
     }, socketIndex);

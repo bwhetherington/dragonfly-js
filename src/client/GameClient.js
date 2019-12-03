@@ -50,12 +50,16 @@ const gatherFormData = formElements => {
 class GameClient extends Client {
   constructor(two, addr) {
     super(two, addr);
-    this.heroes = {};
     this.playerID = -2;
+    this.heroID = null;
     this.latencies = {};
     this.entityMenu = document.getElementById('entity-menu');
     this.entities = document.getElementById('entity-tbody');
     this.hpBar = new Bar('bar-value', 'bar-label', 30);
+  }
+
+  getHero() {
+    return this.heroID ? WM.findByID(this.heroID) : null;
   }
 
   createEntityRow(entity) {
@@ -339,7 +343,9 @@ class GameClient extends Client {
     });
 
     GM.registerHandler('PLAY_AUDIO', data => {
-      AM.playSoundInternal(data.filename, data.volume);
+      const hero = this.getHero();
+      const position = hero ? hero.position : null;
+      AM.playSoundInternal(data.filename, data.volume, data.position, position);
     });
 
     GM.registerHandler('GAME_WON', event => {
@@ -349,6 +355,7 @@ class GameClient extends Client {
     GM.registerHandler('ASSIGN_ID', (event, remove) => {
       CM.playerID = event.playerID;
       this.playerID = event.playerID;
+      this.heroID = event.entityID;
       GM.timeElapsed = event.serverTime;
       remove();
     });

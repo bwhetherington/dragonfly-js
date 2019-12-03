@@ -1,5 +1,6 @@
-import { isClient } from "../util/util";
-import GM from "../event/GameManager";
+import { isClient } from '../util/util';
+import GM from '../event/GameManager';
+import Vector from '../util/Vector';
 
 // var soundContext = new AudioContext();
 
@@ -53,21 +54,36 @@ import GM from "../event/GameManager";
 
 class AudioManager {
 
-  async playSoundInternal(sound, volume = 0.5) {
+  calculateVolume(distance, dropoffFactor = 100) {
+    distance /= dropoffFactor;
+    return 1 / (1 + distance * distance);
+  }
+
+  async playSoundInternal(sound, volume = 0.5, comeFrom = null, listenAt = null) {
     if (isClient()) {
       const url = '/assets/sounds/' + sound;
       const audio = new Audio(url);
+
+      // Calculate volume based on distance
+      if (comeFrom && listenAt) {
+        const dist = Vector.fromVector(comeFrom).distance(listenAt);
+
+        // Calculate volume based on distance
+        volume *= this.calculateVolume(dist);
+      }
+
       audio.volume = volume;
       await audio.play();
     }
   }
 
-  async playSound(filename, volume = 0.5) {
+  async playSound(filename, volume = 0.5, position = null) {
     const event = {
       type: 'PLAY_AUDIO',
       data: {
         filename,
-        volume
+        volume,
+        position: position ? position.serialize() : null
       }
     };
 

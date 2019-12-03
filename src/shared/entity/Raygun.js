@@ -10,7 +10,7 @@ class Raygun extends Weapon {
   }
 
   fire(fx, fy, sourceHero) {
-    AM.playSound('fire.wav');
+    AM.playSound('fire.wav', 0.125, sourceHero.position.clone());
     const ray = new Ray(sourceHero.id);
     WM.add(ray);
     ray.position.set(sourceHero.position);

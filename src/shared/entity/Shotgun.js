@@ -52,7 +52,7 @@ class Shotgun extends Weapon {
       });
       WM.add(bullet);
     }
-    AM.playSound('fire.wav');
+    AM.playSound('fire.wav', 0.125, sourceHero.position.clone());
   }
 }
 

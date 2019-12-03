@@ -30,8 +30,6 @@ class Explosion extends Entity {
         this.markForDelete();
       }
     });
-
-    AM.playSound('explode.wav', 0.1);
   }
 
   serialize() {
@@ -78,6 +76,8 @@ class Explosion extends Entity {
     this.graphicsObject = circle;
     this.setColor(this.color);
     this.updateSize();
+
+    AM.playSound('explode.wav', 0.5, this.position.clone());
   }
 }
 

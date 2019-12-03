@@ -76,7 +76,7 @@ class Auto extends Weapon {
     vector.scale(30);
     bullet.addPosition(vector);
 
-    AM.playSound('fire.wav');
+    AM.playSound('fire.wav', 0.125, sourceHero.position.clone());
     this.incrementSpray();
   }
 

@@ -4,6 +4,10 @@ class Vector {
     this.y = y;
   }
 
+  static fromVector(point) {
+    return new Vector(point.x, point.y);
+  }
+
   static fromPolar(r, theta) {
     const x = Math.cos(theta) * r;
     const y = Math.sin(theta) * r;
@@ -80,6 +84,10 @@ class Vector {
     const dx = x - this.x;
     const dy = y - this.y;
     return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  clone() {
+    return new Vector(this.x, this.y);
   }
 
   get magnitude() {
