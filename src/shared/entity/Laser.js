@@ -5,7 +5,7 @@ import { registerEntity, color } from "../util/util";
 
 const DURATION = 0.375;
 
-const DEFAULT_COLOR = color(200, 0, 0);
+const DEFAULT_COLOR = color(200, 50, 50);
 
 class Laser extends Entity {
   constructor(p1, p2) {

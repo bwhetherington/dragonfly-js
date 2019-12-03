@@ -3,6 +3,7 @@ import WM from './WorldManager';
 import Vector from '../util/Vector';
 import Projectile from './Projectile';
 import AM from '../audio/AudioManager';
+import { color } from '../util/util';
 
 // Build the random spray pattern
 const SPRAY_PATTERN = [];
@@ -12,7 +13,8 @@ for (let i = 0; i < 100; i++) {
     y: Math.random() - 0.5
   });
 }
-// console.log(SPRAY_PATTERN);
+
+const COLOR = color(200, 200, 80);
 
 class Auto extends Weapon {
   constructor() {
@@ -50,7 +52,7 @@ class Auto extends Weapon {
     vector.add(so, 0.25);
     vector.normalize();
 
-    const bullet = new Projectile(sourceHero.id);
+    const bullet = new Projectile(sourceHero.id, COLOR);
     bullet.maxBounces = 0;
     bullet.velocity.set(vector);
     bullet.velocity.scale(850);

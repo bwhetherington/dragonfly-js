@@ -348,6 +348,10 @@ class GameServer extends Server {
     const shotgun = new WeaponPickUp('Shotgun');
     shotgun.setPosition(WM.getRandomPoint());
     WM.add(shotgun);
+
+    const auto = new WeaponPickUp('Auto');
+    auto.setPosition(WM.getRandomPoint());
+    WM.add(auto);
   }
 
   resetGame() {

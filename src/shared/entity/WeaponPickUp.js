@@ -1,22 +1,12 @@
 import PickUp from './PickUp';
-import { registerEntity } from '../util/util';
+import { registerEntity, color } from '../util/util';
 
 const WEAPON_COLORS = {
-  Raygun: {
-    red: 200,
-    green: 50,
-    blue: 50
-  },
-  Shotgun: {
-    red: 200,
-    green: 150,
-    blue: 0
-  },
-  default: {
-    red: 100,
-    green: 100,
-    blue: 100
-  }
+  Raygun: color(200, 50, 50),
+  Shotgun: color(200, 150, 0),
+  Rocket: color(100, 200, 255),
+  Auto: color(200, 200, 80),
+  default: color(100, 100, 100)
 };
 
 class WeaponPickUp extends PickUp {
