@@ -56,7 +56,7 @@ class AudioManager {
 
   calculateVolume(distance, dropoffFactor = 100) {
     distance /= dropoffFactor;
-    return 1 / (1 + distance * distance);
+    return Math.min(1, 1 / (distance * distance));
   }
 
   async playSoundInternal(sound, volume = 0.5, comeFrom = null, listenAt = null) {
