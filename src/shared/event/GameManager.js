@@ -15,9 +15,8 @@ class GameManager {
     this.handlerCount = 0;
     this.frameRate = 0;
     this.currentEventID = null;
-    this.createdEntities = {};
     this.createRootEvent();
-    this.storedEvents = new SizedQueue(5000);
+    this.storedEvents = new SizedQueue(1000);
     this.recordedTypes = {};
   }
 
@@ -39,10 +38,6 @@ class GameManager {
       data: {},
       id,
       time
-    };
-    this.createdEntities[id] = {
-      counter: 0,
-      entities: []
     };
     this.currentEventID = id;
   }
@@ -101,18 +96,6 @@ class GameManager {
   recordEvent(event) {
     event.time = GM.timeElapsed;
     const removed = this.storedEvents.enqueue(event);
-
-    if (this.createdEntities[event.id] === undefined) {
-      this.createdEntities[event.id] = {
-        counter: 0,
-        entities: []
-      };
-    }
-
-    // If we popped one off the queue, remove it from the set of event entries
-    if (removed) {
-      delete this.createdEntities[removed.id];
-    }
   }
 
   getCurrentEventID() {
@@ -124,11 +107,6 @@ class GameManager {
     const record = this.doesRecordType(type);
     if (record) {
       this.currentEventID = id;
-    }
-
-    const eventEntry = this.createdEntities[id];
-    if (eventEntry) {
-      eventEntry.counter = 0;
     }
 
     const handlers = this.handlers[type];
@@ -157,29 +135,29 @@ class GameManager {
     }
   }
 
-  addEntity(entity) {
-    // We check if we've already added an entity for this event
-    const eventID = this.getCurrentEventID();
-    const eventEntry = this.createdEntities[eventID];
+  // addEntity(entity) {
+  //   // We check if we've already added an entity for this event
+  //   const eventID = this.getCurrentEventID();
+  //   const eventEntry = this.createdEntities[eventID];
 
-    if (isServer() && eventEntry) {
-      const serialized = eventEntry.entities[eventEntry.counter];
+  //   if (isServer() && eventEntry) {
+  //     const serialized = eventEntry.entities[eventEntry.counter];
 
-      if (serialized) {
-        // Deserialize to that state
-        entity.deserialize(serialized);
-      } else {
-        // Created a new entity; add it to the list
-        eventEntry.entities[eventEntry.counter] = entity.serialize();
-      }
+  //     if (serialized) {
+  //       // Deserialize to that state
+  //       entity.deserialize(serialized);
+  //     } else {
+  //       // Created a new entity; add it to the list
+  //       eventEntry.entities[eventEntry.counter] = entity.serialize();
+  //     }
 
-      eventEntry.counter += 1;
-    }
-    WM.add(entity);
-    if (eventEntry) {
-      // NM.logCode('isReplay', !!this.rollback, eventEntry);
-    }
-  }
+  //     eventEntry.counter += 1;
+  //   }
+  //   WM.add(entity);
+  //   if (eventEntry) {
+  //     // NM.logCode('isReplay', !!this.rollback, eventEntry);
+  //   }
+  // }
 
   prepEvent(event) {
     if (event.id === undefined) {

@@ -23,7 +23,7 @@ class WorldManager {
     this.foreground = null;
     this.previousState = [];
     this.entityTable = {};
-    this.previousStates = new SizedQueue(600);
+    this.previousStates = new SizedQueue(60);
   }
 
   registerEntity(EntityType) {
@@ -334,9 +334,8 @@ class WorldManager {
     if (SETTINGS.timeWarpEnabled) {
       const state = this.getStateAtTime(time);
       if (state) {
-        const logStatements = [];
-
-        const oldState = this.serializeAll();
+        // const logStatements = [];
+        // const oldState = this.serializeAll();
 
         const oldEventQueue = GM.eventQueue.toArray();
         while (!GM.eventQueue.isEmpty()) {
@@ -360,7 +359,7 @@ class WorldManager {
 
         const times = [];
 
-        logStatements.push(['replay', events]);
+        // logStatements.push(['replay', events]);
 
         for (const event of events) {
           times.push(event.time);
@@ -377,23 +376,23 @@ class WorldManager {
 
         GM.rollback = false;
 
-        const newState = this.serializeAll();
-        const stateDiff = deepDiff(oldState, newState, ['type']);
+        // const newState = this.serializeAll();
+        // const stateDiff = deepDiff(oldState, newState, ['type']);
 
-        logStatements.push(['diff', stateDiff]);
+        // logStatements.push(['diff', stateDiff]);
 
         // Add back the stored events
         for (const event of oldEventQueue) {
           GM.emitEvent(event);
         }
 
-        if (Object.keys(stateDiff).length > 0) {
-          // Log everything
-          NM.logOptions(logStatements, {
-            pre: true,
-            batch: true
-          });
-        }
+        // if (Object.keys(stateDiff).length > 0) {
+        //   // Log everything
+        //   NM.logOptions(logStatements, {
+        //     pre: true,
+        //     batch: true
+        //   });
+        // }
 
         this.sync(NM.node, -1, true, true);
         return;

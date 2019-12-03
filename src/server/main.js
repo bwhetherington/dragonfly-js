@@ -265,8 +265,7 @@ class GameServer extends Server {
         type: 'SEND_STATS',
         data: {
           entityCount,
-          listenerCount,
-          entryCount: Object.entries(GM.createdEntities).length
+          listenerCount
         }
       }, socketIndex);
     });

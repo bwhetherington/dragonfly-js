@@ -59,6 +59,7 @@ class Server {
     this.recordEventType('KEY_UP');
     this.recordEventType('TIME_WARPED_MOUSE_DOWN');
     this.recordEventType('MOUSE_UP');
+    this.recordEventType('ROTATE_CANNON');
 
     GM.registerHandler('SYNC_OBJECT', event => {
       WM.receiveSyncObject(event.object);
@@ -177,7 +178,7 @@ class Server {
     this.freedIDs.push(socketIndex);
     const message = {
       type: 'PLAYER_DISCONNECT',
-      data: {socketIndex}
+      data: { socketIndex }
     };
     GM.emitEvent(message);
   }
