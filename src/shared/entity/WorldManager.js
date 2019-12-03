@@ -471,7 +471,7 @@ class WorldManager {
    * @param socket The socket to send the sync message to
    * @param forceSync Whether or not to sync the full world state
    */
-  sync(server, socket = -1, forceSync = true, forceDelete = false) {
+  sync(server, socket = -1, forceSync = false, forceDelete = false) {
     if (server.numConnections > 0) {
       const batch = [];
       if (forceSync) {
