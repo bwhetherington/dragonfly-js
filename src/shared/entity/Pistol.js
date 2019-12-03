@@ -21,7 +21,7 @@ class Pistol extends Weapon {
     vector.normalize();
 
     const bullet = new Projectile(sourceHero.id);
-    bullet.maxBounces = 0;
+    bullet.maxBounces = 1;
     bullet.velocity.set(vector);
     bullet.velocity.scale(650);
 
