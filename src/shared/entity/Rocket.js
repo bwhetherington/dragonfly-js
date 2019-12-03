@@ -16,7 +16,6 @@ class Rocket extends Weapon {
   }
 
   fire(fx, fy, sourceHero) {
-
     const vector = new Vector(0, 0);
     const offset = new Vector(0, 0);
 

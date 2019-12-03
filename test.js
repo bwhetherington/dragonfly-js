@@ -1,21 +1,20 @@
-const fs = require('fs');
-const util = require('util');
+const rand = (scale = 1) => scale * (Math.random() - 0.5);
 
-const readFile = util.promisify(fs.readFile);
+const generateSprayPattern = (scale = 1) => {
+  let value = 0;
+  const spray = [];
 
-const parseFile = file => {
-  return file.split('\n')
-    .filter(str => str.length > 0)
-    .map(JSON.parse);
-};
-
-const main = async argv => {
-  const [_, name, ...args] = argv;
-  for (const arg of args) {
-    const file = await readFile(arg, 'utf-8');
-    console.log(parseFile(file).filter(event => event.data.type !== 'STEP' && event.data.type !== 'ROTATE_CANNON').map(event => event.data.data));
+  for (let i = 0; i < 100; i++) {
+    const num = rand(scale);
+    if (Math.abs(value + num) > Math.abs(value)) {
+      value += num * 0.67;
+    } else {
+      value += num;
+    }
+    spray.push(value);
   }
+
+  return spray;
 };
 
-main(process.argv).catch(console.log);
-
+console.log(JSON.stringify(generateSprayPattern()));

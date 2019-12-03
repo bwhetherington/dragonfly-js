@@ -75,7 +75,7 @@ class Hero extends Entity {
     this.deathAmount = 1;
     this.invilTimer = -1;
     this.invilAmount = 2;
-    this.regen = 2;
+    this.regen = 0;
     this.totalLives = 3;
     this.lives = this.totalLives;
     this.target = new Vector(0, 0);

@@ -7,6 +7,19 @@ const removeChildren = element => {
   }
 }
 
+const SWEAR_FILTER = [
+  'fuck',
+  'shit',
+  'ass',
+  'bitch'
+];
+
+const filterSwears = (input, filter = SWEAR_FILTER) => filter.reduce((output, word) => {
+  const replacement = '*'.repeat(word.length);
+  const regex = new RegExp(word, 'g', 'i');
+  return output.replace(regex, replacement);
+}, input);
+
 class ChatManager {
   constructor() {
     this.messageContainer = document.getElementById('chat-container');
@@ -16,6 +29,7 @@ class ChatManager {
     this.playerID = -1;
     this.commands = {};
     this.name = 'Anonymous';
+    this.filter = false;
   }
 
   registerCommand(command, callback) {
@@ -45,6 +59,13 @@ class ChatManager {
 
   initialize(playerID) {
     GM.registerHandler('CHAT_OUTPUT', event => {
+      if (this.filter) {
+        const { message } = event;
+        message.content = filterSwears(message.content);
+      }
+    });
+
+    GM.registerHandler('CHAT_OUTPUT', event => {
       this.addMessage(event.message);
     });
 
@@ -52,6 +73,15 @@ class ChatManager {
       if (event.key === 'Enter') {
         this.chatInput.focus();
       }
+    });
+
+    this.registerCommand('filter', () => {
+      this.filter = !this.filter;
+      const status = this.filter ? 'on' : 'off';
+      const line = this.renderContent({
+        text: `Profanity filter is now ${status}.`
+      });
+      this.addLine(line);
     });
 
     this.registerCommand('rollback', () => {
