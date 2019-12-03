@@ -9,7 +9,7 @@ class Shotgun extends Weapon {
   constructor() {
     super("Shotgun", 1);
     this.projectileNum = 5;
-    this.spread = Math.PI / 3;
+    this.spread = Math.PI / 4;
   }
 
   fire(fx, fy, sourceHero) {
@@ -31,13 +31,13 @@ class Shotgun extends Weapon {
       const velocity = Vector.fromPolar(1, (i - (this.projectileNum - 1) / 2) * spread + baseAngle);
       // velocity.addXY(sourceHero.createOffset(0.1), sourceHero.createOffset(0.1));
       // velocity.normalize();
-      velocity.scale(650);
+      velocity.scale(750);
 
       bullet.velocity.set(velocity);
 
       offset.set(vector);
       offset.normalize();
-      offset.scale(20);
+      offset.scale(30);
 
       bullet.setPosition(sourceHero.position);
       bullet.position.add(offset);
@@ -46,18 +46,11 @@ class Shotgun extends Weapon {
         if (projectileID === bullet.id) {
           const object = WM.findByID(hitID);
           if (object) {
-            object.damage(12, sourceID);
+            object.damage(10, sourceID);
           }
         }
       });
       WM.add(bullet);
-
-      // Position the bullet
-      bullet.setPosition(sourceHero.position);
-      vector.setXY(fx - x, fy - y);
-      vector.normalize();
-      vector.scale(30);
-      bullet.addPosition(vector);
     }
     AM.playSound('fire.wav');
   }

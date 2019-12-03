@@ -34,9 +34,9 @@ const removeChildren = element => {
 
 const gatherFormData = formElements => {
   let formResults = {};
-  for(let i = 0, element; element = formElements[i++];){
-    if(element.checked){
-      if(element.name in formResults){
+  for (let i = 0, element; element = formElements[i++];) {
+    if (element.checked) {
+      if (element.name in formResults) {
         formResults[element.name].push(element.value);
       } else {
         formResults[element.name] = [element.value];
@@ -199,10 +199,6 @@ class GameClient extends Client {
     });
 
     GM.registerHandler('MOUSE_DOWN', event => {
-      // Create a laser to test
-      // const laser = new Laser(this.hero.position, new Vector(event.position.x, event.position.y));
-      // WM.add(laser);
-
       NM.send({
         type: 'MOUSE_DOWN',
         data: event
@@ -210,7 +206,6 @@ class GameClient extends Client {
     });
 
     GM.registerHandler('MOUSE_UP', event => {
-
       NM.send({
         type: 'MOUSE_UP',
         data: event
@@ -254,7 +249,7 @@ class GameClient extends Client {
           heroID: hero.id
         }
       };
-      const formMessage  = {
+      const formMessage = {
         type: 'LOG_DATA',
         data: formResults
       };
@@ -287,14 +282,15 @@ class GameClient extends Client {
       const angle = Math.atan2(dy, dx) + Math.PI / 2;
       if (hero.cannon) {
         hero.rotateCannon(angle);
-        const event = {
+        const newEvent = {
           type: 'ROTATE_CANNON',
           data: {
             playerID: hero.playerID,
-            angle: angle
+            angle: angle,
+            target: event.position
           }
         };
-        GM.emitEvent(event);
+        GM.emitEvent(newEvent);
       }
     });
   }

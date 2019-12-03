@@ -1,13 +1,38 @@
 import Weapon from './Weapon';
+import WM from './WorldManager';
 import Vector from '../util/Vector';
 import Projectile from './Projectile';
-import WM from './WorldManager';
 import AM from '../audio/AudioManager';
-import GM from '../event/GameManager';
 
-class Pistol extends Weapon {
+// Build the random spray pattern
+const SPRAY_PATTERN = [];
+for (let i = 0; i < 100; i++) {
+  SPRAY_PATTERN.push({
+    x: Math.random() - 0.5,
+    y: Math.random() - 0.5
+  });
+}
+// console.log(SPRAY_PATTERN);
+
+class Auto extends Weapon {
   constructor() {
-    super('Pistol');
+    super('Auto', 0.2, true);
+    this.sprayIndex = 0;
+  }
+
+  serialize() {
+    return {
+      ...super.serialize(),
+      sprayIndex: this.sprayIndex
+    };
+  }
+
+  deserialize(obj) {
+    super.deserialize(obj);
+    const { sprayIndex } = obj;
+    if (sprayIndex !== undefined) {
+      this.sprayIndex = sprayIndex;
+    }
   }
 
   fire(fx, fy, sourceHero) {
@@ -20,18 +45,22 @@ class Pistol extends Weapon {
     vector.setXY(fx - x, fy - y);
     vector.normalize();
 
+    // Add pseudorandom spray value
+    const so = this.getSprayOffset();
+    vector.add(so, 0.25);
+    vector.normalize();
+
     const bullet = new Projectile(sourceHero.id);
     bullet.maxBounces = 0;
     bullet.velocity.set(vector);
-    bullet.velocity.scale(650);
-
+    bullet.velocity.scale(850);
 
     bullet.registerHandler('HIT_OBJECT', event => {
       const { hitID, sourceID, projectileID } = event;
       if (projectileID === bullet.id) {
         const object = WM.findByID(hitID);
         if (object) {
-          object.damage(18, sourceID);
+          object.damage(12, sourceID);
         }
       }
     });
@@ -46,7 +75,17 @@ class Pistol extends Weapon {
     bullet.addPosition(vector);
 
     AM.playSound('fire.wav');
+    this.incrementSpray();
+  }
+
+  getSprayOffset() {
+    return SPRAY_PATTERN[this.sprayIndex];
+  }
+
+  incrementSpray() {
+    this.sprayIndex += 1;
+    this.sprayIndex %= SPRAY_PATTERN.length;
   }
 }
 
-export default Pistol;
+export default Auto;

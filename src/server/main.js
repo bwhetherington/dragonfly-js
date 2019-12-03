@@ -98,6 +98,7 @@ class GameServer extends Server {
     }, socketIndex);
 
     hero.registerHandler('MOUSE_DOWN', data => {
+
       const event = {
         type: 'TIME_WARPED_MOUSE_DOWN',
         data
@@ -116,18 +117,33 @@ class GameServer extends Server {
       }
     });
 
+    hero.registerHandler('MOUSE_UP', event => {
+      const { position, socketIndex } = event;
+      if (hero.playerID === socketIndex) {
+        hero.setTarget(position);
+        if (hero.weapon) {
+          hero.weapon.stop();
+        }
+      }
+    });
+
     hero.registerHandler('TIME_WARPED_MOUSE_DOWN', event => {
       const { position, socketIndex } = event;
       if (hero.playerID === socketIndex) {
         const { x, y } = position;
         hero.fireXY(x, y);
+        hero.setTarget(position);
+        if (hero.weapon) {
+          hero.weapon.start();
+        }
       }
     });
 
     hero.registerHandler('ROTATE_CANNON', event => {
-      const { playerID, angle, socketIndex } = event;
+      const { playerID, angle, target, socketIndex } = event;
       if (playerID === socketIndex && hero.playerID === playerID) {
         hero.rotateCannon(angle);
+        hero.setTarget(target);
       }
     });
 
@@ -278,13 +294,13 @@ class GameServer extends Server {
       this.resetGame();
     });
 
-    // GM.registerHandler('ROLLBACK', event => {
-    //   // const oldState = WM.serializeAll();
-    //   WM.rollbackFrom(GM.timeElapsed - 0.5);
-    //   // const newState = WM.serializeAll();
-    //   // const diff = deepDiff(oldState, newState);
-    //   // NM.logCode('diff', diff);
-    // });
+    GM.registerHandler('ROLLBACK', event => {
+      // const oldState = WM.serializeAll();
+      WM.rollbackFrom(GM.timeElapsed - 0.5);
+      // const newState = WM.serializeAll();
+      // const diff = deepDiff(oldState, newState);
+      // NM.logCode('diff', diff);
+    });
 
     // Load level
     const levelString = readFileSync('level.json', 'utf-8');
@@ -351,7 +367,8 @@ class GameServer extends Server {
       delete this.heroesToCreate[id];
     }
 
-    // this.generatePickups();
+    this.generatePickups();
+
     const message = {
       type: 'RESET_GAME',
       data: {}

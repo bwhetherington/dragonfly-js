@@ -160,8 +160,12 @@ class Client {
         const entity = WM.findByID(id);
 
         // Only delete the entity if it is synchronizable
-        if (entity && (entity.doSynchronize || event.forceDelete)) {
-          entity.markForDelete();
+        if (entity) {
+          if (entity.doSynchronize || event.forceDelete || (!entity.isActive)) {
+            entity.markForDelete();
+          } else {
+            entity.canDelete = true;
+          }
         }
       }
     });

@@ -12,6 +12,7 @@ import Explosion from './Explosion';
 import SETTINGS from '../util/settings';
 import WeaponPickUp from './WeaponPickUp';
 import Rocket from './Rocket';
+import Auto from './Auto';
 
 const MOVEMENT_SPEED = 300;
 
@@ -66,7 +67,7 @@ class Hero extends Entity {
     };
     this.damageAmount = 0;
     this.cannonAngle = 0;
-    this.setWeapon('Pistol');
+    this.setWeapon('Auto');
     this.friction = 1;
     this.bounce = 0.2;
     this.score = 0;
@@ -77,7 +78,7 @@ class Hero extends Entity {
     this.regen = 2;
     this.totalLives = 3;
     this.lives = this.totalLives;
-
+    this.target = new Vector(0, 0);
 
     this.registerHandler('OBJECT_COLLISION', event => {
       const { object1, object2 } = event;
@@ -104,6 +105,11 @@ class Hero extends Entity {
 
     this.registerHandler('STEP', event => {
       const { dt } = event;
+
+      if (isServer() && this.weapon) {
+        this.weapon.step(dt, this);
+      }
+
       if (isClient()) {
         return;
       }
@@ -176,6 +182,10 @@ class Hero extends Entity {
     // this.registerHandler('RESPAWN_PLAYERS', event => {
     //   this.spawn();
     // });
+  }
+
+  setTarget(point) {
+    this.target.set(point);
   }
 
   dropWeapon() {
@@ -519,6 +529,9 @@ class Hero extends Entity {
           break;
         case 'Rocket':
           weapon = new Rocket();
+          break;
+        case 'Auto':
+          weapon = new Auto();
           break;
       }
       if (weapon) {

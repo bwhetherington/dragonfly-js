@@ -35,7 +35,7 @@ class Rocket extends Weapon {
 
     offset.set(vector);
     offset.normalize();
-    offset.scale(40);
+    offset.scale(30);
 
     bullet.velocity.scale(500);
 

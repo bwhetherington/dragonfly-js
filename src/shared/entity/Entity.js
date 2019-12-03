@@ -43,6 +43,7 @@ class Entity {
     this.hasSpawned = false;
     this.opacity = 1;
     this.isActive = true;
+    this.canDelete = false;
   }
 
   registerHandler(type, handler) {
@@ -60,10 +61,14 @@ class Entity {
    * remove the entity.
    */
   disable() {
-    this.doSynchronize = false;
-    this.isActive = false;
-    this.updateOpacity(0);
-    this.isCollidable = false;
+    if (this.canDelete) {
+      this.markForDelete();
+    } else {
+      this.doSynchronize = false;
+      this.isActive = false;
+      this.updateOpacity(0);
+      this.isCollidable = false;
+    }
   }
 
   setColor(color) {
