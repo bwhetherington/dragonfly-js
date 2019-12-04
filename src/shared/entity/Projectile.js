@@ -22,13 +22,14 @@ class Projectile extends Entity {
     this.syncMove = false;
     this.color = color;
     this.isFirstSync = true;
+    this.hasBouncedThisStep = false;
     this.updatePosition();
 
     // if (isServer()) {
     this.registerHandler('GEOMETRY_COLLISION', event => {
       const { object } = event;
       if (object.id === this.id) {
-        this.bounces += 1;
+        this.handleBounce();
         if (this.bounces > this.maxBounces) {
           this.hit(null);
           this.end();
@@ -54,6 +55,18 @@ class Projectile extends Entity {
       }
     });
     // }
+  }
+
+  step(step, dt) {
+    super.step(step, dt);
+    this.hasBouncedThisStep = false;
+  }
+
+  handleBounce() {
+    if (!this.hasBouncedThisStep) {
+      this.bounces += 1;
+    }
+    this.hasBouncedThisStep = true;
   }
 
   end() {

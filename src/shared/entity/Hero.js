@@ -6,13 +6,13 @@ import Pistol from './Pistol';
 import Shotgun from './Shotgun';
 import Raygun from './Raygun';
 import Weapon from './Weapon';
-import { isServer, isClient, registerEntity } from '../util/util';
+import { isServer, isClient, registerEntity, color } from '../util/util';
 import NM from '../network/NetworkManager';
 import Explosion from './Explosion';
 import SETTINGS from '../util/settings';
 import WeaponPickUp from './WeaponPickUp';
 import Rocket from './Rocket';
-import Auto from './Auto';
+import Madsen from './Madsen';
 
 const MOVEMENT_SPEED = 300;
 
@@ -249,7 +249,7 @@ class Hero extends Entity {
   kill(x = 0, y = 0) {
     // Show explosion
     if (isClient()) {
-      const explosion = new Explosion(40);
+      const explosion = new Explosion(this.color, 50);
       explosion.setPosition(this.position);
       WM.add(explosion);
     } else {
@@ -490,14 +490,6 @@ class Hero extends Entity {
     // Select color
     const color = COLORS_LIST[this.playerID % COLORS_LIST.length];
     this.setColor(color);
-    // if (colorOptions.length > 0) {
-    //   const index = Math.floor(Math.random() * colorOptions.length);
-    //   const color = colorOptions.splice(index, 1);
-
-    //   const colorObject = COLORS[color];
-    //   this.setColor(colorObject);
-    //   this.colorString = color;
-    // }
     if (this.graphicsObject) {
       this.graphicsObject.opacity = this.opacity;
     }
@@ -530,8 +522,8 @@ class Hero extends Entity {
         case 'Rocket':
           weapon = new Rocket();
           break;
-        case 'Auto':
-          weapon = new Auto();
+        case 'Madsen':
+          weapon = new Madsen();
           break;
       }
       if (weapon) {

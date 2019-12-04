@@ -16,9 +16,9 @@ for (let i = 0; i < 100; i++) {
 
 const COLOR = color(200, 200, 80);
 
-class Auto extends Weapon {
+class Madsen extends Weapon {
   constructor() {
-    super('Auto', 0.2, true);
+    super('Madsen', 0.2, true);
     this.sprayIndex = 0;
   }
 
@@ -90,4 +90,4 @@ class Auto extends Weapon {
   }
 }
 
-export default Auto;
+export default Madsen;

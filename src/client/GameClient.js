@@ -343,8 +343,7 @@ class GameClient extends Client {
     });
 
     GM.registerHandler('PLAY_AUDIO', data => {
-      const hero = this.getHero();
-      const position = hero ? hero.position : null;
+      const position = GM.hero ? GM.hero.position : null;
       AM.playSoundInternal(data.filename, data.volume, data.position, position);
     });
 

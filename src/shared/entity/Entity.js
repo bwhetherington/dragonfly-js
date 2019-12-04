@@ -3,7 +3,7 @@ import uuid from 'uuid/v1';
 import GM from '../event/GameManager';
 import WM from './WorldManager';
 import Rectangle from '../util/Rectangle';
-import { isClient, registerEntity } from '../util/util';
+import { isClient, registerEntity, color } from '../util/util';
 
 const getFill = color => {
   const { red, green, blue, alpha = 1 } = color;
@@ -44,6 +44,7 @@ class Entity {
     this.opacity = 1;
     this.isActive = true;
     this.canDelete = false;
+    this.setColor(color(50, 50, 50));
   }
 
   registerHandler(type, handler) {
@@ -72,6 +73,7 @@ class Entity {
   }
 
   setColor(color) {
+    this.color = color;
     const { colorObject, graphicsObject } = this;
     const obj = colorObject || graphicsObject;
     if (obj) {

@@ -164,7 +164,6 @@ class GameServer extends Server {
     super.initialize();
 
     GM.registerHandler('JOIN_GAME', event => {
-      console.log('join', event);
       const { name, socketIndex } = event;
 
       // Create hero for player
@@ -349,9 +348,9 @@ class GameServer extends Server {
     shotgun.setPosition(WM.getRandomPoint());
     WM.add(shotgun);
 
-    const auto = new WeaponPickUp('Auto');
-    auto.setPosition(WM.getRandomPoint());
-    WM.add(auto);
+    const madsen = new WeaponPickUp('Madsen');
+    madsen.setPosition(WM.getRandomPoint());
+    WM.add(madsen);
   }
 
   resetGame() {

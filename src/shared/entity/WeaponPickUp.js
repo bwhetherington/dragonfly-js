@@ -5,7 +5,7 @@ const WEAPON_COLORS = {
   Raygun: color(200, 50, 50),
   Shotgun: color(200, 150, 0),
   Rocket: color(100, 200, 255),
-  Auto: color(200, 200, 80),
+  Madsen: color(200, 200, 80),
   default: color(100, 100, 100)
 };
 
