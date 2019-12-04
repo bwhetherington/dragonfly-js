@@ -1,5 +1,9 @@
 import NM from "../shared/network/NetworkManager";
 import GM from "../shared/event/GameManager";
+import SizedQueue from "../shared/util/SizedQueue";
+import { iterator } from 'lazy-iters';
+
+const rgba = (r, g, b, a) => 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
 
 const removeChildren = element => {
   while (element.firstChild) {
@@ -7,9 +11,45 @@ const removeChildren = element => {
   }
 };
 
+class ElementQueue {
+  constructor(parent, size = Infinity) {
+    this.parent = document.getElementById(parent);
+    this.queue = new SizedQueue(size);
+  }
+
+  appendChild(element) {
+    const removed = this.queue.enqueue(element);
+    if (removed) {
+      this.parent.removeChild(removed);
+    }
+    this.parent.appendChild(element);
+  }
+
+  set scrollTop(val) {
+    return this.parent.scrollTop = val;
+  }
+
+  get scrollTop() {
+    return this.parent.scrollTop;
+  }
+
+  set scrollHeight(val) {
+    return this.parent.scrollHeight = val;
+  }
+
+  get scrollHeight() {
+    return this.parent.scrollHeight;
+  }
+
+  clear() {
+    removeChildren(this.parent);
+    this.queue.clear();
+  }
+}
+
 class ChatManager {
   constructor() {
-    this.messageContainer = document.getElementById('chat-container');
+    this.messageContainer = new ElementQueue('chat-container', 250);
     this.chatForm = document.getElementById('chat-form');
     this.chatInput = document.getElementById('chat-input');
 
@@ -17,10 +57,75 @@ class ChatManager {
     this.commands = {};
     this.name = 'Anonymous';
     this.filter = false;
+
+    this.isFlashed = false;
+    this.isFocused = false;
+
+    this.chatInput.onfocus = () => {
+      this.isFocused = true;
+    };
+    this.chatInput.onblur = () => {
+      this.isFocused = false;
+    };
+  }
+
+  flash() {
+    if (!this.isFlashed) {
+      this.isFlashed = true;
+      this.chatInput.style.backgroundColor = rgba(60, 60, 60, 0.67);
+      this.chatInput.style.color = 'black';
+      GM.runDelay(0.25, () => {
+        if (this.isFlashed) {
+          this.unflash();
+        }
+      })
+    }
+  }
+
+  unflash() {
+    this.isFlashed = false;
+    this.chatInput.style.backgroundColor = rgba(0, 0, 0, 0.67);
+    this.chatInput.style.color = 'white';
   }
 
   registerCommand(command, callback) {
     this.commands[command] = callback;
+  }
+
+  displayComponents(components) {
+    this.addLine(this.renderComponents(components));
+  }
+
+  renderComponent(component) {
+    if (typeof component === 'string') {
+      return document.createTextNode(component);
+    } else {
+      const { text = '', style = {}, onClick = null } = component;
+      const element = document.createElement('span');
+      element.innerText = text;
+      for (const key in style) {
+        element.style[key] = style[key];
+      }
+      if (onClick) {
+        element.onClick = onClick;
+      }
+      return element;
+    }
+  }
+
+  renderComponents(components) {
+    const line = document.createElement('div');
+    line.className = 'chat-line';
+    iterator(components)
+      .map(component => this.renderComponent(component))
+      .forEach(element => {
+        line.appendChild(element);
+      });
+    return line;
+  }
+
+  parseComponents(text) {
+
   }
 
   displayMessage(message, color = 'white') {
@@ -64,7 +169,23 @@ class ChatManager {
       }
     });
 
+    this.registerCommand('comp', () => {
+      this.flash();
+      this.displayComponents([
+        {
+          text: '[Button]',
+          style: {
+            fontWeight: 'bold'
+          }
+        },
+        {
+          text: ' text'
+        }
+      ]);
+    });
+
     this.registerCommand('rollback', () => {
+      this.displayMessage('Attempted rollback.');
       NM.send({
         type: 'ROLLBACK',
         data: {}
@@ -72,12 +193,8 @@ class ChatManager {
     })
 
     this.registerCommand('clear', () => {
-      removeChildren(this.messageContainer);
-      const line = this.renderContent({
-        color: 'rgb(0, 255, 0)',
-        text: 'Chat box has been cleared.'
-      });
-      this.addLine(line);
+      this.messageContainer.clear();
+      this.displayMessage('Chat box has been cleared.');
     });
 
     this.registerCommand('stats', () => {
@@ -197,25 +314,43 @@ class ChatManager {
 
   renderMessage(message) {
     const { author, time, id, content, pre } = message;
-    const element = document.createElement('div');
+    const components = [
+      {
+        text: '[' + id + ']',
+        style: {
+          opacity: '50%'
+        }
+      },
+      ' ',
+      {
+        text: author + ':',
+        style: {
+          fontWeight: 'bold'
+        }
+      },
+      ' ' + content
+    ];
+    return this.renderComponents(components);
 
-    if (pre) {
-      element.style.whiteSpace = 'pre';
-    }
+    // const element = document.createElement('div');
 
-    const idTag = document.createElement('span');
-    idTag.append('[', id, ']');
-    idTag.style.opacity = '50%';
+    // if (pre) {
+    //   element.style.whiteSpace = 'pre';
+    // }
 
-    const authorLabel = document.createElement('b');
-    authorLabel.append(author, ': ');
+    // const idTag = document.createElement('span');
+    // idTag.append('[', id, ']');
+    // idTag.style.opacity = '50%';
 
-    const messageComponent = document.createElement('span');
-    messageComponent.innerHTML = content;
+    // const authorLabel = document.createElement('b');
+    // authorLabel.append(author, ': ');
 
-    element.append(idTag, ' ', authorLabel, messageComponent);
+    // const messageComponent = document.createElement('span');
+    // messageComponent.innerHTML = content;
 
-    return element;
+    // element.append(idTag, ' ', authorLabel, messageComponent);
+
+    // return element;
 
     // const text = `<b>${author}:</b> ${this.escapeMessage(content)}`;
     // return this.renderContent({
@@ -237,8 +372,12 @@ class ChatManager {
 
   addLine(line) {
     this.messageContainer.appendChild(line);
-    // this.messageContainer.scrollIntoView(false);
     this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
+
+    // Flash
+    if (!this.isFocused) {
+      this.flash();
+    }
   }
 
   addError(error) {

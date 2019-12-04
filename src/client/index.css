@@ -125,7 +125,6 @@ input[type='text']:focus {
   width: 400px;
   height: 150px;
   overflow-y: auto;
-  resize: both;
   margin-bottom: 5px;
 }
 

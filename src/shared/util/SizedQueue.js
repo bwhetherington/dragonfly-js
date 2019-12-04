@@ -1,6 +1,10 @@
 class SizedQueue {
   constructor(size) {
     this.maxSize = size;
+    this.clear();
+  }
+
+  clear() {
     this.size = 0;
     this.head = null;
     this.tail = null;

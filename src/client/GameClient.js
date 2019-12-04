@@ -91,7 +91,6 @@ class GameClient extends Client {
     GM.registerHandler('EQUIP_WEAPON', event => {
       const { type } = event;
       weaponLabel.innerText = type;
-      CM.displayMessage('Equipped ' + type + '.');
     });
 
     GM.registerHandler('DROP_WEAPON', () => {
@@ -171,12 +170,6 @@ class GameClient extends Client {
             break;
           case 'KeyE':
             this.entityMenu.hidden = !this.entityMenu.hidden;
-            break;
-          case 'KeyR':
-            NM.send({
-              type: 'ROLLBACK',
-              data: {}
-            });
             break;
           case 'ShiftLeft':
           case 'ShiftRight':
