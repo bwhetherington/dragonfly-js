@@ -63,7 +63,7 @@ class Entity {
    */
   disable() {
     if (this.canDelete) {
-      // this.markForDelete();
+      this.markForDelete();
     } else {
       this.doSynchronize = false;
       this.isActive = false;
