@@ -69,7 +69,8 @@ class Ray extends Entity {
     start.set(this.position);
 
     // Move this until it collides
-    while (!WM.move(this, 0.1));
+    const ignore = this.sourceID ? [this.sourceID] : [];
+    while (!WM.move(this, 0.1, ignore));
     this.markForDelete();
 
     const end = this.position;
@@ -77,6 +78,7 @@ class Ray extends Entity {
     const event = {
       type: 'CREATE_RAY',
       data: {
+        source: this.sourceID,
         start: {
           x: start.x,
           y: start.y

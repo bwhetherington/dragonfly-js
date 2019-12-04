@@ -359,13 +359,24 @@ class Hero extends Entity {
 
   rotateCannon(angle) {
     this.cannonAngle = angle;
+
+    // Calculate cannon tip
+    this.vectorBuffer2.setXY(Math.cos(angle - Math.PI / 2), Math.sin(angle - Math.PI / 2));
+    this.vectorBuffer2.scale(30);
+
     if (this.cannon) {
       this.cannon.rotation = angle;
     }
   }
 
-  getCannonTip() {
-    return this.vectorBuffer2;
+  getCannonTip(distance = 30) {
+    const vec = this.vectorBuffer2.clone();
+    if (distance !== 30) {
+      vec.normalize();
+      vec.scale(distance);
+    }
+    vec.add(this.position);
+    return vec;
   }
 
   isCurrentHero() {

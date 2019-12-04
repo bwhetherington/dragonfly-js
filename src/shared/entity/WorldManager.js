@@ -146,7 +146,7 @@ class WorldManager {
     this.previousStates.enqueue(state);
   }
 
-  move(entity, dt) {
+  move(entity, dt, ignore = []) {
     // vb1 = a * t
     let { friction } = this;
     const { boundingBox } = entity;
@@ -248,7 +248,7 @@ class WorldManager {
 
       // Check for collision with other entities
       for (const id in this.entities) {
-        if (id !== entity.id) {
+        if (id !== entity.id && !ignore.includes(id)) {
           const otherEntity = this.findByID(id);
           if (!otherEntity.isCollidable) {
             continue;

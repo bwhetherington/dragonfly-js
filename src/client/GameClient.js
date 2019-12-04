@@ -341,8 +341,11 @@ class GameClient extends Client {
     })
 
     GM.registerHandler('CREATE_RAY', event => {
-      const { start, end } = event;
-      const p0 = new Vector(start.x, start.y);
+      const { start, end, source } = event;
+      const sourceEntity = source ? WM.findByID(source) : null;
+      const sourceHero = sourceEntity instanceof Hero ? sourceEntity : null;
+      const sourcePosition = sourceHero ? sourceHero.getCannonTip(35) : new Vector(start.x, start.y);
+      const p0 = sourcePosition;
       const p1 = new Vector(end.x, end.y);
       const laser = new Laser(p0, p1);
       WM.add(laser);

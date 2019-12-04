@@ -11,12 +11,18 @@ class PickUp extends Entity {
     this.isCollidable = false;
     this.isSpectral = true;
     this.opacity = 0.5;
+    this.timer = 1;
+    this.isSpawned = false;
 
     if (isServer()) {
 
-      GM.runDelay(5, () => {
-        this.isCollidable = true;
-        this.updateOpacity(1);
+      this.registerHandler('STEP', event => {
+        if (!this.isSpawned) {
+          this.timer = Math.max(0, this.timer - event.dt);
+          if (this.timer === 0) {
+            this.spawn();
+          }
+        }
       });
 
       this.registerHandler('OBJECT_COLLISION', event => {
@@ -37,6 +43,40 @@ class PickUp extends Entity {
         }
       });
     }
+  }
+
+  serialize() {
+    return {
+      ...super.serialize(),
+      timer: this.timer,
+      isSpawned: this.isSpawned
+    };
+  }
+
+  deserialize(obj) {
+    if (super.deserialize(obj)) {
+      const { timer, isSpawned } = obj;
+      if (timer !== undefined) {
+        this.timer = timer;
+        if (!this.isSpawned && timer === 0) {
+          this.spawn();
+        }
+      }
+      if (isSpawned !== undefined) {
+        if (!this.isSpawned && isSpawned) {
+          this.spawn();
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  spawn() {
+    this.isCollidable = true;
+    this.isSpawned = true;
+    this.updateOpacity(1);
   }
 
   initializeGraphics(two) {

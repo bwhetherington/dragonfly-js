@@ -55,14 +55,14 @@ class Madsen extends Weapon {
     const bullet = new Projectile(sourceHero.id, COLOR);
     bullet.maxBounces = 0;
     bullet.velocity.set(vector);
-    bullet.velocity.scale(850);
+    bullet.velocity.scale(750);
 
     bullet.registerHandler('HIT_OBJECT', event => {
       const { hitID, sourceID, projectileID } = event;
       if (projectileID === bullet.id) {
         const object = WM.findByID(hitID);
         if (object) {
-          object.damage(12, sourceID);
+          object.damage(10, sourceID);
         }
       }
     });
