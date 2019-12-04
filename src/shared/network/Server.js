@@ -106,7 +106,7 @@ class Server {
       this.send({
         type: 'CHECK_PING',
         data: { id }
-      });
+      }, playerID);
       this.pingChecks[id] = {
         start,
         id,

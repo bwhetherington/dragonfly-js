@@ -164,6 +164,11 @@ class GameServer extends Server {
   initialize() {
     super.initialize();
 
+    // GM.registerHandler('JOIN_GAME', event => {
+    //   const { socketIndex } = event;
+    //   this.setDelay(socketIndex, Math.random() * 0.125);
+    // });
+
     GM.registerHandler('JOIN_GAME', event => {
       const { name, socketIndex } = event;
 
@@ -401,7 +406,7 @@ const cleanup = (server, timer) => () => {
 };
 
 const main = async () => {
-  const server = new (delayServer(GameServer, 0))(8);
+  const server = new (delayServer(GameServer))(8);
   server.initialize();
 
   WM.initialize();
