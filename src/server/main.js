@@ -164,10 +164,11 @@ class GameServer extends Server {
   initialize() {
     super.initialize();
 
-    // GM.registerHandler('JOIN_GAME', event => {
-    //   const { socketIndex } = event;
-    //   this.setDelay(socketIndex, Math.random() * 0.125);
-    // });
+    // Assign random latency
+    GM.registerHandler('JOIN_GAME', event => {
+      const { socketIndex } = event;
+      this.setDelay(socketIndex, Math.random() * 0.125);
+    });
 
     GM.registerHandler('JOIN_GAME', event => {
       const { name, socketIndex } = event;
