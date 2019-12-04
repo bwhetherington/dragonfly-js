@@ -23,6 +23,14 @@ class ChatManager {
     this.commands[command] = callback;
   }
 
+  displayMessage(message, color = 'white') {
+    const line = this.renderContent({
+      content: message,
+      color
+    });
+    this.addLine(line);
+  }
+
   /*
   
     & --> &amp;

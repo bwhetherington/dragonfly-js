@@ -91,6 +91,7 @@ class GameClient extends Client {
     GM.registerHandler('EQUIP_WEAPON', event => {
       const { type } = event;
       weaponLabel.innerText = type;
+      CM.displayMessage('Equipped ' + type + '.');
     });
 
     GM.registerHandler('DROP_WEAPON', () => {
