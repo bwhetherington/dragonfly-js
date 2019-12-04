@@ -280,11 +280,6 @@ class Hero extends Entity {
     const { input } = this;
     input[direction] = on;
 
-    // //quit out early if not collidable (dead or not spawned)
-    // if(!this.isCollidable){
-    //   return;
-    // }
-
     // Calculate velocity from this
     this.acceleration.setXY(0, 0);
     if (input.up) {

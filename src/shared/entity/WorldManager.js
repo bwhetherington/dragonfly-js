@@ -564,7 +564,12 @@ class WorldManager {
       existing.deserialize(object);
 
       // Opponent prediction
-      if (time && SETTINGS.opponentPredictionEnabled && !(existing instanceof Hero && existing.isCurrentHero())) {
+      const condition =
+        time && // Check that we have a time
+        SETTINGS.opponentPredictionEnabled && // Check that opponent prediction is enabled
+        existing.doSynchronize && // Check that the object should synchronize
+        !(existing instanceof Hero && existing.isCurrentHero()); // Check that it isn't the current hero
+      if (condition) {
         const dt = GM.timeElapsed - time;
         this.move(existing, dt);
       }

@@ -18,6 +18,12 @@ import HealthPickUp from '../shared/entity/HealthPickUp';
 import NM from '../shared/network/NetworkManager';
 import LM from '../shared/network/LogManager';
 
+const defaultColor = 'rgba(0, 0, 0, 0.67)';
+
+const rgba = (r, g, b, a) => 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
+
+const rgb = (r, g, b) => rgba(r, g, b, 1);
+
 const average = list => {
   let sum = 0;
   for (let i = 0; i < list.length; i++) {
@@ -58,10 +64,6 @@ class GameClient extends Client {
     this.hpBar = new Bar('bar-value', 'bar-label', 30);
   }
 
-  getHero() {
-    return this.heroID ? WM.findByID(this.heroID) : null;
-  }
-
   createEntityRow(entity) {
     const row = document.createElement('tr');
     const type = document.createElement('td');
@@ -78,7 +80,7 @@ class GameClient extends Client {
 
   initializeUI() {
     let lastFPS = 60;
-    const fpsQueue = new SizedQueue(60);
+    const fpsQueue = new SizedQueue(10);
 
     // Create scoreboard
     this.scoreboard = new Scoreboard('scoreboard-tbody');
@@ -94,6 +96,15 @@ class GameClient extends Client {
     GM.registerHandler('DROP_WEAPON', () => {
       weaponLabel.innerText = 'Pistol';
     });
+
+    let totalEntities = 0;
+    let avgChange = 0;
+
+    const entityLabel = document.getElementById('entity-count');
+    const listenerLabel = document.getElementById('listener-count');
+    const fpsLabel = document.getElementById('fps');
+    const debugMenu = document.getElementById('debug-menu');
+    let canChangeToRed = true;
 
     GM.registerHandler('STEP', event => {
       // Update entities
@@ -115,17 +126,23 @@ class GameClient extends Client {
       // Smooth fps slightly
       const fps = Math.round(average(fpsQueue.toArray()));
 
+
+      debugMenu.style.backgroundColor = rgba(150, 0, 0, 0.67);
+
       const entityCount = WM.entityCount;
       const listenerCount = GM.handlerCount;
 
-      const entityLabel = document.getElementById('entity-count');
       entityLabel.innerText = entityCount;
-
-      const listenerLabel = document.getElementById('listener-count');
       listenerLabel.innerText = listenerCount;
-
-      const fpsLabel = document.getElementById('fps');
       fpsLabel.innerText = fps;
+
+      if (SETTINGS.colorDebugMenu && entityCount > 150) {
+        debugMenu.style.backgroundColor = rgba(150, 0, 0, 0.67);
+        canChangeToRed = false;
+      } else {
+        debugMenu.style.backgroundColor = rgba(0, 0, 0, 0.67);
+        canChangeToRed = true;
+      }
     });
   }
 

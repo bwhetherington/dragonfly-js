@@ -30,6 +30,7 @@ class GameServer extends Server {
     const hero = this.heroes[socketIndex];
 
     if (hero) {
+      hero.dropWeapon();
       hero.markForDelete();
 
       const message = {
