@@ -542,13 +542,14 @@ class WorldManager {
     const packet = {
       type: 'SYNC_OBJECT',
       data: {
+        time: GM.timeElapsed,
         object: object.serialize()
       }
     };
     NM.send(packet);
   }
 
-  receiveSyncObject(object) {
+  receiveSyncObject(object, time) {
     let existing = this.findByID(object.id);
     let created = false;
     if (!existing) {
@@ -561,6 +562,13 @@ class WorldManager {
     }
     if (existing) {
       existing.deserialize(object);
+
+      // Opponent prediction
+      if (time && SETTINGS.opponentPredictionEnabled && !(existing instanceof Hero && existing.isCurrentHero())) {
+        const dt = GM.timeElapsed - time;
+        this.move(existing, dt);
+      }
+
       if (created) {
         this.add(existing);
       }

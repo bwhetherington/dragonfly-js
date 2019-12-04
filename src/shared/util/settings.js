@@ -1,4 +1,5 @@
 const SETTINGS = {
+  opponentPredictionEnabled: true,
   predictionEnabled: true,
   timeWarpEnabled: true
 };

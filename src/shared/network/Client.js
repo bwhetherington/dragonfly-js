@@ -129,8 +129,8 @@ class Client {
     // });
   };
 
-  syncObject(object) {
-    WM.receiveSyncObject(object);
+  syncObject(object, time) {
+    WM.receiveSyncObject(object, time);
   }
 
   initialize(window) {
@@ -143,15 +143,15 @@ class Client {
 
     // Batch sync
     GM.registerHandler('SYNC_OBJECT_BATCH', event => {
-      GM.timeElapsed = event.time;
       for (let i = 0; i < event.objects.length; i++) {
-        this.syncObject(event.objects[i]);
+        this.syncObject(event.objects[i], event.time);
       }
+      GM.timeElapsed = event.time;
     });
 
     // Single sync
     GM.registerHandler('SYNC_OBJECT', event => {
-      WM.receiveSyncObject(event.object);
+      this.syncObject(event.object, event.time);
     });
 
     GM.registerHandler('SYNC_DELETE_OBJECT_BATCH', event => {

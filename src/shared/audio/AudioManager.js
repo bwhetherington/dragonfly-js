@@ -59,7 +59,7 @@ class AudioManager {
     return Math.min(1, 1 / (distance * distance));
   }
 
-  async playSoundInternal(sound, volume = 0.5, comeFrom = null, listenAt = null) {
+  async playSoundInternal(sound, volume, comeFrom = null, listenAt = null) {
     if (isClient()) {
       const url = '/assets/sounds/' + sound;
       const audio = new Audio(url);

@@ -77,7 +77,7 @@ class Explosion extends Entity {
     this.setColor(this.color);
     this.updateSize();
 
-    AM.playSound('explode.wav', 0.5, this.position.clone());
+    AM.playSound('explode.wav', 0.25, this.position.clone());
   }
 }
 
