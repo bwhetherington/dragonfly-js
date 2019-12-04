@@ -25,7 +25,7 @@ class ChatManager {
 
   displayMessage(message, color = 'white') {
     const line = this.renderContent({
-      content: message,
+      text: message,
       color
     });
     this.addLine(line);
