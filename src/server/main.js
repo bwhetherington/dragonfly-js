@@ -11,6 +11,7 @@ import HealthPickUp from '../shared/entity/HealthPickUp';
 import NM from '../shared/network/NetworkManager';
 import { diff, deepDiff, pruneEmpty } from '../shared/util/util';
 import LM from '../shared/network/LogManager';
+import SETTINGS from '../shared/util/settings';
 
 const REFRESH_RATE = 60;
 
@@ -165,10 +166,24 @@ class GameServer extends Server {
     super.initialize();
 
     // Assign random latency
-    // GM.registerHandler('JOIN_GAME', event => {
-    //   const { socketIndex } = event;
-    //   this.setDelay(socketIndex, Math.random() * 0.125);
-    // });
+    GM.registerHandler('JOIN_GAME', event => {
+      const { socketIndex } = event;
+      const latency = Math.random() * SETTINGS.maxLatency / 2;
+      this.setDelay(socketIndex, latency);
+      const newState = {
+        type: 'ASSIGN_LATENCY',
+        data: {
+          socketIndex,
+          latency
+        }
+      };
+      GM.emitEvent(newState);
+    });
+
+    GM.registerHandler('ASSIGN_LATENCY', event => {
+      const { socketIndex, latency } = event;
+      console.log(`Player ${socketIndex}: ${latency}`);
+    });
 
     GM.registerHandler('JOIN_GAME', event => {
       const { name, socketIndex } = event;

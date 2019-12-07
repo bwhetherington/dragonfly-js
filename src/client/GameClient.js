@@ -241,6 +241,15 @@ class GameClient extends Client {
     bar.style = { ...bar.style, width: "100%" };
   }
 
+  initializeSettings() {
+    GM.registerHandler('CHANGE_SETTINGS', data => {
+      const { settings } = data;
+      for (const key in settings) {
+        SETTINGS[key] = settings[key];
+      }
+    });
+  }
+
   initializeGameResult(winningHeroID) {
     const { hero } = this;
     const modal = document.getElementById('game-end-page');

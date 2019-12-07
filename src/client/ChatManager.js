@@ -100,9 +100,16 @@ class ChatManager {
     if (typeof component === 'string') {
       return document.createTextNode(component);
     } else {
-      const { text = '', style = {}, onClick = null } = component;
+      const { value = [], style = {}, onClick = null } = component;
       const element = document.createElement('span');
-      element.innerText = text;
+
+      if (value instanceof Array) {
+        this.renderComponentIterator(value)
+          .forEach(component => element.append(component));
+      } else {
+        element.innerText = value;
+      }
+
       for (const key in style) {
         element.style[key] = style[key];
       }
@@ -111,6 +118,11 @@ class ChatManager {
       }
       return element;
     }
+  }
+
+  renderComponentIterator(components) {
+    return iterator(components)
+      .map(component => this.renderComponent(component));
   }
 
   renderComponents(components) {
@@ -124,8 +136,16 @@ class ChatManager {
     return line;
   }
 
-  parseComponents(text) {
+  parseComponents(input) {
+    const components = [];
+    let text = '';
+    for (let i = 0; i < input.length; i++) {
+      const ch = input[i];
+      if (ch === '\\') {
 
+      }
+    }
+    return components;
   }
 
   displayMessage(message, color = 'white') {
@@ -167,21 +187,6 @@ class ChatManager {
       if (event.key === 'Enter') {
         this.chatInput.focus();
       }
-    });
-
-    this.registerCommand('comp', () => {
-      this.flash();
-      this.displayComponents([
-        {
-          text: '[Button]',
-          style: {
-            fontWeight: 'bold'
-          }
-        },
-        {
-          text: ' text'
-        }
-      ]);
     });
 
     this.registerCommand('rollback', () => {
@@ -228,10 +233,17 @@ class ChatManager {
           const die = JSON.parse(args[0]);
           if (typeof die === 'number') {
             const roll = Math.floor(Math.random() * die) + 1;
-            const line = this.renderContent({
-              color: 'white',
-              text: `<b>[d${die}]:</b> ${roll}`
-            });
+            const line = this.renderComponents([
+              {
+                value: '[d' + die + ']:',
+                style: {
+                  fontWeight: 'bold'
+                }
+              },
+              {
+                value: ' ' + roll
+              }
+            ]);
             this.addLine(line);
           } else {
             const error = `\'roll\' expects number, received ${typeof die}.`;
@@ -245,6 +257,27 @@ class ChatManager {
         const error = `\'roll\' expects 1 argument, received ${args.length}.`;
         this.addError(error);
       }
+    });
+
+    this.registerCommand('test', () => {
+      const comps = [
+        {
+          value: [
+            {
+              value: 'Hello',
+              style: {
+                fontStyle: 'italic'
+              }
+            },
+            ' world!'
+          ],
+          style: {
+            fontWeight: 'bold'
+          }
+        },
+        ' This is the rest of it.'
+      ];
+      this.displayComponents(comps);
     });
 
     this.registerCommand('setname', args => {
@@ -316,14 +349,14 @@ class ChatManager {
     const { author, time, id, content, pre } = message;
     const components = [
       {
-        text: '[' + id + ']',
+        value: '[' + id + ']',
         style: {
           opacity: '50%'
         }
       },
       ' ',
       {
-        text: author + ':',
+        value: author + ':',
         style: {
           fontWeight: 'bold'
         }
@@ -331,32 +364,6 @@ class ChatManager {
       ' ' + content
     ];
     return this.renderComponents(components);
-
-    // const element = document.createElement('div');
-
-    // if (pre) {
-    //   element.style.whiteSpace = 'pre';
-    // }
-
-    // const idTag = document.createElement('span');
-    // idTag.append('[', id, ']');
-    // idTag.style.opacity = '50%';
-
-    // const authorLabel = document.createElement('b');
-    // authorLabel.append(author, ': ');
-
-    // const messageComponent = document.createElement('span');
-    // messageComponent.innerHTML = content;
-
-    // element.append(idTag, ' ', authorLabel, messageComponent);
-
-    // return element;
-
-    // const text = `<b>${author}:</b> ${this.escapeMessage(content)}`;
-    // return this.renderContent({
-    //   color: 'white',
-    //   text
-    // });
   }
 
   renderContent(line) {
