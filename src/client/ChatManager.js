@@ -2,6 +2,7 @@ import NM from "../shared/network/NetworkManager";
 import GM from "../shared/event/GameManager";
 import SizedQueue from "../shared/util/SizedQueue";
 import { iterator } from 'lazy-iters';
+import WM from "../shared/entity/WorldManager";
 
 const rgba = (r, g, b, a) => 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
 
@@ -53,8 +54,8 @@ class ChatManager {
     this.chatForm = document.getElementById('chat-form');
     this.chatInput = document.getElementById('chat-input');
 
-    this.playerID = -1;
     this.commands = {};
+    this.client = null;
     this.name = 'Anonymous';
     this.filter = false;
 
@@ -100,7 +101,7 @@ class ChatManager {
     if (typeof component === 'string') {
       return document.createTextNode(component);
     } else {
-      const { value = [], style = {}, onClick = null } = component;
+      const { value = [], style = {}, onClick = null, onHover = null } = component;
       const element = document.createElement('span');
 
       if (value instanceof Array) {
@@ -116,6 +117,9 @@ class ChatManager {
       if (onClick) {
         element.onClick = onClick;
       }
+      // if (onHover) {
+      element.onhover = console.log;
+      // }
       return element;
     }
   }
@@ -177,7 +181,13 @@ class ChatManager {
       .replace('/', '<span>&#x2F</span>');
   }
 
-  initialize(playerID) {
+  initialize(client) {
+    this.client = client;
+
+    GM.registerHandler('PLAYER_KILLED', event => {
+      const { killerID, deadID } = event;
+      this.addLine(this.renderKill(killerID, deadID));
+    });
 
     GM.registerHandler('CHAT_OUTPUT', event => {
       this.addMessage(event.message);
@@ -295,7 +305,6 @@ class ChatManager {
       }
     });
 
-    this.playerID = playerID;
     this.chatForm.onsubmit = e => {
       e.preventDefault();
 
@@ -323,8 +332,8 @@ class ChatManager {
       } else {
         const message = {
           author: this.name,
-          id: this.playerID,
           content: value,
+          id: client.playerID,
           time: Date.now()
         };
         NM.send({
@@ -345,23 +354,89 @@ class ChatManager {
     return element;
   }
 
+  getPlayerColor(id) {
+    const hero = this.client.heroes[id];
+    const color = hero ? hero.color : null;
+    return this.getColor(color);
+  }
+
+  getHeroColor(hero) {
+    if (hero) {
+      return this.getColor(hero.color);
+    } else {
+      return 'white';
+    }
+  }
+
+  getColor(color, increase = 75) {
+    if (color) {
+      let { red, green, blue, alpha = 1 } = color;
+      red = Math.min(255, red + increase);
+      green = Math.min(255, green + increase);
+      blue = Math.min(255, blue + increase);
+      return 'rgba(' + red + ', ' + green + ', ' + blue + ', ' + alpha + ')';
+    } else {
+      return 'white';
+    }
+  }
+
+  renderKill(killer, killed) {
+    const killerHero = WM.findByID(killer);
+    const killedHero = WM.findByID(killed);
+    const killerColor = this.getHeroColor(killerHero);
+    const killedColor = this.getHeroColor(killedHero);
+
+    return this.renderComponents([
+      {
+        value: killerHero.name,
+        style: {
+          color: killerColor
+        }
+      },
+      ' has defeated ',
+      {
+        value: killedHero.name,
+        style: {
+          color: killedColor
+        }
+      },
+      '.'
+    ]);
+
+  }
+
   renderMessage(message) {
     const { author, time, id, content, pre } = message;
+    const hero = this.client.heroes[id];
+    console.log(this.client.heroes);
+    const color = hero ? this.getColor(hero.color) : 'white';
     const components = [
       {
-        value: '[' + id + ']',
+        value: '[' + (id + 1) + ']',
         style: {
           opacity: '50%'
         }
       },
       ' ',
       {
-        value: author + ':',
+        value: author,
         style: {
-          fontWeight: 'bold'
+          // fontWeight: 'bold',
+          color
+        },
+        onHover() {
+          this.displayComponents([
+            'Test'
+          ]);
         }
       },
-      ' ' + content
+      // {
+      //   value: ':',
+      //   style: {
+      //     fontWeight: 'bold'
+      //   }
+      // },
+      ': ' + content
     ];
     return this.renderComponents(components);
   }

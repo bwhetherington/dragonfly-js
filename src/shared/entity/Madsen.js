@@ -18,7 +18,7 @@ const COLOR = color(200, 200, 80);
 
 class Madsen extends Weapon {
   constructor() {
-    super('Madsen', 0.2, true);
+    super('Minigun', 0.2, true);
     this.sprayIndex = 0;
   }
 
@@ -62,7 +62,7 @@ class Madsen extends Weapon {
       if (projectileID === bullet.id) {
         const object = WM.findByID(hitID);
         if (object) {
-          object.damage(10, sourceID);
+          object.damage(8, sourceID);
         }
       }
     });

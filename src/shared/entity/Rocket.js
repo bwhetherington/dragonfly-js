@@ -12,7 +12,7 @@ const COLOR = color(100, 200, 255);
 
 class Rocket extends Weapon {
   constructor() {
-    super("Rocket", 0.75);
+    super('Rocket', 0.75);
   }
 
   fire(fx, fy, sourceHero) {

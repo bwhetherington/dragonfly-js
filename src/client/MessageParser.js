@@ -14,49 +14,6 @@ class MessageParser {
     return ch;
   }
 
-  parseOpeningTag() {
-    let str = '';
-    let ch = null;
-    while ((ch = this.getChar()) !== null) {
-      this.consumeChar();
-      if (!isWhitespace(ch)) {
-        if (ch === '>') {
-          // Found end
-          return {
-            type: 'OPENING_TAG',
-            value: str
-          };
-        } else {
-          str += ch;
-        }
-      }
-    }
-    return null;
-  }
-
-  parseClosingTag() {
-    let str = '';
-    let ch = this.getChar();
-    if (ch === '/') {
-      this.consumeChar();
-      while ((ch = this.getChar()) !== null) {
-        this.consumeChar();
-        if (!isWhitespace(ch)) {
-          if (ch === '>') {
-            // Found end
-            return {
-              type: 'CLOSING_TAG',
-              value: str
-            };
-          } else {
-            str += ch;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
   peekChar() {
     return this.input[this.cursor + 1] || null;
   }
@@ -73,34 +30,47 @@ class MessageParser {
     this.cursor += 1;
   }
 
+  parseTo(type, end) {
+    let value = '';
+    let ch;
+    while ((ch = this.getChar()) !== null) {
+      this.consumeChar();
+      if (ch === end) {
+        return {
+          type,
+          value
+        };
+      } else {
+        value += ch;
+      }
+    }
+    return null;
+  }
+
   nextToken() {
     let ch = this.getChar();
-    if (ch === '<') {
-      this.consumeChar();
-      ch = this.getChar();
-      if (ch === '/') {
-        return this.parseClosingTag();
-      } else {
-        return this.parseOpeningTag();
-      }
-    } else {
-      let str = '';
-      while ((ch = this.getChar()) !== null) {
-        if (ch !== '<') {
+    switch (ch) {
+      case '*':
+        this.consumeChar();
+        return this.parseTo('BOLD', '*');
+      case '_':
+        this.consumeChar();
+        return this.parseItalics('ITALICS', '_');
+      case '~':
+        this.consumeChar();
+        return this.parseStrikethrough('STRIKETHROUGH', '~');
+      case null:
+        return null;
+      default:
+        let str = '';
+        while ((ch = this.getChar()) !== null) {
           this.consumeChar();
           str += ch;
-        } else {
-          break;
         }
-      }
-      if (str.length > 0) {
         return {
           type: 'TEXT',
           value: str
         };
-      } else {
-        return null;
-      }
     }
   }
 
@@ -116,7 +86,7 @@ class MessageParser {
   }
 }
 
-const parser = new MessageParser('<foo>hello world</foo>');
+const parser = new MessageParser('*_This is bold_* foo');
 console.log(parser.nextToken());
 console.log(parser.nextToken());
 console.log(parser.nextToken());

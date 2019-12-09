@@ -59,6 +59,7 @@ class GameClient extends Client {
     this.playerID = -2;
     this.heroID = null;
     this.latencies = {};
+    this.heroes = {};
     this.entityMenu = document.getElementById('entity-menu');
     this.entities = document.getElementById('entity-tbody');
     this.hpBar = new Bar('bar-value', 'bar-label', 30);
@@ -88,9 +89,22 @@ class GameClient extends Client {
 
     const weaponLabel = document.getElementById('weapon-label');
 
+    GM.registerHandler('CREATE_OBJECT', event => {
+      const { object } = event;
+      if (object instanceof Hero) {
+        this.heroes[object.playerID] = object;
+
+        if (object.playerID === this.playerID) {
+          weaponLabel.innerText = object.weapon.name;
+        }
+      }
+    });
+
     GM.registerHandler('EQUIP_WEAPON', event => {
-      const { type } = event;
-      weaponLabel.innerText = type;
+      const { playerID, weapon } = event;
+      if (playerID === this.playerID) {
+        weaponLabel.innerText = weapon.name;
+      }
     });
 
     GM.registerHandler('DROP_WEAPON', () => {
@@ -375,11 +389,18 @@ class GameClient extends Client {
     });
 
     GM.registerHandler('ASSIGN_ID', (event, remove) => {
+      console.log('HELLO WORLD');
       CM.playerID = event.playerID;
       this.playerID = event.playerID;
       this.heroID = event.entityID;
+
+      const hero = WM.findByID(this.heroID);
+      const weaponLabel = document.findByID('weapon-label');
+      console.log(weaponLabel);
+      weaponLabel.innerText = hero.weapon ? (hero.weapon.name || 'Pistol') : 'Pistol';
+
       GM.timeElapsed = event.serverTime;
-      remove();
+      // remove();
     });
   }
 }

@@ -67,19 +67,6 @@ class GameServer extends Server {
     this.heroesToCreate[socketIndex] = name;
   }
 
-  getSpawnPoint(index) {
-    const len = this.spawnPoints.length;
-    console.log('getSpawnPoint', index, this.spawnPoints);
-    if (len > 0) {
-      return this.spawnPoints[index % len] || { x: 0, y: 0 };
-    } else {
-      return {
-        x: 0,
-        y: 0
-      };
-    }
-  }
-
   createHero(socketIndex) {
     const hero = new Hero(socketIndex);
     hero.name = this.heroesToCreate[socketIndex] || 'Hero';
@@ -87,7 +74,7 @@ class GameServer extends Server {
     WM.add(hero);
 
     // Get spawn point
-    const spawnPoint = this.getSpawnPoint(socketIndex);
+    const spawnPoint = WM.getSpawnPoint(socketIndex);
     hero.setPosition(spawnPoint);
 
     // Assign player ID to player
@@ -269,6 +256,7 @@ class GameServer extends Server {
     });
 
     GM.registerHandler('CHAT_INPUT', data => {
+      console.log(data);
       // this.messages.push(data.message);
       const event = {
         type: 'CHAT_OUTPUT',
@@ -327,8 +315,7 @@ class GameServer extends Server {
     const levelString = readFileSync('level.json', 'utf-8');
     const level = JSON.parse(levelString);
 
-    this.spawnPoints = level.spawnPoints;
-
+    WM.setSpawnPoints(level.spawnPoints);
     WM.setGeomtetry(level.geometry);
     if (level.friction !== undefined) {
       WM.friction = level.friction;
@@ -415,10 +402,24 @@ class GameServer extends Server {
   }
 }
 
-const cleanup = (server, timer) => () => {
-  server.stop();
-  timer.stop();
-  LM.closeAllStreams();
+const initializeCleanup = (server, timer) => {
+  process.on('exit', cleanup.bind(null, server, timer, { clean: true }));
+  process.on('SIGINT', cleanup.bind(null, server, timer, { exit: true }));
+  process.on('SIGUSR1', cleanup.bind(null, server, timer, { exit: true }));
+  process.on('SIGUSR2', cleanup.bind(null, server, timer, { exit: true }));
+  process.on('uncaughtException', cleanup.bind(null, server, timer, { exit: true }));
+};
+
+const cleanup = (server, timer, options) => {
+  if (options.clean) {
+    console.log('Cleaning server resources');
+    server.stop();
+    timer.stop();
+    LM.closeAllStreams();
+  }
+  if (options.exit) {
+    process.exit();
+  }
 };
 
 const main = async () => {
@@ -443,7 +444,8 @@ const main = async () => {
   });
 
   // Create handler for SIGINT
-  process.on('SIGINT', cleanup(server, timer));
+  // process.on('exit', cleanup(server, timer));
+  initializeCleanup(server, timer);
 
   server.start();
   timer.start();

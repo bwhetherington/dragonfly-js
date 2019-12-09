@@ -164,7 +164,7 @@ class Hero extends Entity {
     this.registerHandler('RESPAWN', event => {
       const { id } = event;
       if (this.id === id) {
-        this.respawn(0, 0);
+        this.respawn(WM.getSpawnPoint(this.playerID));
       }
     });
 
@@ -268,8 +268,8 @@ class Hero extends Entity {
     }
   }
 
-  respawn(x = 0, y = 0) {
-    this.setPositionXY(x, y);
+  respawn(position) {
+    this.setPosition(position);
     if (isServer()) {
       this.updateOpacity(0.8);
     }
@@ -506,7 +506,8 @@ class Hero extends Entity {
     GM.emitEvent({
       type: 'EQUIP_WEAPON',
       data: {
-        type: 'Pistol'
+        playerID: this.playerID,
+        weapon: this.weapon.serialize()
       }
     });
   }
@@ -540,7 +541,8 @@ class Hero extends Entity {
         GM.emitEvent({
           type: 'EQUIP_WEAPON',
           data: {
-            type
+            playerID: this.playerID,
+            weapon: weapon.serialize()
           }
         });
       }

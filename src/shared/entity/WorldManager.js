@@ -24,6 +24,7 @@ class WorldManager {
     this.previousState = [];
     this.entityTable = {};
     this.previousStates = new SizedQueue(60);
+    this.spawnPoints = [new Vector(0, 0)];
   }
 
   registerEntity(EntityType) {
@@ -54,6 +55,20 @@ class WorldManager {
 
   setEntityGenerator(generator) {
     this.entityGenerator = generator;
+  }
+
+  setSpawnPoints(spawnPoints) {
+    this.spawnPoints = spawnPoints;
+  }
+
+  getSpawnPoint(index) {
+    const len = this.spawnPoints.length;
+    const defaultPoint = new Vector(0, 0);
+    if (len > 0) {
+      return this.spawnPoints[index % len] || defaultPoint;
+    } else {
+      return defaultPoint;
+    }
   }
 
   setGeomtetry(geometry) {
@@ -487,25 +502,28 @@ class WorldManager {
           // Only synchronize entities with synchronize enabled
           if (entity.doSynchronize) {
             const serialized = entity.serialize();
+            if (serialized) {
 
-            // Add it to the state
-            state[entity.id] = serialized;
+              // Add it to the state
+              state[entity.id] = serialized;
 
-            // Compare it to the previous state
-            const previous = this.previousState[entity.id];
+              // Compare it to the previous state
+              const previous = this.previousState[entity.id];
 
-            if (previous !== undefined) {
-              // Only record diffs
-              const change = diff(previous, serialized);
-              if (Object.keys(change).length > 0) {
-                change.id = serialized.id;
-                batch.push(change);
+              if (previous !== undefined) {
+                // Only record diffs
+                // console.log(previous, serialized);
+                const change = diff(previous, serialized);
+                if (Object.keys(change).length > 0) {
+                  change.id = serialized.id;
+                  batch.push(change);
+                } else {
+                  // Objects are identical; do nothing
+                }
               } else {
-                // Objects are identical; do nothing
+                // New entity
+                batch.push(serialized);
               }
-            } else {
-              // New entity
-              batch.push(serialized);
             }
           }
         }

@@ -46,6 +46,7 @@ class Weapon {
   serialize() {
     return {
       type: this.type,
+      name: this.name,
       delayTimer: this.delayTimer,
       delayAmount: this.delayAmount,
       isAutomatic: this.isAutomatic,

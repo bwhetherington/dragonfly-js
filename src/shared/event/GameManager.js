@@ -93,6 +93,10 @@ class GameManager {
     })
   }
 
+  runOnce(callback) {
+    this.runDelay(0, callback);
+  }
+
   recordEvent(event) {
     event.time = GM.timeElapsed;
     const removed = this.storedEvents.enqueue(event);

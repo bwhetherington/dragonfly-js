@@ -132,11 +132,7 @@ const main = async () => {
   element.focus();
 
   initializeLandingPage(element);
-  initChatbox();
-};
-
-const initChatbox = () => {
-  CM.initialize();
+  CM.initialize(client);
 };
 
 main();
