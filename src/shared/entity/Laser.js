@@ -60,6 +60,4 @@ class Laser extends Entity {
   }
 }
 
-registerEntity(Laser);
-
 export default Laser;

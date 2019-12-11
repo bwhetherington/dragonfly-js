@@ -12,6 +12,7 @@ import NM from '../shared/network/NetworkManager';
 import { diff, deepDiff, pruneEmpty } from '../shared/util/util';
 import LM from '../shared/network/LogManager';
 import SETTINGS from '../shared/util/settings';
+import Enemy from '../shared/entity/Enemy';
 
 const REFRESH_RATE = 60;
 
@@ -153,19 +154,19 @@ class GameServer extends Server {
     super.initialize();
 
     // Assign random latency
-    GM.registerHandler('JOIN_GAME', event => {
-      const { socketIndex } = event;
-      const latency = Math.random() * SETTINGS.maxLatency / 2;
-      this.setDelay(socketIndex, latency);
-      const newState = {
-        type: 'ASSIGN_LATENCY',
-        data: {
-          socketIndex,
-          latency
-        }
-      };
-      GM.emitEvent(newState);
-    });
+    // GM.registerHandler('JOIN_GAME', event => {
+    //   const { socketIndex } = event;
+    //   const latency = Math.random() * SETTINGS.maxLatency / 2;
+    //   this.setDelay(socketIndex, latency);
+    //   const newState = {
+    //     type: 'ASSIGN_LATENCY',
+    //     data: {
+    //       socketIndex,
+    //       latency
+    //     }
+    //   };
+    //   GM.emitEvent(newState);
+    // });
 
     GM.registerHandler('ASSIGN_LATENCY', event => {
       const { socketIndex, latency } = event;
@@ -265,6 +266,12 @@ class GameServer extends Server {
       NM.send(event);
       const { id, author, content } = data.message;
       console.log(`[${id}] ${author}: ${content}`);
+    });
+
+    GM.registerHandler('SPAWN_ENEMY', event => {
+      const enemy = new Enemy();
+      enemy.setPosition(WM.getRandomPoint(40, 40));
+      WM.add(enemy);
     });
 
     GM.registerHandler('REQUEST_STATS', event => {

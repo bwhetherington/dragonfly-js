@@ -9,6 +9,13 @@ import SizedQueue from '../util/SizedQueue';
 import NM from '../network/NetworkManager';
 import SETTINGS from '../util/settings';
 import LM from '../network/LogManager';
+import Enemy from './Enemy';
+import Laser from './Laser';
+import Explosion from './Explosion';
+import PickUp from './PickUp';
+import HealthPickUp from './HealthPickUp';
+import WeaponPickUp from './WeaponPickUp';
+import Entity from './Entity';
 
 class WorldManager {
   constructor() {
@@ -27,8 +34,24 @@ class WorldManager {
     this.spawnPoints = [new Vector(0, 0)];
   }
 
+  initializeEntityTypes() {
+    this.registerEntity(Entity);
+    this.registerEntity(Hero);
+    this.registerEntity(Projectile);
+    this.registerEntity(Enemy);
+    this.registerEntity(Laser);
+    this.registerEntity(Explosion);
+    this.registerEntity(PickUp);
+    this.registerEntity(HealthPickUp);
+    this.registerEntity(WeaponPickUp);
+  }
+
   registerEntity(EntityType) {
     this.entityTable[EntityType.name] = EntityType;
+  }
+
+  buildNavMesh(geometry) {
+
   }
 
   *getEntities() {
@@ -85,7 +108,7 @@ class WorldManager {
     }).filter(shape => shape !== null);
   }
 
-  getRandomPoint() {
+  getRandomPoint(w = 0, h = 0) {
     const { x, y, width, height } = this.bounds;
 
     let rx, ry, notFound = true;
@@ -94,12 +117,20 @@ class WorldManager {
     while (notFound) {
       rx = Math.random() * width + x;
       ry = Math.random() * height + y;
+
+      let rect = null;
+      if (!(width === 0 || height === 0)) {
+        rect = new Rectangle(rx, ry, w, h);
+      }
+
       notFound = false;
       for (const shape of this.geometry) {
-        if (shape.containsPoint(rx, ry)) {
-          notFound = true;
-          break;
-        }
+        const condition = rect === null && shape.containsPoint(rx, ry) || shape.intersects(rect);
+        if (shape === null && shape.containsPoint(rx, ry))
+          if (condition) {
+            notFound = true;
+            break;
+          }
       }
     }
     return new Vector(rx, ry);
@@ -109,6 +140,7 @@ class WorldManager {
     GM.registerHandler('STEP', ({ step, dt }) => {
       this.step(step, dt);
     });
+    this.initializeEntityTypes();
   }
 
   findByID(id) {
@@ -457,10 +489,14 @@ class WorldManager {
     if (EntityType) {
       return new EntityType();
     } else {
+      console.log(type, this.entityTable);
       return null;
     }
   }
 
+  /**
+   * 
+   */
   serializeArray() {
     const batch = [];
     for (const entity of this.getEntities()) {
@@ -567,6 +603,14 @@ class WorldManager {
     NM.send(packet);
   }
 
+  /**
+   * Receives a sync object request, either creating a new entity if it does
+   * not already exist, or updating the existing entity. If a time is supplied,
+   * it can be used for opponent prediction by moving the entity forward by the
+   * time difference.
+   * @param object The serialized object to sync
+   * @param time The time when the sync object request was made
+   */
   receiveSyncObject(object, time) {
     let existing = this.findByID(object.id);
     let created = false;
@@ -576,6 +620,8 @@ class WorldManager {
         newObject.setID(object.id);
         existing = newObject;
         created = true;
+      } else {
+        console.log(object);
       }
     }
     if (existing) {

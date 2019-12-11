@@ -148,6 +148,4 @@ class Projectile extends Entity {
 
 }
 
-registerEntity(Projectile);
-
 export default Projectile;

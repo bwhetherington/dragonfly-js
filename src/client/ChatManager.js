@@ -3,6 +3,7 @@ import GM from "../shared/event/GameManager";
 import SizedQueue from "../shared/util/SizedQueue";
 import { iterator } from 'lazy-iters';
 import WM from "../shared/entity/WorldManager";
+import { formatJSON } from "../shared/util/util";
 
 const rgba = (r, g, b, a) => 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
 
@@ -205,7 +206,35 @@ class ChatManager {
         type: 'ROLLBACK',
         data: {}
       });
+    });
+
+    this.registerCommand('spawn', args => {
+      let num = 1;
+      if (args.length === 1) {
+        num = parseInt(args[0]);
+      }
+      for (let i = 0; i < num; i++) {
+        NM.send({
+          type: 'SPAWN_ENEMY',
+          data: {}
+        });
+      }
+
     })
+
+    this.registerCommand('entities', () => {
+      console.log('foo');
+      console.log(WM.entityTable);
+      this.displayMessage('Foo');
+      // this.displayComponents([
+      //   {
+      //     value: formatJSON(WM.entityTable),
+      //     style: {
+      //       whiteSpace: 'pre'
+      //     }
+      //   }
+      // ]);
+    });
 
     this.registerCommand('clear', () => {
       this.messageContainer.clear();
@@ -344,6 +373,10 @@ class ChatManager {
         });
       }
     };
+  }
+
+  clear() {
+    this.messageContainer.clear();
   }
 
   renderTimestamp(time) {

@@ -13,6 +13,7 @@ import SETTINGS from '../util/settings';
 import WeaponPickUp from './WeaponPickUp';
 import Rocket from './Rocket';
 import Madsen from './Madsen';
+import Enemy from './Enemy';
 
 const MOVEMENT_SPEED = 300;
 
@@ -84,12 +85,12 @@ class Hero extends Entity {
       const { object1, object2 } = event;
       let other = null;
       if (object1.id === this.id) {
-        if (object2 instanceof Hero) {
+        if (object2 instanceof Hero || object2 instanceof Enemy) {
           other = object2;
         }
       }
       if (object2.id === this.id) {
-        if (object1 instanceof Hero) {
+        if (object1 instanceof Hero || object1 instanceof Enemy) {
           other = object1;
         }
       }
@@ -560,7 +561,5 @@ class Hero extends Entity {
     return super.cleanup();
   }
 }
-
-registerEntity(Hero);
 
 export default Hero;

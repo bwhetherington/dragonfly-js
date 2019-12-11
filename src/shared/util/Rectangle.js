@@ -1,3 +1,6 @@
+import { iterator } from 'lazy-iters';
+import Vector from './Vector';
+
 class Rectangle {
   constructor(x, y, w, h) {
     this.x = x;
@@ -38,6 +41,43 @@ class Rectangle {
   setCenterXY(x, y) {
     this.x = x;
     this.y = y;
+  }
+
+  getAngleXY(x, y) {
+    const dx = x - this.x;
+    const dy = y - this.y;
+    return 0;
+    // return Math.atan2(-dy, dx);
+  }
+
+  *getVertices() {
+    const halfWidth = this.width / 2;
+    const halfHeight = this.height / 2;
+    const x1 = this.x - halfWidth;
+    const y1 = this.y - halfHeight;
+    const x2 = this.x + halfWidth;
+    const y2 = this.y + halfHeight;
+    yield new Vector(x1, y1);
+    yield new Vector(x2, y1);
+    yield new Vector(x1, y2);
+    yield new Vector(x2, y2);
+  }
+
+  *getVerticesOffset(normalOffset = 0) {
+    if (normalOffset === 0) {
+      yield* this.getVertices();
+    } else {
+      const iter = iterator(this.getVertices())
+        .use(console.log)
+        .map(vertex => {
+          const angle = this.getAngleXY(vertex.x, vertex.y);
+          vertex.offset(angle, -normalOffset);
+          console.log(vertex);
+          return vertex;
+        })
+        .collect();
+      yield* iter;
+    }
   }
 
   setCenter(vector) {

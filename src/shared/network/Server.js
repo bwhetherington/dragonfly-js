@@ -136,6 +136,7 @@ class Server {
     message.time = Date.now();
     // Serialize the message
     const data = JSON.stringify(message);
+    // console.log(data.length);
 
     if (socketIndex === -1) {
       // If the index is -1, send to all connections

@@ -107,6 +107,11 @@ class Vector {
     return Math.atan2(dy, dx);
   }
 
+  offset(angle, amount) {
+    this.x += Math.cos(angle) * amount;
+    this.y += Math.sin(angle) * amount;
+  }
+
   serialize() {
     return {
       type: 'Vector',

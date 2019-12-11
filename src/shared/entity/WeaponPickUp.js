@@ -54,6 +54,4 @@ class WeaponPickUp extends PickUp {
   }
 }
 
-registerEntity(WeaponPickUp);
-
 export default WeaponPickUp;

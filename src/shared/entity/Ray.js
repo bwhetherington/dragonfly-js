@@ -94,6 +94,4 @@ class Ray extends Entity {
 
 }
 
-registerEntity(Ray);
-
 export default Ray;

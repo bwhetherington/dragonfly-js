@@ -17,6 +17,7 @@ import SizedQueue from '../shared/util/SizedQueue';
 import HealthPickUp from '../shared/entity/HealthPickUp';
 import NM from '../shared/network/NetworkManager';
 import LM from '../shared/network/LogManager';
+import { formatJSON } from '../shared/util/util';
 
 const defaultColor = 'rgba(0, 0, 0, 0.67)';
 
@@ -91,6 +92,13 @@ class GameClient extends Client {
 
     GM.registerHandler('CREATE_OBJECT', event => {
       const { object } = event;
+      // CM.displayComponents([{
+      //   value: object.type,
+      //   style: {
+      //     whiteSpace: 'pre'
+      //   }
+      // }]);
+      // CM.displayMessage(formatJSON(object));
       if (object instanceof Hero) {
         this.heroes[object.playerID] = object;
 
@@ -385,19 +393,16 @@ class GameClient extends Client {
     });
 
     GM.registerHandler('GAME_WON', event => {
+      CM.clear();
       this.initializeGameResult(event.winningHeroID);
     });
 
     GM.registerHandler('ASSIGN_ID', (event, remove) => {
-      console.log('HELLO WORLD');
       CM.playerID = event.playerID;
       this.playerID = event.playerID;
       this.heroID = event.entityID;
 
       const hero = WM.findByID(this.heroID);
-      const weaponLabel = document.findByID('weapon-label');
-      console.log(weaponLabel);
-      weaponLabel.innerText = hero.weapon ? (hero.weapon.name || 'Pistol') : 'Pistol';
 
       GM.timeElapsed = event.serverTime;
       // remove();

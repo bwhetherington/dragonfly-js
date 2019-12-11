@@ -89,6 +89,4 @@ class PickUp extends Entity {
   }
 }
 
-registerEntity(PickUp);
-
 export default PickUp;

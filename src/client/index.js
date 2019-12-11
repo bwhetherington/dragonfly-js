@@ -6,6 +6,7 @@ import GM from '../shared/event/GameManager';
 import NM from '../shared/network/NetworkManager';
 import Rectangle from '../shared/util/Rectangle';
 import CM from './ChatManager';
+import InverseRectangle from '../shared/util/InverseRectangle';
 
 const removeChildren = element => {
   while (element.firstChild) {
@@ -63,6 +64,7 @@ const main = async () => {
   };
 
   const makeBounds = (two, x, y, width, height) => {
+
     const rect = two.makeRectangle(x, y, width, height);
     rect.fill = 'white';
 
@@ -83,6 +85,12 @@ const main = async () => {
     border.fill = 'rgba(0, 0, 0, 0)';
     border.stroke = '#a0a0a0';
     border.linewidth = 5;
+
+    // const myRect = new InverseRectangle(x, y, width, height);
+    // for (const { x, y } of myRect.getVerticesOffset(15)) {
+    //   const r = two.makeRectangle(x, y, 5, 5);
+    //   r.fill = 'black';
+    // }
   };
 
   GM.registerHandler('DEFINE_ARENA', (event, remove) => {
@@ -106,6 +114,14 @@ const main = async () => {
           rectangle.fill = 'lightgrey';
           rectangle.stroke = '#a0a0a0';
           rectangle.linewidth = 5;
+
+          // const myRect = new InverseRectangle(x, y, width, height);
+          // for (const v of myRect.getVerticesOffset(30)) {
+          //   // console.log('HELLO', v.x, v.y);
+          //   const rect = two.makeRectangle(v.x, v.y, 5, 5);
+          //   rect.fill = 'black';
+          // }
+
           break;
       }
     }

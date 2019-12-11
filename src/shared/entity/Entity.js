@@ -223,6 +223,9 @@ class Entity {
       two.remove(this.graphicsObject);
     }
     this.initializeGraphics(two);
+    if (this.graphicsObject) {
+      this.setColor(this.color);
+    }
     this.updateOpacity(this.opacity);
   }
 
@@ -237,7 +240,5 @@ class Entity {
 
   damage(amount) { }
 }
-
-registerEntity(Entity);
 
 export default Entity;

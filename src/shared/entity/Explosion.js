@@ -81,6 +81,4 @@ class Explosion extends Entity {
   }
 }
 
-registerEntity(Explosion);
-
 export default Explosion;

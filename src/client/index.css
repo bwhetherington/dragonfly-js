@@ -19,7 +19,7 @@ html, body, #game {
   padding: 5px;
   -webkit-user-select: none;
   -moz-user-select: none;
-  font-size: 0.75em;
+  font-size: 0.8em;
   pointer-events: auto;
 }
 
@@ -113,9 +113,10 @@ input[type='text']:focus {
 .modal {
   /* position: relative; */
   display: inline-block;
-  margin: auto;
-  margin-top: 150px;
-  margin-bottom: 150px;
+  /* margin: auto; */
+  top: 50%;
+  position: absolute;
+  transform: translateY(-50%) translateX(-50%);
   max-width: 600px;
   text-align: left;
   overflow-y: auto;
@@ -204,6 +205,33 @@ input[type="checkbox"] {
   display: block;
 }
 
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
 .col > *:not(:last-child) {
   margin-bottom: 10px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: horizontal;
+  width: 80%;
+}
+
+.child {
+  flex-grow: 1;
+}
+
+.input-4 {
+  display: flex;
+}
+
+.left-text {
+  text-align: left;
+}
+
+.right-text {
+  text-align: right;
 }

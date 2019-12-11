@@ -111,23 +111,65 @@
       <div class="game-end-page">
         <h1 class="center" id="game-end-text"></h1>
         <form id="rejoin-game">
-          <p class="radio-label">On a scale of 1 to 5 how disruptive did you find visual glitches?</p>
-          <input type="radio" name="v-glitch" value="1"> 1 (Not Often)</input>
-          <input type="radio" name="v-glitch" value="2"> 2</input>
-          <input type="radio" name="v-glitch" value="3"> 3 </input>
-          <input type="radio" name="v-glitch" value="4"> 4</input>
-          <input type="radio" name="v-glitch" value="5"> 5 (Very Often)</input><br>
-          <p class="radio-label">On a scale of 1 to 5 how noticeable was the latency?</p>
-          <input type="radio" name="latency" value="1"> 1 (Not Noticeable)</input>
-          <input type="radio" name="latency" value="2"> 2</input>
-          <input type="radio" name="latency" value="3"> 3 </input>
-          <input type="radio" name="latency" value="4"> 4</input>
-          <input type="radio" name="latency" value="5"> 5 (Very Noticeable)</input><br>
-          <p class="checkbox-label">Which player(s) do you think had high latency last round?</p>
-          <input type="checkbox" name="player-lat" value="Red"> Red</input>
-          <input type="checkbox" name="player-lat" value="Blue"> Blue</input>
-          <input type="checkbox" name="player-lat" value="Green"> Green</input>
-          <input type="checkbox" name="player-lat" value="Yellow"> Yellow</input>
+          <p class="radio-label">How disruptive did you find visual glitches?</p>
+          <div class="input-group">
+            <div class="center child">
+              <input type="radio" name="v-glitch" value="1"></input>
+              <div>Low</div>
+            </div>
+            <div class="center child">
+              <input type="radio" name="v-glitch" value="2"></input>
+            </div>
+            <div class="center child">
+              <input type="radio" name="v-glitch" value="3"></input>
+            </div>
+            <div class="center child">
+              <input type="radio" name="v-glitch" value="4"></input>
+            </div>
+            <div class="center child">
+              <input type="radio" name="v-glitch" value="5"></input>
+              <div>High</div>
+            </div>
+          </div>
+          <p class="radio-label">How noticeable was the latency?</p>
+          <div class="input-group">
+            <div class="center child">
+              <input type="radio" name="latency" value="1"></input>
+              <div>Low</div>
+            </div>
+            <div class="center child">
+              <input type="radio" name="latency" value="2"></input>
+            </div>
+            <div class="center child">
+              <input type="radio" name="latency" value="3"></input>
+            </div>
+            <div class="center child">
+              <input type="radio" name="latency" value="4"></input>
+            </div>
+            <div class="center child">
+              <input type="radio" name="latency" value="5"></input>
+              <div>High</div>
+            </div>
+          </div>
+          <p class="checkbox-label">Who do you think had high latency last round?</p>
+          <div class="input-group">
+            <div class="center child">
+              <input type="checkbox" name="player-lat" value="Red"></input>
+              <div>Red</div>
+            </div>
+            <div class="center child">
+              <input type="checkbox" name="player-lat" value="Blue"></input>
+              <div>Blue</div>
+            </div>
+            <div class="center child">
+              <input type="checkbox" name="player-lat" value="Green"></input>
+              <div>Green</div>
+            </div>
+            <div class="center child">
+              <input type="checkbox" name="player-lat" value="Yellow"></input>
+              <div>Yellow</div>
+            </div>
+          </div>
           <input type="submit" id="rejoin-submit" value="Rejoin"></input>
         </form>
       </div>

@@ -37,6 +37,4 @@ class HealthPickUp extends PickUp {
   }
 }
 
-registerEntity(HealthPickUp);
-
 export default HealthPickUp;
