@@ -300,14 +300,14 @@ class GameServer extends Server {
         }
       }
 
-      const wonEvent = {
-        type: 'GAME_WON',
-        data: {
-          winningHeroID
-        }
-      };
-      NM.send(wonEvent);
-      this.resetGame();
+      // const wonEvent = {
+      //   type: 'GAME_WON',
+      //   data: {
+      //     winningHeroID
+      //   }
+      // };
+      // NM.send(wonEvent);
+      // this.resetGame();
     });
 
     GM.registerHandler('ROLLBACK', event => {
