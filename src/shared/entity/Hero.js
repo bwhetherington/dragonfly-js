@@ -158,7 +158,7 @@ class Hero extends Entity {
     this.registerHandler('PLAYER_KILLED', event => {
       const { deadID } = event;
       if (this.id === deadID) {
-        this.kill(0, 0);
+        this.kill();
       }
     });
 
@@ -247,7 +247,7 @@ class Hero extends Entity {
     }
   }
 
-  kill(x = 0, y = 0) {
+  kill() {
     // Show explosion
     if (isClient()) {
       const explosion = new Explosion(this.color, 50);
@@ -259,7 +259,6 @@ class Hero extends Entity {
 
     this.damageAmount = 0;
     this.velocity.setXY(0, 0);
-    this.setPositionXY(x, y);
     if (isServer()) {
       this.updateOpacity(0);
     }
