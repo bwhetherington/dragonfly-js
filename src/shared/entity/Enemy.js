@@ -52,6 +52,13 @@ class Enemy extends Entity {
       });
     }
 
+    this.registerHandler('GEOMETRY_COLLISION', event => {
+      const { object } = event;
+      if (object.id === this.id) {
+        this.target.set(WM.getRandomPoint());
+      }
+    });
+
     this.registerHandler('OBJECT_COLLISION', event => {
       const { object1, object2 } = event;
       let other = null;

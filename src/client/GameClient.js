@@ -39,6 +39,43 @@ const removeChildren = element => {
   }
 }
 
+const createTooltip = weapon => {
+  const tooltip = document.createElement('div');
+  tooltip.className = 'tooltip menu';
+
+  const name = document.createElement('div');
+  name.className = 'tooltip-title';
+  name.innerText = weapon.name;
+
+
+  const content = document.createElement('div');
+  content.className = 'tooltip-content';
+
+  let isFirst = true;
+  const weaponFields = weapon.renderTooltip();
+  for (const key in weaponFields) {
+    if (!isFirst) {
+      content.appendChild(document.createElement('br'));
+    }
+
+    isFirst = false;
+
+    const label = document.createElement('span');
+    label.innerText = key + ': ';
+    label.className = 'tooltip-label';
+
+    const value = document.createElement('span');
+    value.innerText = weaponFields[key];
+    value.className = 'tooltip-value';
+
+    content.append(label, value);
+  }
+
+  tooltip.append(name, content);
+
+  return tooltip;
+}
+
 const gatherFormData = formElements => {
   let formResults = {};
   for (let i = 0, element; element = formElements[i++];) {
@@ -104,14 +141,18 @@ class GameClient extends Client {
 
         if (object.playerID === this.playerID) {
           weaponLabel.innerText = object.weapon.name;
+          weaponLabel.appendChild(createTooltip(object.weapon));
         }
       }
     });
 
     GM.registerHandler('EQUIP_WEAPON', event => {
       const { playerID, weapon } = event;
+      const actualWeapon = WM.createWeapon(weapon.type);
+      actualWeapon.deserialize(weapon);
       if (playerID === this.playerID) {
-        weaponLabel.innerText = weapon.name;
+        weaponLabel.innerText = actualWeapon.name;
+        weaponLabel.appendChild(createTooltip(actualWeapon));
       }
     });
 

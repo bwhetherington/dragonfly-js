@@ -139,8 +139,8 @@ class GameServer extends Server {
     });
 
     hero.registerHandler('PLAYER_KILLED', event => {
-      const { killerID } = event;
-      if (hero.id === killerID) {
+      const { killerID, killedID } = event;
+      if (hero.id === killerID && hero.id !== killedID) {
         hero.score += hero.maxDamage;
       }
     });
@@ -156,7 +156,8 @@ class GameServer extends Server {
     // Assign random latency
     // GM.registerHandler('JOIN_GAME', event => {
     //   const { socketIndex } = event;
-    //   const latency = Math.random() * SETTINGS.maxLatency / 2;
+    //   // const latency = Math.random() * SETTINGS.maxLatency / 2;
+    //   const latency = 0.2;
     //   this.setDelay(socketIndex, latency);
     //   const newState = {
     //     type: 'ASSIGN_LATENCY',

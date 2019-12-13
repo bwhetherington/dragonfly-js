@@ -16,6 +16,11 @@ import PickUp from './PickUp';
 import HealthPickUp from './HealthPickUp';
 import WeaponPickUp from './WeaponPickUp';
 import Entity from './Entity';
+import Pistol from './Pistol';
+import Shotgun from './Shotgun';
+import Raygun from './Raygun';
+import Madsen from './Madsen';
+import Rocket from './Rocket';
 
 class WorldManager {
   constructor() {
@@ -30,6 +35,7 @@ class WorldManager {
     this.foreground = null;
     this.previousState = [];
     this.entityTable = {};
+    this.weaponTable = {};
     if (isServer()) {
       this.previousStates = new SizedQueue(60);
     } else {
@@ -50,8 +56,20 @@ class WorldManager {
     this.registerEntity(WeaponPickUp);
   }
 
+  initializeWeaponTypes() {
+    this.registerWeapon(Pistol);
+    this.registerWeapon(Shotgun);
+    this.registerWeapon(Rocket);
+    this.registerWeapon(Madsen);
+    this.registerWeapon(Raygun);
+  }
+
   registerEntity(EntityType) {
     this.entityTable[EntityType.name] = EntityType;
+  }
+
+  registerWeapon(WeaponType) {
+    this.weaponTable[WeaponType.name] = WeaponType;
   }
 
   buildNavMesh(geometry) {
@@ -145,6 +163,7 @@ class WorldManager {
       this.step(step, dt);
     });
     this.initializeEntityTypes();
+    this.initializeWeaponTypes();
   }
 
   findByID(id) {
@@ -495,7 +514,6 @@ class WorldManager {
     if (EntityType) {
       return new EntityType();
     } else {
-      console.log(type, this.entityTable);
       return null;
     }
   }
@@ -641,7 +659,7 @@ class WorldManager {
         !(existing instanceof Hero && existing.isCurrentHero()); // Check that it isn't the current hero
       if (condition) {
         const dt = GM.timeElapsed - time;
-        this.move(existing, dt);
+        existing.predictMovement(dt);
       }
 
       if (created) {
@@ -656,6 +674,15 @@ class WorldManager {
       if (!(entity instanceof Hero)) {
         entity.markForDelete();
       }
+    }
+  }
+
+  createWeapon(type) {
+    const WeaponType = this.weaponTable[type];
+    if (WeaponType) {
+      return new WeaponType();
+    } else {
+      return null;
     }
   }
 }

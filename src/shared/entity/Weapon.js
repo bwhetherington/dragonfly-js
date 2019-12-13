@@ -8,6 +8,7 @@ class Weapon {
     this.useTimeWarp = false;
     this.isActive = false;
     this.isAutomatic = isAutomatic;
+    this.damage = 1;
   }
 
   get type() {
@@ -50,12 +51,13 @@ class Weapon {
       delayTimer: this.delayTimer,
       delayAmount: this.delayAmount,
       isAutomatic: this.isAutomatic,
-      isActive: this.isActive
+      isActive: this.isActive,
+      damage: this.damage
     };
   }
 
   deserialize(obj) {
-    const { delayTimer, delayAmount, isAutomatic, isActive } = obj;
+    const { delayTimer, delayAmount, isAutomatic, isActive, damage } = obj;
     if (delayTimer !== undefined) {
       this.delayTimer = delayTimer;
     }
@@ -67,6 +69,9 @@ class Weapon {
     }
     if (isActive !== undefined) {
       this.isActive = isActive;
+    }
+    if (damage !== undefined) {
+      this.damage = damage;
     }
   }
 
@@ -86,6 +91,13 @@ class Weapon {
 
   fire(fx, fy, sourceHero) {
 
+  }
+
+  renderTooltip() {
+    return {
+      'Rate': this.delayAmount,
+      'Damage': this.damage
+    };
   }
 }
 

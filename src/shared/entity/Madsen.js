@@ -20,6 +20,7 @@ class Madsen extends Weapon {
   constructor() {
     super('Minigun', 0.2, true);
     this.sprayIndex = 0;
+    this.damage = 8;
   }
 
   serialize() {
@@ -62,7 +63,7 @@ class Madsen extends Weapon {
       if (projectileID === bullet.id) {
         const object = WM.findByID(hitID);
         if (object) {
-          object.damage(8, sourceID);
+          object.damage(this.damage, sourceID);
         }
       }
     });

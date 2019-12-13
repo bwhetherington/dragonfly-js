@@ -419,22 +419,34 @@ class ChatManager {
     const killerColor = this.getHeroColor(killerHero);
     const killedColor = this.getHeroColor(killedHero);
 
-    return this.renderComponents([
-      {
-        value: killerHero.name,
-        style: {
-          color: killerColor
-        }
-      },
-      ' has defeated ',
-      {
-        value: killedHero.name,
-        style: {
-          color: killedColor
-        }
-      },
-      '.'
-    ]);
+    if (killerHero) {
+      return this.renderComponents([
+        {
+          value: killerHero.name,
+          style: {
+            color: killerColor
+          }
+        },
+        ' has defeated ',
+        {
+          value: killedHero.name,
+          style: {
+            color: killedColor
+          }
+        },
+        '.'
+      ]);
+    } else {
+      return this.renderComponents([
+        {
+          value: killedHero.name,
+          style: {
+            color: killedColor
+          }
+        },
+        ' has made an error.'
+      ]);
+    }
 
   }
 

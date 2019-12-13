@@ -5,6 +5,8 @@ html, body, #game {
   background: lightgrey;
   color: white;
   font-family: 'Roboto Mono', monospace;
+
+  font-size: 0.9em;
 }
 
 .no-pointer {
@@ -19,7 +21,6 @@ html, body, #game {
   padding: 5px;
   -webkit-user-select: none;
   -moz-user-select: none;
-  font-size: 0.8em;
   pointer-events: auto;
 }
 
@@ -108,6 +109,39 @@ input[type='text']:focus {
 
 .center {
   text-align: center;
+}
+
+.tooltip-container {
+  /* user-select: auto; */
+  z-index: 1;
+}
+
+.tooltip-container .tooltip {
+  position: absolute;
+  z-index: 2;
+  left: 0px;
+  top: 33px;
+  visibility: hidden;
+}
+
+.tooltip .tooltip-content {
+  text-align: left;
+}
+
+.tooltip .tooltip-title {
+  font-size: 1.2em;
+}
+
+.tooltip .tooltip-label {
+  font-weight: bold;
+}
+
+/* .tooltip-container:hover .tooltip {
+  visibility: visible;
+} */
+
+.tooltip-container:hover .tooltip {
+  visibility: visible !important; 
 }
 
 .modal {

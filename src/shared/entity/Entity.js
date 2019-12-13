@@ -45,6 +45,7 @@ class Entity {
     this.isActive = true;
     this.canDelete = false;
     this.setColor(color(50, 50, 50));
+    this.predictionAdjustment = 0;
   }
 
   registerHandler(type, handler) {
@@ -127,8 +128,13 @@ class Entity {
     this.updatePosition();
   }
 
+  predictMovement(dt) {
+    this.predictionAdjustment = dt;
+  }
+
   step(step, dt) {
-    WM.move(this, dt);
+    WM.move(this, dt + this.predictionAdjustment);
+    this.predictionAdjustment = 0;
   }
 
   markForDelete() {

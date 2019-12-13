@@ -10,6 +10,7 @@ class Shotgun extends Weapon {
     super("Shotgun", 1);
     this.projectileNum = 5;
     this.spread = Math.PI / 4;
+    this.damage = 10;
   }
 
   fire(fx, fy, sourceHero) {
@@ -46,13 +47,20 @@ class Shotgun extends Weapon {
         if (projectileID === bullet.id) {
           const object = WM.findByID(hitID);
           if (object) {
-            object.damage(10, sourceID);
+            object.damage(this.damage, sourceID);
           }
         }
       });
       WM.add(bullet);
     }
     AM.playSound('fire.wav', 0.125, sourceHero.position.clone());
+  }
+
+  renderTooltip() {
+    return {
+      ...super.renderTooltip(),
+      'Shots': this.projectileNum
+    };
   }
 }
 

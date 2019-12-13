@@ -219,7 +219,7 @@ class Hero extends Entity {
 
     if (isServer()) {
       const damager = WM.findByID(sourceID);
-      if (damager instanceof Hero) {
+      if (damager instanceof Hero && damager.id !== sourceID) {
         damager.score += amount;
       }
     }
@@ -515,24 +515,7 @@ class Hero extends Entity {
   setWeapon(type) {
     // If this is the same weapon type as what we already have, do nothing
     if (!(this.weapon && type === this.weapon.type)) {
-      let weapon = null;
-      switch (type) {
-        case 'Pistol':
-          weapon = new Pistol();
-          break;
-        case 'Raygun':
-          weapon = new Raygun();
-          break;
-        case 'Shotgun':
-          weapon = new Shotgun();
-          break;
-        case 'Rocket':
-          weapon = new Rocket();
-          break;
-        case 'Madsen':
-          weapon = new Madsen();
-          break;
-      }
+      const weapon = WM.createWeapon(type);
       if (weapon) {
         if (this.weapon) {
           this.dropWeapon();

@@ -13,6 +13,8 @@ const COLOR = color(100, 200, 255);
 class Rocket extends Weapon {
   constructor() {
     super('Rocket', 0.75);
+    this.damage = 40;
+    this.color = COLOR;
   }
 
   fire(fx, fy, sourceHero) {
@@ -44,7 +46,7 @@ class Rocket extends Weapon {
         if (projectileID === bullet.id) {
           for (const hitObject of WM.getEntitiesByRadius(bullet.position, RADIUS)) {
             if (!(hitObject.id === projectileID)) {
-              hitObject.damage(40);
+              hitObject.damage(this.damage, sourceID);
             }
           }
         }
@@ -60,6 +62,13 @@ class Rocket extends Weapon {
     bullet.addPosition(vector);
 
     AM.playSound('fire.wav', 0.125, sourceHero.position.clone());
+  }
+
+  renderTooltip() {
+    return {
+      ...super.renderTooltip(),
+      'Radius': RADIUS
+    };
   }
 }
 

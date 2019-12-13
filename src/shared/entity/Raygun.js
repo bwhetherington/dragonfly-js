@@ -2,11 +2,14 @@ import Weapon from './Weapon';
 import WM from './WorldManager';
 import AM from '../audio/AudioManager';
 import Ray from './Ray';
+import { color } from '../util/util';
 
 class Raygun extends Weapon {
   constructor() {
     super("Raygun", 1, false);
     this.useTimeWarp = true;
+    this.damage = 25;
+    this.color = color(200, 0, 0);
   }
 
   fire(fx, fy, sourceHero) {
@@ -20,7 +23,7 @@ class Raygun extends Weapon {
       if (projectileID === ray.id) {
         const object = WM.findByID(hitID);
         if (object) {
-          object.damage(25, sourceID);
+          object.damage(this.damage, sourceID);
         }
       }
     });
