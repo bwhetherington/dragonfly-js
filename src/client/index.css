@@ -124,15 +124,15 @@ input[type='text']:focus {
   visibility: hidden;
 }
 
-.tooltip .tooltip-content {
+.tooltip-content {
   text-align: left;
 }
 
-.tooltip .tooltip-title {
+.tooltip-title {
   font-size: 1.2em;
 }
 
-.tooltip .tooltip-label {
+.tooltip-label {
   font-weight: bold;
 }
 

@@ -41,7 +41,7 @@ const removeChildren = element => {
 
 const createTooltip = weapon => {
   const tooltip = document.createElement('div');
-  tooltip.className = 'tooltip menu';
+  // tooltip.className = 'tooltip menu';
 
   const name = document.createElement('div');
   name.className = 'tooltip-title';
@@ -125,7 +125,7 @@ class GameClient extends Client {
     this.scoreboard = new Scoreboard('scoreboard-tbody');
     this.scoreboard.initialize();
 
-    const weaponLabel = document.getElementById('weapon-label');
+    const weaponLabel = document.getElementById('hero-info');
 
     GM.registerHandler('CREATE_OBJECT', event => {
       const { object } = event;
@@ -140,7 +140,7 @@ class GameClient extends Client {
         this.heroes[object.playerID] = object;
 
         if (object.playerID === this.playerID) {
-          weaponLabel.innerText = object.weapon.name;
+          removeChildren(weaponLabel);
           weaponLabel.appendChild(createTooltip(object.weapon));
         }
       }
@@ -151,7 +151,7 @@ class GameClient extends Client {
       const actualWeapon = WM.createWeapon(weapon.type);
       actualWeapon.deserialize(weapon);
       if (playerID === this.playerID) {
-        weaponLabel.innerText = actualWeapon.name;
+        removeChildren(weaponLabel);
         weaponLabel.appendChild(createTooltip(actualWeapon));
       }
     });
