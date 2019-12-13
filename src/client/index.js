@@ -7,6 +7,7 @@ import NM from '../shared/network/NetworkManager';
 import Rectangle from '../shared/util/Rectangle';
 import CM from './ChatManager';
 import InverseRectangle from '../shared/util/InverseRectangle';
+import Timer from './timer';
 
 const removeChildren = element => {
   while (element.firstChild) {
@@ -52,7 +53,7 @@ const main = async () => {
   const two = new Two({
     fullscreen: true,
     autostart: true,
-    type: Two.Types.svg
+    type: Two.Types.canvas
   }).appendTo(element);
 
   two.scene.translation.set(two.width / 2, two.height / 2);
@@ -60,6 +61,7 @@ const main = async () => {
   const makeLine = (two, x1, y1, x2, y2, color = '#f0f0f0', width = 2) => {
     const line = two.makeLine(x1, y1, x2, y2);
     line.stroke = color;
+    line.fill = color;
     line.linewidth = width;
   };
 
@@ -149,6 +151,11 @@ const main = async () => {
 
   initializeLandingPage(element);
   CM.initialize(client);
+
+  const timer = new Timer(dt => {
+    GM.step(dt);
+  });
+  timer.start();
 };
 
 main();

@@ -169,13 +169,6 @@ class Client {
         }
       }
     });
-
-    this.two.bind('update', (_, dt) => {
-      const seconds = dt / 1000.0;
-      if (!Number.isNaN(seconds)) {
-        GM.step(seconds);
-      }
-    }).play();
   }
 
   onClose() {
