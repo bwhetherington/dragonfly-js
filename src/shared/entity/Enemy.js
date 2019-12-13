@@ -35,6 +35,7 @@ class Enemy extends Entity {
     this.setPositionXY(0, 0);
     this.weapon = new Madsen();
     this.weapon.delayAmount = 1;
+    this.weapon.damage = 16;
     this.doSynchronize = true;
     this.target = new Vector(0, 0);
     this.lastPosition = new Vector(0, 0);
