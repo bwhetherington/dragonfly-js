@@ -272,7 +272,7 @@ class WorldManager {
     }
 
     // Use movement steps
-    const STEPS = 4;
+    const STEPS = 1;
     entity.vectorBuffer1.scale(1 / STEPS);
 
     let collidedX = false;

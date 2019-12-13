@@ -130,6 +130,7 @@ input[type='text']:focus {
 
 .tooltip-title {
   font-size: 1.2em;
+  text-align: center;
 }
 
 .tooltip-label {
