@@ -141,18 +141,18 @@ class WorldManager {
       ry = Math.random() * height + y;
 
       let rect = null;
-      if (!(width === 0 || height === 0)) {
+
+      if (!(w === 0 || h === 0)) {
         rect = new Rectangle(rx, ry, w, h);
       }
 
       notFound = false;
       for (const shape of this.geometry) {
-        const condition = rect === null && shape.containsPoint(rx, ry) || shape.intersects(rect);
-        if (shape === null && shape.containsPoint(rx, ry))
-          if (condition) {
-            notFound = true;
-            break;
-          }
+        const condition = (rect !== null && shape.intersects(rect)) || shape.containsPoint(rx, ry);
+        if (condition) {
+          notFound = true;
+          // break;
+        }
       }
     }
     return new Vector(rx, ry);

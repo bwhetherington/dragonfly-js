@@ -25,6 +25,10 @@ class Enemy extends Entity {
     SPAWNER.spawnPoints = points;
   }
 
+  chooseTarget() {
+    this.target.set(WM.getRandomPoint(80, 80));
+  }
+
   constructor() {
     super();
     this.cannonAngle = 0;
@@ -51,14 +55,13 @@ class Enemy extends Entity {
       this.registerHandler('STEP', event => {
         this.onStep(event.dt);
       });
+      this.registerHandler('GEOMETRY_COLLISION', event => {
+        const { object } = event;
+        if (object.id === this.id) {
+          this.chooseTarget();
+        }
+      });
     }
-
-    this.registerHandler('GEOMETRY_COLLISION', event => {
-      const { object } = event;
-      if (object.id === this.id) {
-        this.target.set(WM.getRandomPoint());
-      }
-    });
 
     this.registerHandler('OBJECT_COLLISION', event => {
       const { object1, object2 } = event;
@@ -147,7 +150,7 @@ class Enemy extends Entity {
     }
 
     // Handle movement
-    if (this.target.distance(this.position) > 100) {
+    if (this.target.distance(this.position) > 200) {
       // Move to target
       this.acceleration.setXY(0, 0);
       this.acceleration.set(this.target);
@@ -156,14 +159,8 @@ class Enemy extends Entity {
       this.acceleration.scale(200);
     } else {
       // Get new target
-      this.target.set(WM.getRandomPoint());
+      this.chooseTarget();
     }
-
-    // Check if we're stuck
-    if (this.position.distance(this.lastPosition) < 1) {
-      this.target.set(WM.getRandomPoint());
-    }
-    this.lastPosition.set(this.position);
   }
 
   serialize() {

@@ -354,19 +354,19 @@ class GameServer extends Server {
     // });
 
     const raygun = new WeaponPickUp('Raygun');
-    raygun.setPosition(WM.getRandomPoint());
+    raygun.setPosition(WM.getRandomPoint(30, 30));
     WM.add(raygun);
 
     const rocket = new WeaponPickUp('Rocket');
-    rocket.setPosition(WM.getRandomPoint());
+    rocket.setPosition(WM.getRandomPoint(30, 30));
     WM.add(rocket);
 
     const shotgun = new WeaponPickUp('Shotgun');
-    shotgun.setPosition(WM.getRandomPoint());
+    shotgun.setPosition(WM.getRandomPoint(30, 30));
     WM.add(shotgun);
 
     const madsen = new WeaponPickUp('Madsen');
-    madsen.setPosition(WM.getRandomPoint());
+    madsen.setPosition(WM.getRandomPoint(30, 30));
     WM.add(madsen);
   }
 
