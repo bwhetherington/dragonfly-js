@@ -1,4 +1,6 @@
 import GM from '../event/GameManager';
+import NM from '../network/NetworkManager';
+import { isServer, isClient } from '../util/util';
 
 class Weapon {
   constructor(name = "Weapon", delayAmount = 0.5, isAutomatic = false) {
@@ -33,6 +35,7 @@ class Weapon {
       const offsetY = Math.sin(cannonAngle - Math.PI / 2);
       this.fire(sourceHero.position.x + offsetX, sourceHero.position.y + offsetY, sourceHero);
       this.delayTimer = this.delayAmount;
+      this.fireEvent(sourceHero);
     }
   }
 
@@ -78,11 +81,26 @@ class Weapon {
   cleanup() {
   }
 
+  fireEvent(sourceHero) {
+    const fireEvent = {
+      type: 'FIRE_WEAPON',
+      data: {
+        id: sourceHero.id
+      }
+    };
+    if (!GM.rollback && isServer()) {
+      NM.send(fireEvent);
+    } else if (isClient()) {
+      GM.emitEvent(fireEvent);
+    }
+  }
+
   fireInternal(fx, fy, sourceHero) {
     if (!this.automatic) {
       if (this.delayTimer <= 0) {
         this.fire(fx, fy, sourceHero);
         this.delayTimer = this.delayAmount;
+        this.fireEvent(sourceHero);
       }
     } else {
       this.step(0, sourceHero);

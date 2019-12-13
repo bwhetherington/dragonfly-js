@@ -17,7 +17,7 @@ import SizedQueue from '../shared/util/SizedQueue';
 import HealthPickUp from '../shared/entity/HealthPickUp';
 import NM from '../shared/network/NetworkManager';
 import LM from '../shared/network/LogManager';
-import { formatJSON } from '../shared/util/util';
+import { formatJSON, color } from '../shared/util/util';
 
 const defaultColor = 'rgba(0, 0, 0, 0.67)';
 
@@ -403,7 +403,20 @@ class GameClient extends Client {
         // Add to scoreboard
         this.scoreboard.addPlayer(object);
       }
-    })
+    });
+
+    // GM.registerHandler('FIRE_WEAPON', event => {
+    //   const hero = WM.findByID(event.id);
+    //   if (hero instanceof Hero) {
+    //     const tip = hero.getCannonTip();
+    //     const explosion = new Explosion(color(200, 150, 50), 20);
+    //     explosion.setPosition(tip);
+    //     explosion.registerHandler('STEP', () => {
+    //       explosion.setPosition(hero.getCannonTip());
+    //     });
+    //     WM.add(explosion);
+    //   }
+    // });
 
     GM.registerHandler('CREATE_RAY', event => {
       const { start, end, source } = event;

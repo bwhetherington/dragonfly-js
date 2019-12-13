@@ -5,7 +5,7 @@ import WM from './WorldManager';
 import AM from '../audio/AudioManager';
 import GM from '../event/GameManager';
 
-const BOUNCES = 2;
+const BOUNCES = 1;
 
 class Pistol extends Weapon {
   constructor() {
