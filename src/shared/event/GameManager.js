@@ -16,7 +16,11 @@ class GameManager {
     this.frameRate = 0;
     this.currentEventID = null;
     this.createRootEvent();
-    this.storedEvents = new SizedQueue(1000);
+    if (isServer()) {
+      this.storedEvents = new SizedQueue(1000);
+    } else {
+      this.storedEvents = null;
+    }
     this.recordedTypes = {};
   }
 
@@ -98,8 +102,10 @@ class GameManager {
   }
 
   recordEvent(event) {
-    event.time = GM.timeElapsed;
-    const removed = this.storedEvents.enqueue(event);
+    if (this.storedEvents) {
+      event.time = GM.timeElapsed;
+      this.storedEvents.enqueue(event);
+    }
   }
 
   getCurrentEventID() {

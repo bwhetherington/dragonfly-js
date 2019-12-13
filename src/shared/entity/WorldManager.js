@@ -1,5 +1,5 @@
 import GM from '../event/GameManager';
-import { diff, sizeOf, deepDiff } from '../util/util';
+import { diff, isServer } from '../util/util';
 import Rectangle from '../util/Rectangle';
 import InverseRectangle from '../util/InverseRectangle';
 import Projectile from '../entity/Projectile';
@@ -30,7 +30,11 @@ class WorldManager {
     this.foreground = null;
     this.previousState = [];
     this.entityTable = {};
-    this.previousStates = new SizedQueue(60);
+    if (isServer()) {
+      this.previousStates = new SizedQueue(60);
+    } else {
+      this.previousStates = null;
+    }
     this.spawnPoints = [new Vector(0, 0)];
   }
 
@@ -178,19 +182,21 @@ class WorldManager {
   }
 
   recordState() {
-    // Save this step
-    const objects = [];
-    for (const object of this.getEntities()) {
-      objects.push(object.serialize());
-    }
+    if (this.previousStates) {
+      // Save this step
+      const objects = [];
+      for (const object of this.getEntities()) {
+        objects.push(object.serialize());
+      }
 
-    // Store state for rollback
-    const state = {
-      time: GM.timeElapsed,
-      step: GM.stepCount,
-      state: objects
-    };
-    this.previousStates.enqueue(state);
+      // Store state for rollback
+      const state = {
+        time: GM.timeElapsed,
+        step: GM.stepCount,
+        state: objects
+      };
+      this.previousStates.enqueue(state);
+    }
   }
 
   move(entity, dt, ignore = []) {
