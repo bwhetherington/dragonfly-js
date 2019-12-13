@@ -8,6 +8,7 @@ import Rectangle from '../shared/util/Rectangle';
 import CM from './ChatManager';
 import InverseRectangle from '../shared/util/InverseRectangle';
 import Timer from './timer';
+import { parseLocation } from './util';
 
 const removeChildren = element => {
   while (element.firstChild) {
@@ -50,10 +51,19 @@ const initializeLandingPage = game => {
 const main = async () => {
   const element = document.getElementById('game');
   removeChildren(element);
+
+  const query = location.search || '';
+  const {
+    renderer = 'svg'
+  } = parseLocation(query);
+  console.log(query);
+
+  console.log(renderer);
+
   const two = new Two({
     fullscreen: true,
     autostart: true,
-    type: Two.Types.canvas
+    type: Two.Types[renderer]
   }).appendTo(element);
 
   two.scene.translation.set(two.width / 2, two.height / 2);
