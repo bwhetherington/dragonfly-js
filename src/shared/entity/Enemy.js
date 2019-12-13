@@ -114,7 +114,7 @@ class Enemy extends Entity {
   selectTargetHero() {
     const [hero] = iterator(WM.getEntities())
       .filter(entity => entity.id !== this.id)
-      .filter(entity => entity instanceof Hero)
+      .filter(entity => entity instanceof Hero || entity instanceof Enemy)
       .map(entity => [entity, entity.position.distance(this.position)])
       .fold([null, Infinity], ([closest, dist], [cur, newDist]) => {
         if (newDist < dist) {
