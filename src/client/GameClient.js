@@ -156,9 +156,10 @@ class GameClient extends Client {
       }
     });
 
-    GM.registerHandler('DROP_WEAPON', () => {
-      weaponLabel.innerText = 'Pistol';
-    });
+    // GM.registerHandler('DROP_WEAPON', () => {
+    //   // removeChildren(weapon_label)
+    //   GM.emitEvent('EQUIP_WEAPON')
+    // });
 
     let totalEntities = 0;
     let avgChange = 0;
