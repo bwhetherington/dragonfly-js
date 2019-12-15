@@ -1,3 +1,5 @@
+import encoder from './Encoder';
+
 class Vector {
   constructor(x, y) {
     this.x = x;
@@ -113,16 +115,20 @@ class Vector {
   }
 
   serialize() {
+    // let x = encoder.encode(this.x);
+    // let y = encoder.encode(this.y);
+    const { x, y } = this;
+    // console.log(encoder.decode(ex), encoder.decode(ey), this.x, this.y);
     return {
-      type: 'Vector',
-      x: this.x,
-      y: this.y
+      x,
+      y
     };
   }
 
-  deserialize(str) {
-    const obj = JSON.parse(str);
-    this.set(obj);
+  deserialize(obj) {
+    const { x, y } = obj;
+    this.setXY(x, y);
+    // this.setXY(encoder.decode(x), encoder.decode(y));
   }
 
   dotProduct(vector) {

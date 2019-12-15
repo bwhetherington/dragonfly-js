@@ -1,9 +1,9 @@
 import Vector from '../util/Vector';
-import uuid from 'uuid/v1';
+// import uuid from 'uuid/v1';
 import GM from '../event/GameManager';
 import WM from './WorldManager';
 import Rectangle from '../util/Rectangle';
-import { isClient, registerEntity, color } from '../util/util';
+import { isClient, registerEntity, color, uuid } from '../util/util';
 
 const getFill = color => {
   const { red, green, blue, alpha = 1 } = color;
@@ -189,13 +189,13 @@ class Entity {
         this.syncMove = syncMove;
       }
       if (position) {
-        this.position.set(position);
+        this.position.deserialize(position);
       }
       if (velocity) {
-        this.velocity.set(velocity);
+        this.velocity.deserialize(velocity);
       }
       if (acceleration) {
-        this.acceleration.set(acceleration);
+        this.acceleration.deserialize(acceleration);
       }
       if (isCollidable !== undefined) {
         this.isCollidable = isCollidable;

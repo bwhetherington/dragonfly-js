@@ -12,6 +12,7 @@ class Encoder {
     for (let i = 0; i < this.byteBuf.length; i++) {
       str += String.fromCharCode(this.byteBuf[i]);
     }
+
     return str;
   }
 
@@ -24,6 +25,5 @@ class Encoder {
   }
 }
 
-enc = new Encoder();
-
-console.log(enc.decode('ª[ÙÃ'), enc.decode('ÜÃ'));
+const encoder = new Encoder();
+export default encoder;

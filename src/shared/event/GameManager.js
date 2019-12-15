@@ -1,8 +1,8 @@
 import Queue from '../util/Queue';
 import SizedQueue from '../util/SizedQueue';
-import uuid from 'uuid/v1';
+// import uuid from 'uuid/v1';
 import WM from '../entity/WorldManager';
-import { isServer } from '../util/util';
+import { isServer, uuid } from '../util/util';
 import NM from '../network/NetworkManager';
 import LM from '../network/LogManager';
 

@@ -259,7 +259,6 @@ class GameServer extends Server {
 
     GM.registerHandler('CHAT_INPUT', data => {
       console.log(data);
-      // this.messages.push(data.message);
       const event = {
         type: 'CHAT_OUTPUT',
         data
@@ -311,14 +310,6 @@ class GameServer extends Server {
       this.resetGame();
     });
 
-    GM.registerHandler('ROLLBACK', event => {
-      // const oldState = WM.serializeAll();
-      WM.rollbackFrom(GM.timeElapsed - 0.5);
-      // const newState = WM.serializeAll();
-      // const diff = deepDiff(oldState, newState);
-      // NM.logCode('diff', diff);
-    });
-
     // Load level
     const levelString = readFileSync('level.json', 'utf-8');
     const level = JSON.parse(levelString);
@@ -336,23 +327,6 @@ class GameServer extends Server {
   }
 
   generatePickups() {
-    // let healthCount = 0;
-    // GM.runTimer(1, () => {
-    //   if (healthCount < 5) {
-    //     healthCount += 1;
-    //     const healthPickUp = new HealthPickUp();
-    //     healthPickUp.setPosition(WM.getRandomPoint());
-    //     WM.add(healthPickUp);
-    //   }
-    // });
-
-    // GM.registerHandler('MARK_FOR_DELETE', event => {
-    //   const entity = WM.findByID(event.id);
-    //   if (entity && entity.type === 'HealthPickUp') {
-    //     healthCount -= 1;
-    //   }
-    // });
-
     const raygun = new WeaponPickUp('Raygun');
     raygun.setPosition(WM.getRandomPoint(30, 30));
     WM.add(raygun);

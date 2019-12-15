@@ -273,6 +273,13 @@ class WorldManager {
 
     // Use movement steps
     const STEPS = 1;
+
+    // Calculate number of steps based on the size of the hitbox and the speed
+    // Max step size is now 1/2 the size of the hitbox
+    // const size = boundingBox.diagonal;
+    // const speed = entity.vectorBuffer1.magnitude;
+    // const STEPS = Math.max(1, Math.floor((size / speed) * 2));
+
     entity.vectorBuffer1.scale(1 / STEPS);
 
     let collidedX = false;

@@ -5,7 +5,8 @@ import path from 'path';
 import GM from '../event/GameManager';
 import NM from '../network/NetworkManager';
 import WM from '../entity/WorldManager';
-import uuid from 'uuid/v1';
+// import uuid from 'uuid/v1';
+import { uuid } from '../util/util';
 import LM from './LogManager';
 
 const toSeconds = (seconds, nanoseconds) => seconds + nanoseconds * 0.000000001;
@@ -136,7 +137,13 @@ class Server {
     message.time = Date.now();
     // Serialize the message
     const data = JSON.stringify(message);
-    // console.log(data.length);
+
+    // LM.logData(
+    //   {
+    //     type: 'PACKET_OUT',
+    //     bytes: data.length
+    //   }
+    // );
 
     if (socketIndex === -1) {
       // If the index is -1, send to all connections
@@ -205,6 +212,12 @@ class Server {
     // Handle receive message from client
     connection.on('message', message => {
       if (message.type === 'utf8') {
+        // LM.logData(
+        //   {
+        //     type: 'PACKET_IN',
+        //     bytes: message.utf8Data.length
+        //   }
+        // );
         const data = JSON.parse(message.utf8Data);
         this.onMessage(data, connectionIndex);
       }

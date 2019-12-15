@@ -1,4 +1,9 @@
-import WM from "../entity/WorldManager";
+import WM from '../entity/WorldManager';
+import short from 'short-uuid';
+
+const uuidGenerator = short();
+
+export const uuid = () => uuidGenerator.generate();
 
 export const isServer = () => !isClient();
 
@@ -294,7 +299,6 @@ export const round = (number, places = 0) => {
 };
 
 export const color = (red, green, blue) => ({
-  type: 'Color',
   red,
   green,
   blue

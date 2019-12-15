@@ -9,6 +9,11 @@ class Rectangle {
     this.height = h;
   }
 
+  get diagonal() {
+    const { width, height } = this;
+    return Math.sqrt(width * width + height * height);
+  }
+
   containsXY(x, y) {
     const halfWidth = this.width / 2;
     const halfHeight = this.height / 2;
