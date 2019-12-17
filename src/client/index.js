@@ -75,6 +75,8 @@ const main = async () => {
     adjustScale(two);
   });
 
+  adjustScale(two);
+
   two.scene.translation.set(two.width / 2, two.height / 2);
 
   const makeLine = (two, x1, y1, x2, y2, color = '#f0f0f0', width = 2) => {
