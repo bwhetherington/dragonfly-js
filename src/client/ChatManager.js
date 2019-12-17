@@ -4,6 +4,8 @@ import SizedQueue from "../shared/util/SizedQueue";
 import { iterator } from 'lazy-iters';
 import WM from "../shared/entity/WorldManager";
 import { formatJSON } from "../shared/util/util";
+import Enemy from "../shared/entity/Enemy";
+import { makeAnimation } from "../shared/entity/Animation";
 
 const rgba = (r, g, b, a) => 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
 
@@ -205,6 +207,33 @@ class ChatManager {
       NM.send({
         type: 'ROLLBACK',
         data: {}
+      });
+    });
+
+    GM.registerHandler('ANIMATION_UPDATE', event => {
+      if (event.id === this.anim) {
+        this.two.scene.scale = event.state.scale;
+      }
+    });
+
+    this.registerCommand('zoom', args => {
+      const zoom = parseFloat(args[0]);
+      const anim = makeAnimation({ scale: this.two.scene.scale }, { scale: zoom }, 3);
+      this.anim = anim;
+    });
+
+    this.registerCommand('anim', () => {
+      const entity = new Enemy();
+      entity.setPositionXY(0, 0);
+      entity.updateOpacity(0);
+      WM.add(entity);
+
+      const anim = makeAnimation({ opacity: 0 }, { opacity: 1 }, 0.5);
+      entity.registerHandler('ANIMATION_UPDATE', event => {
+        const { state, id } = event;
+        if (id === anim) {
+          entity.updateOpacity(state.opacity);
+        }
       });
     });
 

@@ -9,12 +9,18 @@ import CM from './ChatManager';
 import InverseRectangle from '../shared/util/InverseRectangle';
 import Timer from './timer';
 import { parseLocation } from './util';
+import HealthPickUp from '../shared/entity/HealthPickUp';
 
 const removeChildren = element => {
   while (element.firstChild) {
     element.removeChild(element.firstChild);
   }
-}
+};
+
+const adjustScale = two => {
+  const minDimension = Math.min(two.width, two.height);
+  two.scene.scale = minDimension / TARGET_SIZE;
+};
 
 const initializeLandingPage = game => {
   // if (game) {
@@ -48,6 +54,8 @@ const initializeLandingPage = game => {
   // modal.hidden = true;
 };
 
+const TARGET_SIZE = 650;
+
 const main = async () => {
   const element = document.getElementById('game');
   removeChildren(element);
@@ -56,15 +64,16 @@ const main = async () => {
   const {
     renderer = 'svg'
   } = parseLocation(query);
-  console.log(query);
-
-  console.log(renderer);
 
   const two = new Two({
     fullscreen: true,
     autostart: true,
     type: Two.Types[renderer]
   }).appendTo(element);
+
+  window.addEventListener('resize', () => {
+    adjustScale(two);
+  });
 
   two.scene.translation.set(two.width / 2, two.height / 2);
 
@@ -97,12 +106,6 @@ const main = async () => {
     border.fill = 'rgba(0, 0, 0, 0)';
     border.stroke = '#a0a0a0';
     border.linewidth = 5;
-
-    // const myRect = new InverseRectangle(x, y, width, height);
-    // for (const { x, y } of myRect.getVerticesOffset(15)) {
-    //   const r = two.makeRectangle(x, y, 5, 5);
-    //   r.fill = 'black';
-    // }
   };
 
   GM.registerHandler('DEFINE_ARENA', (event, remove) => {
@@ -126,13 +129,6 @@ const main = async () => {
           rectangle.fill = 'lightgrey';
           rectangle.stroke = '#a0a0a0';
           rectangle.linewidth = 5;
-
-          // const myRect = new InverseRectangle(x, y, width, height);
-          // for (const v of myRect.getVerticesOffset(30)) {
-          //   // console.log('HELLO', v.x, v.y);
-          //   const rect = two.makeRectangle(v.x, v.y, 5, 5);
-          //   rect.fill = 'black';
-          // }
 
           break;
       }
@@ -161,6 +157,7 @@ const main = async () => {
 
   initializeLandingPage(element);
   CM.initialize(client);
+  CM.two = two;
 
   const timer = new Timer(dt => {
     GM.step(dt);
@@ -168,7 +165,7 @@ const main = async () => {
   timer.start();
 };
 
-main();
+main().catch(console.log);
 
 // if (module.hot) {
 //   module.hot.accept();

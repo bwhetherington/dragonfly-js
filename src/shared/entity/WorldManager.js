@@ -651,8 +651,6 @@ class WorldManager {
         newObject.setID(object.id);
         existing = newObject;
         created = true;
-      } else {
-        console.log(object);
       }
     }
     if (existing) {

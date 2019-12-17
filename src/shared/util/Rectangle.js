@@ -73,11 +73,9 @@ class Rectangle {
       yield* this.getVertices();
     } else {
       const iter = iterator(this.getVertices())
-        .use(console.log)
         .map(vertex => {
           const angle = this.getAngleXY(vertex.x, vertex.y);
           vertex.offset(angle, -normalOffset);
-          console.log(vertex);
           return vertex;
         })
         .collect();

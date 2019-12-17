@@ -212,6 +212,7 @@ class GameClient extends Client {
 
   registerInput() {
     // Register handlers to send to server
+    let isFullScreen = document.isFullScreen;
     GM.registerHandler('KEY_DOWN', event => {
       // Process locally
       const { hero } = this;
@@ -239,6 +240,8 @@ class GameClient extends Client {
           case 'ShiftRight':
             hero.setSlow(true);
             break;
+          case 'KeyF':
+
         };
       }
 
@@ -294,8 +297,8 @@ class GameClient extends Client {
 
   attachCamera(entity) {
     GM.registerHandler('STEP', () => {
-      const centerX = (this.two.width / 2 - entity.position.x);
-      const centerY = (this.two.height / 2 - entity.position.y);
+      const centerX = (this.two.width / 2 - entity.position.x * this.two.scene.scale);
+      const centerY = (this.two.height / 2 - entity.position.y * this.two.scene.scale);
       this.two.scene.translation.set(centerX, centerY);
     });
   }

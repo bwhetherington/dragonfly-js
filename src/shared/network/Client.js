@@ -3,10 +3,13 @@ import WM from '../entity/WorldManager';
 import NM from './NetworkManager';
 
 const transformClientCoordinates = (two, x, y) => {
-  return {
-    x: x - two.scene.translation.x,
-    y: y - two.scene.translation.y
+  const { translation, scale } = two.scene;
+  // console.log(translation.x / scale, translation.y / scale);
+  const pt = {
+    x: (x - translation.x) / scale,
+    y: (y - translation.y) / scale
   };
+  return pt;
 }
 
 class Client {
