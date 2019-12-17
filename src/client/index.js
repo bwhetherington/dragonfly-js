@@ -54,7 +54,7 @@ const initializeLandingPage = game => {
   // modal.hidden = true;
 };
 
-const TARGET_SIZE = 650;
+const TARGET_SIZE = 800;
 
 const main = async () => {
   const element = document.getElementById('game');
