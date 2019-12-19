@@ -341,13 +341,17 @@ class GameServer extends Server {
     rocket.setPosition(WM.getRandomPoint(30, 30));
     WM.add(rocket);
 
-    const shotgun = new WeaponPickUp("Mortar");
+    const shotgun = new WeaponPickUp("Shotgun");
     shotgun.setPosition(WM.getRandomPoint(30, 30));
     WM.add(shotgun);
 
     const madsen = new WeaponPickUp("Madsen");
     madsen.setPosition(WM.getRandomPoint(30, 30));
     WM.add(madsen);
+
+    const mortar = new WeaponPickUp("Mortar");
+    mortar.setPosition(WM.getRandomPoint(30, 30));
+    WM.add(mortar);
   }
 
   resetGame() {
