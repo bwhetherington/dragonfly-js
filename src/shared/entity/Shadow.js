@@ -71,6 +71,7 @@ class Shadow extends Entity {
   initializeGraphics(two) {
     const circle = two.makeCircle(0, 0, 1);
     circle.fill = "black";
+    circle.stroke = "rgba(0, 0, 0, 0)";
     circle.scale = 0;
     circle.opacity = 0.3;
     circle.linewidth = 0;
@@ -83,7 +84,6 @@ class Shadow extends Entity {
     outline.stroke = "black";
 
     this.graphicsObject = two.makeGroup([outline, circle]);
-    console.log(this.graphicsObject);
     this.updateSize();
   }
 }
