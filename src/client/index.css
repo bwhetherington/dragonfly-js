@@ -5,7 +5,7 @@ html, body, #game {
   background: lightgrey;
   color: white;
   font-family: 'Roboto Mono', monospace;
-  /* font-size: 0.9em; */
+  font-size: 0.9em;
 }
 
 .no-pointer {
