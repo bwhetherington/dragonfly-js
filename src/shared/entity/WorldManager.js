@@ -272,7 +272,7 @@ class WorldManager {
     }
 
     // Use movement steps
-    const STEPS = 1;
+    const STEPS = 2;
 
     // Calculate number of steps based on the size of the hitbox and the speed
     // Max step size is now 1/2 the size of the hitbox
