@@ -7,7 +7,7 @@ import AM from '../audio/AudioManager';
 
 class Shotgun extends Weapon {
   constructor() {
-    super("Shotgun", 1);
+    super("Shotgun", 0.75);
     this.projectileNum = 5;
     this.spread = Math.PI / 4;
     this.damage = 10;
