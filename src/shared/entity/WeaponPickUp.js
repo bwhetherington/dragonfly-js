@@ -1,5 +1,6 @@
 import PickUp from './PickUp';
 import { registerEntity, color } from '../util/util';
+import Hero from './Hero';
 
 const WEAPON_COLORS = {
   Raygun: color(200, 50, 50),
@@ -50,6 +51,14 @@ class WeaponPickUp extends PickUp {
       this.weaponType = type;
       const color = WEAPON_COLORS[type] || WEAPON_COLORS.default;
       this.setColor(color);
+    }
+  }
+
+  shouldPickUp(hero) {
+    if (hero instanceof Hero) {
+      return hero.weapon && hero.weapon.type === 'Pistol';
+    } else {
+      return false;
     }
   }
 }

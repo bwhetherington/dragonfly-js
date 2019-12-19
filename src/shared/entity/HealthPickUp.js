@@ -2,6 +2,7 @@ import PickUp from './PickUp';
 import { isClient, registerEntity } from '../util/util';
 import Explosion from './Explosion';
 import GM from '../event/GameManager';
+import Hero from './Hero';
 
 const COLOR = {
   red: 50,
@@ -34,6 +35,10 @@ class HealthPickUp extends PickUp {
 
   onPickUp(hero) {
     hero.damageAmount = Math.max(hero.damageAmount - HEAL_AMOUNT, 0);
+  }
+
+  shouldPickUp(hero) {
+    return hero instanceof Hero && hero.damage > 0;
   }
 }
 

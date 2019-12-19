@@ -37,7 +37,7 @@ class PickUp extends Entity {
             other = object1;
           }
         }
-        if (other !== null) {
+        if (other !== null && this.shouldPickUp(other)) {
           this.onPickUp(other);
           this.markForDelete();
         }
@@ -83,6 +83,10 @@ class PickUp extends Entity {
     const square = two.makeRoundedRectangle(this.position.x, this.position.y, 20, 20, 4);
     square.linewidth = 5;
     this.graphicsObject = square;
+  }
+
+  shouldPickUp(hero) {
+    return true;
   }
 
   onPickUp(hero) {
