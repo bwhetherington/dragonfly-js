@@ -1,18 +1,18 @@
-import Timer from './timer';
-import GM from '../shared/event/GameManager';
-import Server from '../shared/network/Server';
-import delayServer from '../shared/network/DelayServer';
-import WM from '../shared/entity/WorldManager';
-import Hero from '../shared/entity/Hero';
-import { readFileSync } from 'fs';
-import Rectangle from '../shared/util/Rectangle';
-import WeaponPickUp from '../shared/entity/WeaponPickUp';
-import HealthPickUp from '../shared/entity/HealthPickUp';
-import NM from '../shared/network/NetworkManager';
-import { diff, deepDiff, pruneEmpty } from '../shared/util/util';
-import LM from '../shared/network/LogManager';
-import SETTINGS from '../shared/util/settings';
-import Enemy from '../shared/entity/Enemy';
+import Timer from "./timer";
+import GM from "../shared/event/GameManager";
+import Server from "../shared/network/Server";
+import delayServer from "../shared/network/DelayServer";
+import WM from "../shared/entity/WorldManager";
+import Hero from "../shared/entity/Hero";
+import { readFileSync } from "fs";
+import Rectangle from "../shared/util/Rectangle";
+import WeaponPickUp from "../shared/entity/WeaponPickUp";
+import HealthPickUp from "../shared/entity/HealthPickUp";
+import NM from "../shared/network/NetworkManager";
+import { diff, deepDiff, pruneEmpty } from "../shared/util/util";
+import LM from "../shared/network/LogManager";
+import SETTINGS from "../shared/util/settings";
+import Enemy from "../shared/entity/Enemy";
 
 const REFRESH_RATE = 60;
 
@@ -36,7 +36,7 @@ class GameServer extends Server {
       hero.markForDelete();
 
       const message = {
-        type: 'REMOVE_PLAYER',
+        type: "REMOVE_PLAYER",
         data: {
           id: socketIndex
         }
@@ -70,7 +70,7 @@ class GameServer extends Server {
 
   createHero(socketIndex) {
     const hero = new Hero(socketIndex);
-    hero.name = this.heroesToCreate[socketIndex] || 'Hero';
+    hero.name = this.heroesToCreate[socketIndex] || "Hero";
     this.heroes[socketIndex] = hero;
     WM.add(hero);
 
@@ -79,19 +79,21 @@ class GameServer extends Server {
     hero.setPosition(spawnPoint);
 
     // Assign player ID to player
-    NM.send({
-      type: 'ASSIGN_ID',
-      data: {
-        playerID: socketIndex,
-        entityID: hero.id,
-        serverTime: GM.timeElapsed
-      }
-    }, socketIndex);
+    NM.send(
+      {
+        type: "ASSIGN_ID",
+        data: {
+          playerID: socketIndex,
+          entityID: hero.id,
+          serverTime: GM.timeElapsed
+        }
+      },
+      socketIndex
+    );
 
-    hero.registerHandler('MOUSE_DOWN', data => {
-
+    hero.registerHandler("MOUSE_DOWN", data => {
       const event = {
-        type: 'TIME_WARPED_MOUSE_DOWN',
+        type: "TIME_WARPED_MOUSE_DOWN",
         data
       };
 
@@ -108,7 +110,7 @@ class GameServer extends Server {
       }
     });
 
-    hero.registerHandler('MOUSE_UP', event => {
+    hero.registerHandler("MOUSE_UP", event => {
       const { position, socketIndex } = event;
       if (hero.playerID === socketIndex) {
         hero.setTarget(position);
@@ -118,7 +120,7 @@ class GameServer extends Server {
       }
     });
 
-    hero.registerHandler('TIME_WARPED_MOUSE_DOWN', event => {
+    hero.registerHandler("TIME_WARPED_MOUSE_DOWN", event => {
       const { position, socketIndex } = event;
       if (hero.playerID === socketIndex) {
         const { x, y } = position;
@@ -130,7 +132,7 @@ class GameServer extends Server {
       }
     });
 
-    hero.registerHandler('ROTATE_CANNON', event => {
+    hero.registerHandler("ROTATE_CANNON", event => {
       const { playerID, angle, target, socketIndex } = event;
       if (playerID === socketIndex && hero.playerID === playerID) {
         hero.rotateCannon(angle);
@@ -138,7 +140,7 @@ class GameServer extends Server {
       }
     });
 
-    hero.registerHandler('PLAYER_KILLED', event => {
+    hero.registerHandler("PLAYER_KILLED", event => {
       const { killerID, killedID } = event;
       if (hero.id === killerID && hero.id !== killedID) {
         hero.score += hero.maxDamage;
@@ -169,12 +171,12 @@ class GameServer extends Server {
     //   GM.emitEvent(newState);
     // });
 
-    GM.registerHandler('ASSIGN_LATENCY', event => {
+    GM.registerHandler("ASSIGN_LATENCY", event => {
       const { socketIndex, latency } = event;
       console.log(`Player ${socketIndex}: ${latency}`);
     });
 
-    GM.registerHandler('JOIN_GAME', event => {
+    GM.registerHandler("JOIN_GAME", event => {
       const { name, socketIndex } = event;
 
       // Create hero for player
@@ -185,13 +187,13 @@ class GameServer extends Server {
       }
     });
 
-    GM.registerHandler('REJOIN_GAME', event => {
-      console.log('REJOIN_GAME', event);
+    GM.registerHandler("REJOIN_GAME", event => {
+      console.log("REJOIN_GAME", event);
 
       const { socketIndex } = event;
       const name = this.lastGameHeroes[socketIndex];
       const rejoin = {
-        type: 'JOIN_GAME',
+        type: "JOIN_GAME",
         data: {
           name,
           socketIndex
@@ -200,67 +202,66 @@ class GameServer extends Server {
       GM.emitEvent(rejoin);
     });
 
-
-    GM.registerHandler('KEY_DOWN', event => {
+    GM.registerHandler("KEY_DOWN", event => {
       const hero = this.heroes[event.socketIndex];
       if (hero) {
         switch (event.key) {
-          case 'KeyW':
-            hero.setInput('up', true);
+          case "KeyW":
+            hero.setInput("up", true);
             break;
-          case 'KeyS':
-            hero.setInput('down', true);
+          case "KeyS":
+            hero.setInput("down", true);
             break;
-          case 'KeyA':
-            hero.setInput('left', true);
+          case "KeyA":
+            hero.setInput("left", true);
             break;
-          case 'KeyD':
-            hero.setInput('right', true);
+          case "KeyD":
+            hero.setInput("right", true);
             break;
-          case 'KeyQ':
+          case "KeyQ":
             hero.dropWeapon();
             break;
-        };
+        }
       }
     });
 
-    GM.registerHandler('KEY_UP', event => {
+    GM.registerHandler("KEY_UP", event => {
       const hero = this.heroes[event.socketIndex];
       if (hero) {
         switch (event.key) {
-          case 'KeyW':
-            hero.setInput('up', false);
+          case "KeyW":
+            hero.setInput("up", false);
             break;
-          case 'KeyS':
-            hero.setInput('down', false);
+          case "KeyS":
+            hero.setInput("down", false);
             break;
-          case 'KeyA':
-            hero.setInput('left', false);
+          case "KeyA":
+            hero.setInput("left", false);
             break;
-          case 'KeyD':
-            hero.setInput('right', false);
+          case "KeyD":
+            hero.setInput("right", false);
             break;
-          case 'ShiftLeft':
-          case 'ShiftRight':
+          case "ShiftLeft":
+          case "ShiftRight":
             hero.setSlow(false);
             break;
-        };
+        }
       }
     });
 
-    GM.registerHandler('PLAY_AUDIO', data => {
+    GM.registerHandler("PLAY_AUDIO", data => {
       const event = {
-        type: 'PLAY_AUDIO',
+        type: "PLAY_AUDIO",
         data
       };
 
       NM.send(event);
     });
 
-    GM.registerHandler('CHAT_INPUT', data => {
+    GM.registerHandler("CHAT_INPUT", data => {
       console.log(data);
       const event = {
-        type: 'CHAT_OUTPUT',
+        type: "CHAT_OUTPUT",
         data
       };
       NM.send(event);
@@ -268,26 +269,29 @@ class GameServer extends Server {
       console.log(`[${id}] ${author}: ${content}`);
     });
 
-    GM.registerHandler('SPAWN_ENEMY', event => {
+    GM.registerHandler("SPAWN_ENEMY", event => {
       const enemy = new Enemy();
       enemy.setPosition(WM.getRandomPoint(40, 40));
       WM.add(enemy);
     });
 
-    GM.registerHandler('REQUEST_STATS', event => {
+    GM.registerHandler("REQUEST_STATS", event => {
       const { socketIndex } = event;
       const entityCount = WM.getEntityCount();
       const listenerCount = GM.getHandlerCount();
-      NM.send({
-        type: 'SEND_STATS',
-        data: {
-          entityCount,
-          listenerCount
-        }
-      }, socketIndex);
+      NM.send(
+        {
+          type: "SEND_STATS",
+          data: {
+            entityCount,
+            listenerCount
+          }
+        },
+        socketIndex
+      );
     });
 
-    GM.registerHandler('PLAYER_KILLED', event => {
+    GM.registerHandler("PLAYER_KILLED", event => {
       let winningHeroID = -1;
       for (const key in this.heroes) {
         const hero = this.heroes[key];
@@ -301,7 +305,7 @@ class GameServer extends Server {
       }
 
       const wonEvent = {
-        type: 'GAME_WON',
+        type: "GAME_WON",
         data: {
           winningHeroID
         }
@@ -311,7 +315,7 @@ class GameServer extends Server {
     });
 
     // Load level
-    const levelString = readFileSync('level.json', 'utf-8');
+    const levelString = readFileSync("level.json", "utf-8");
     const level = JSON.parse(levelString);
 
     WM.setSpawnPoints(level.spawnPoints);
@@ -320,32 +324,34 @@ class GameServer extends Server {
       WM.friction = level.friction;
     }
     if (level.features !== undefined) {
-      WM.icePatches = level.features.map(({ x, y, width, height }) => new Rectangle(x, y, width, height));
+      WM.icePatches = level.features.map(
+        ({ x, y, width, height }) => new Rectangle(x, y, width, height)
+      );
     }
 
     this.generatePickups();
   }
 
   generatePickups() {
-    const raygun = new WeaponPickUp('Raygun');
+    const raygun = new WeaponPickUp("Raygun");
     raygun.setPosition(WM.getRandomPoint(30, 30));
     WM.add(raygun);
 
-    const rocket = new WeaponPickUp('Rocket');
+    const rocket = new WeaponPickUp("Rocket");
     rocket.setPosition(WM.getRandomPoint(30, 30));
     WM.add(rocket);
 
-    const shotgun = new WeaponPickUp('Shotgun');
+    const shotgun = new WeaponPickUp("Mortar");
     shotgun.setPosition(WM.getRandomPoint(30, 30));
     WM.add(shotgun);
 
-    const madsen = new WeaponPickUp('Madsen');
+    const madsen = new WeaponPickUp("Madsen");
     madsen.setPosition(WM.getRandomPoint(30, 30));
     WM.add(madsen);
   }
 
   resetGame() {
-    console.log('reset game');
+    console.log("reset game");
     this.numberOfHeroes = 0;
 
     // Delete all heroes
@@ -364,7 +370,7 @@ class GameServer extends Server {
     this.generatePickups();
 
     const message = {
-      type: 'RESET_GAME',
+      type: "RESET_GAME",
       data: {}
     };
     GM.emitEvent(message);
@@ -373,28 +379,40 @@ class GameServer extends Server {
 
   onOpen(socketIndex) {
     super.onOpen(socketIndex);
-    NM.send({
-      type: 'DEFINE_ARENA',
-      data: {
-        friction: WM.friction,
-        ice: WM.icePatches.map(shape => ({ type: shape.constructor.name, ...shape })),
-        geometry: WM.geometry.map(shape => ({ type: shape.constructor.name, ...shape }))
-      }
-    }, socketIndex);
+    NM.send(
+      {
+        type: "DEFINE_ARENA",
+        data: {
+          friction: WM.friction,
+          ice: WM.icePatches.map(shape => ({
+            type: shape.constructor.name,
+            ...shape
+          })),
+          geometry: WM.geometry.map(shape => ({
+            type: shape.constructor.name,
+            ...shape
+          }))
+        }
+      },
+      socketIndex
+    );
   }
 }
 
 const initializeCleanup = (server, timer) => {
-  process.on('exit', cleanup.bind(null, server, timer, { clean: true }));
-  process.on('SIGINT', cleanup.bind(null, server, timer, { exit: true }));
-  process.on('SIGUSR1', cleanup.bind(null, server, timer, { exit: true }));
-  process.on('SIGUSR2', cleanup.bind(null, server, timer, { exit: true }));
-  process.on('uncaughtException', cleanup.bind(null, server, timer, { exit: true }));
+  process.on("exit", cleanup.bind(null, server, timer, { clean: true }));
+  process.on("SIGINT", cleanup.bind(null, server, timer, { exit: true }));
+  process.on("SIGUSR1", cleanup.bind(null, server, timer, { exit: true }));
+  process.on("SIGUSR2", cleanup.bind(null, server, timer, { exit: true }));
+  process.on(
+    "uncaughtException",
+    cleanup.bind(null, server, timer, { exit: true })
+  );
 };
 
 const cleanup = (server, timer, options) => {
   if (options.clean) {
-    console.log('Cleaning server resources');
+    console.log("Cleaning server resources");
     server.stop();
     timer.stop();
     LM.closeAllStreams();

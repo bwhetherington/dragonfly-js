@@ -31,9 +31,10 @@ class Bar {
 
   updateElement(oldValue, newValue) {
     if (oldValue !== newValue) {
-      const width = Math.round(this.value / this.maxValue * 100) + '%';
+      const width = Math.round((this.value / this.maxValue) * 100) + "%";
       if (this.label) {
-        this.label.innerText = Math.round(this.value) + '/' + Math.round(this.maxValue);
+        this.label.innerText =
+          Math.round(this.value) + "/" + Math.round(this.maxValue);
       }
       this.element.style.width = width;
     }

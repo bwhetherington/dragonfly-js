@@ -1,15 +1,15 @@
 import GM from "../event/GameManager";
-import { formatJSON } from '../util/util';
+import { formatJSON } from "../util/util";
 
 const format = (items = []) => {
-  let output = '';
+  let output = "";
   for (const arg of items) {
-    if (typeof arg === 'object') {
+    if (typeof arg === "object") {
       output += formatJSON(arg);
     } else {
       output += arg;
     }
-    output += ' ';
+    output += " ";
   }
   console.log(output);
   return output;
@@ -27,19 +27,19 @@ class NetworkManager {
   logOptions(items, options = {}) {
     let content;
     if (options.batch) {
-      content = items.map(format).join('\n');
+      content = items.map(format).join("\n");
     } else {
       content = format(items);
     }
     const message = {
-      author: 'Server',
+      author: "Server",
       content,
       id: -1,
       time: Date.now(),
       pre: options.pre || false
     };
     this.send({
-      type: 'CHAT_OUTPUT',
+      type: "CHAT_OUTPUT",
       data: {
         message
       }

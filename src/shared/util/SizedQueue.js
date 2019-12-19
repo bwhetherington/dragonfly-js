@@ -13,7 +13,7 @@ class SizedQueue {
 
   validateSize() {
     if (this.size > this.maxSize) {
-      console.log('size warning');
+      console.log("size warning");
     }
   }
 
@@ -81,7 +81,6 @@ class SizedQueue {
       this.validateSize();
       return value;
     } else {
-
       this.validateSize();
       return null;
     }
@@ -107,7 +106,6 @@ class SizedQueue {
       this.validateSize();
       return node.value;
     } else {
-
       this.validateSize();
       return null;
     }

@@ -1,11 +1,11 @@
-import Entity from './Entity';
-import GM from '../event/GameManager';
-import WM from './WorldManager';
-import Rectangle from '../util/Rectangle';
-import Explosion from './Explosion';
-import { isClient, isServer, registerEntity, color } from '../util/util';
-import Hero from '../entity/Hero';
-import PickUp from './PickUp';
+import Entity from "./Entity";
+import GM from "../event/GameManager";
+import WM from "./WorldManager";
+import Rectangle from "../util/Rectangle";
+import Explosion from "./Explosion";
+import { isClient, isServer, registerEntity, color } from "../util/util";
+import Hero from "../entity/Hero";
+import PickUp from "./PickUp";
 
 const DEFAULT_COLOR = color(200, 150, 50);
 
@@ -26,7 +26,7 @@ class Projectile extends Entity {
     this.updatePosition();
 
     // if (isServer()) {
-    this.registerHandler('GEOMETRY_COLLISION', event => {
+    this.registerHandler("GEOMETRY_COLLISION", event => {
       const { object } = event;
       if (object.id === this.id) {
         this.handleBounce();
@@ -37,7 +37,7 @@ class Projectile extends Entity {
       }
     });
 
-    this.registerHandler('OBJECT_COLLISION', event => {
+    this.registerHandler("OBJECT_COLLISION", event => {
       const { object1, object2 } = event;
       let other = null;
       if (object1.id === this.id) {
@@ -92,13 +92,14 @@ class Projectile extends Entity {
 
   hit(entity) {
     if (entity instanceof Hero && !entity.isInvincible) {
-      const scale = ((entity.damageAmount / entity.maxDamage) * 0.8 + 0.2) * 200;
+      const scale =
+        ((entity.damageAmount / entity.maxDamage) * 0.8 + 0.2) * 200;
       this.velocity.normalize();
       this.velocity.scale(scale);
       entity.applyForce(this.velocity);
     }
     const event = {
-      type: 'HIT_OBJECT',
+      type: "HIT_OBJECT",
       data: {
         sourceID: this.sourceID,
         projectileID: this.id,
@@ -145,7 +146,6 @@ class Projectile extends Entity {
       return false;
     }
   }
-
 }
 
 export default Projectile;

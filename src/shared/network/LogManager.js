@@ -1,12 +1,12 @@
-import GM from '../event/GameManager';
-import fs from 'fs';
-import { isServer } from '../util/util';
+import GM from "../event/GameManager";
+import fs from "fs";
+import { isServer } from "../util/util";
 
 const makeDir = path => {
   if (!fs.existsSync(path)) {
-    fs.mkdirSync(path)
+    fs.mkdirSync(path);
   }
-}
+};
 
 class LogManager {
   constructor() {
@@ -15,15 +15,15 @@ class LogManager {
   }
 
   initialize() {
-    GM.registerHandler('RESET_GAME', data => {
+    GM.registerHandler("RESET_GAME", data => {
       this.closeAllStreams();
       this.gameNum++;
       makeDir(`game-logs/game:${this.gameNum}`);
-    })
-    GM.registerHandler('PLAYER_DISCONNECT', data => {
+    });
+    GM.registerHandler("PLAYER_DISCONNECT", data => {
       this.closeStream(data.socketIndex);
-    })
-    makeDir('game-logs/');
+    });
+    makeDir("game-logs/");
     makeDir(`game-logs/game:${this.gameNum}`);
   }
 
@@ -31,11 +31,12 @@ class LogManager {
     if (isServer()) {
       if (!this.streamMap.hasOwnProperty(id)) {
         const file = `game-logs/game:${this.gameNum}/player:${id}.log`;
-        this.streamMap[id] = fs.createWriteStream(file, { flags: 'a' })
-          .on('finish', () => {
+        this.streamMap[id] = fs
+          .createWriteStream(file, { flags: "a" })
+          .on("finish", () => {
             console.log("Write Finish.");
           })
-          .on('error', err => {
+          .on("error", err => {
             console.log(err.stack);
           });
       }
@@ -44,9 +45,9 @@ class LogManager {
         data: data,
         time: time,
         rollback: GM.rollback
-      }
+      };
       const stringData = JSON.stringify(finalData);
-      this.streamMap[id].write(stringData + '\n', err => {
+      this.streamMap[id].write(stringData + "\n", err => {
         if (err) {
           throw err;
         }

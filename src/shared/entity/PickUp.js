@@ -1,8 +1,8 @@
-import Entity from './Entity';
-import Rectangle from '../util/Rectangle';
-import { isServer, registerEntity } from '../util/util';
-import Hero from './Hero';
-import GM from '../event/GameManager';
+import Entity from "./Entity";
+import Rectangle from "../util/Rectangle";
+import { isServer, registerEntity } from "../util/util";
+import Hero from "./Hero";
+import GM from "../event/GameManager";
 
 class PickUp extends Entity {
   constructor() {
@@ -15,8 +15,7 @@ class PickUp extends Entity {
     this.isSpawned = false;
 
     if (isServer()) {
-
-      this.registerHandler('STEP', event => {
+      this.registerHandler("STEP", event => {
         if (!this.isSpawned) {
           this.timer = Math.max(0, this.timer - event.dt);
           if (this.timer === 0) {
@@ -25,7 +24,7 @@ class PickUp extends Entity {
         }
       });
 
-      this.registerHandler('OBJECT_COLLISION', event => {
+      this.registerHandler("OBJECT_COLLISION", event => {
         const { object1, object2 } = event;
         let other = null;
         if (object1.id === this.id) {
@@ -80,7 +79,13 @@ class PickUp extends Entity {
   }
 
   initializeGraphics(two) {
-    const square = two.makeRoundedRectangle(this.position.x, this.position.y, 20, 20, 4);
+    const square = two.makeRoundedRectangle(
+      this.position.x,
+      this.position.y,
+      20,
+      20,
+      4
+    );
     square.linewidth = 5;
     this.graphicsObject = square;
   }
@@ -89,8 +94,7 @@ class PickUp extends Entity {
     return true;
   }
 
-  onPickUp(hero) {
-  }
+  onPickUp(hero) {}
 }
 
 export default PickUp;

@@ -1,4 +1,4 @@
-import encoder from './Encoder';
+import encoder from "./Encoder";
 
 class Vector {
   constructor(x, y) {

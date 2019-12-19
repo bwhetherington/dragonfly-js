@@ -4,7 +4,7 @@ import Rectangle from "../util/Rectangle";
 import Vector from "../util/Vector";
 import GM from "../event/GameManager";
 import { isServer, isClient, registerEntity } from "../util/util";
-import Hero from './Hero';
+import Hero from "./Hero";
 
 class Ray extends Entity {
   constructor(sourceID = null) {
@@ -16,7 +16,7 @@ class Ray extends Entity {
     this.isSpectral = true;
 
     if (isServer()) {
-      this.registerHandler('OBJECT_COLLISION', event => {
+      this.registerHandler("OBJECT_COLLISION", event => {
         const { object1, object2 } = event;
         let other = null;
         if (object1.id === this.id) {
@@ -31,7 +31,8 @@ class Ray extends Entity {
         if (other !== null) {
           this.hit(other);
           if (other instanceof Hero && !other.isInvincible) {
-            const scale = ((other.damageAmount / other.maxDamage) * 0.8 + 0.2) * 200;
+            const scale =
+              ((other.damageAmount / other.maxDamage) * 0.8 + 0.2) * 200;
             this.velocity.normalize();
             this.velocity.scale(scale);
             other.applyForce(this.velocity);
@@ -47,7 +48,7 @@ class Ray extends Entity {
 
   hit(entity) {
     const event = {
-      type: 'HIT_OBJECT',
+      type: "HIT_OBJECT",
       data: {
         sourceID: this.sourceID,
         projectileID: this.id,
@@ -76,7 +77,7 @@ class Ray extends Entity {
     const end = this.position;
 
     const event = {
-      type: 'CREATE_RAY',
+      type: "CREATE_RAY",
       data: {
         source: this.sourceID,
         start: {
@@ -91,7 +92,6 @@ class Ray extends Entity {
     };
     GM.emitEvent(event);
   }
-
 }
 
 export default Ray;

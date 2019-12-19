@@ -4,10 +4,11 @@ class Timer {
     this.lastTime = 0;
     this.onFrame = time => {
       const dt = (time - this.lastTime) / 1000;
+      // console.log(dt);
       this.callback(dt);
       this.lastTime = time;
       requestAnimationFrame(this.onFrame);
-    }
+    };
   }
 
   stop() {

@@ -1,23 +1,23 @@
-import Entity from './Entity';
-import Vector from '../util/Vector';
-import GM from '../event/GameManager';
-import WM from './WorldManager';
-import Pistol from './Pistol';
-import Shotgun from './Shotgun';
-import Raygun from './Raygun';
-import Weapon from './Weapon';
-import { isServer, isClient, registerEntity, color } from '../util/util';
-import NM from '../network/NetworkManager';
-import Explosion from './Explosion';
-import SETTINGS from '../util/settings';
-import WeaponPickUp from './WeaponPickUp';
-import Rocket from './Rocket';
-import Madsen from './Madsen';
-import Enemy from './Enemy';
+import Entity from "./Entity";
+import Vector from "../util/Vector";
+import GM from "../event/GameManager";
+import WM from "./WorldManager";
+import Pistol from "./Pistol";
+import Shotgun from "./Shotgun";
+import Raygun from "./Raygun";
+import Weapon from "./Weapon";
+import { isServer, isClient, registerEntity, color } from "../util/util";
+import NM from "../network/NetworkManager";
+import Explosion from "./Explosion";
+import SETTINGS from "../util/settings";
+import WeaponPickUp from "./WeaponPickUp";
+import Rocket from "./Rocket";
+import Madsen from "./Madsen";
+import Enemy from "./Enemy";
 
 const MOVEMENT_SPEED = 300;
 
-const colorOptions = ['red', 'blue', 'yellow', 'green', 'white', 'black'];
+const colorOptions = ["red", "blue", "yellow", "green", "white", "black"];
 
 const COLORS = {
   red: {
@@ -68,7 +68,7 @@ class Hero extends Entity {
     };
     this.damageAmount = 0;
     this.cannonAngle = 0;
-    this.setWeapon('Pistol');
+    this.setWeapon("Pistol");
     this.friction = 1;
     this.bounce = 0.2;
     this.score = 0;
@@ -81,7 +81,7 @@ class Hero extends Entity {
     this.lives = this.totalLives;
     this.target = new Vector(0, 0);
 
-    this.registerHandler('OBJECT_COLLISION', event => {
+    this.registerHandler("OBJECT_COLLISION", event => {
       const { object1, object2 } = event;
       let other = null;
       if (object1.id === this.id) {
@@ -104,7 +104,7 @@ class Hero extends Entity {
       }
     });
 
-    this.registerHandler('STEP', event => {
+    this.registerHandler("STEP", event => {
       const { dt } = event;
 
       if (isServer() && this.weapon) {
@@ -123,9 +123,9 @@ class Hero extends Entity {
         if (this.invilTimer <= 0) {
           this.invilTimer = -1;
           const event = {
-            type: 'INVICIBILITY_END',
+            type: "INVICIBILITY_END",
             data: {
-              id: this.id,
+              id: this.id
             }
           };
           GM.emitEvent(event);
@@ -140,7 +140,7 @@ class Hero extends Entity {
         if (this.deathTimer <= 0) {
           this.deathTimer = -1;
           const event = {
-            type: 'RESPAWN',
+            type: "RESPAWN",
             data: {
               id: this.id,
               position: { x: 0, y: 0 }
@@ -155,21 +155,21 @@ class Hero extends Entity {
       }
     });
 
-    this.registerHandler('PLAYER_KILLED', event => {
+    this.registerHandler("PLAYER_KILLED", event => {
       const { deadID } = event;
       if (this.id === deadID) {
         this.kill();
       }
     });
 
-    this.registerHandler('RESPAWN', event => {
+    this.registerHandler("RESPAWN", event => {
       const { id } = event;
       if (this.id === id) {
         this.respawn(WM.getSpawnPoint(this.playerID));
       }
     });
 
-    this.registerHandler('INVICIBILITY_END', event => {
+    this.registerHandler("INVICIBILITY_END", event => {
       const { id } = event;
       if (this.id === id) {
         this.endInvincibility();
@@ -191,7 +191,7 @@ class Hero extends Entity {
 
   dropWeapon() {
     const { weapon } = this;
-    if (weapon && weapon.type !== 'Pistol') {
+    if (weapon && weapon.type !== "Pistol") {
       if (isServer()) {
         const pickup = new WeaponPickUp(weapon.type);
         pickup.setPosition(this.position);
@@ -199,7 +199,7 @@ class Hero extends Entity {
       }
       this.weapon = new Pistol();
       GM.emitEvent({
-        type: 'DROP_WEAPON',
+        type: "DROP_WEAPON",
         data: {
           type: weapon.type
         }
@@ -226,7 +226,7 @@ class Hero extends Entity {
 
     if (this.damageAmount >= this.maxDamage) {
       const event = {
-        type: 'PLAYER_KILLED',
+        type: "PLAYER_KILLED",
         data: {
           deadID: this.id,
           killerID: sourceID
@@ -361,7 +361,10 @@ class Hero extends Entity {
     this.cannonAngle = angle;
 
     // Calculate cannon tip
-    this.vectorBuffer2.setXY(Math.cos(angle - Math.PI / 2), Math.sin(angle - Math.PI / 2));
+    this.vectorBuffer2.setXY(
+      Math.cos(angle - Math.PI / 2),
+      Math.sin(angle - Math.PI / 2)
+    );
     this.vectorBuffer2.scale(30);
 
     if (this.cannon) {
@@ -390,7 +393,6 @@ class Hero extends Entity {
     const { ...oldInput } = this.input;
 
     if (super.deserialize(obj)) {
-
       if (obj.input) {
         this.acceleration.setXY(0, 0);
         for (const key in obj.input) {
@@ -413,7 +415,7 @@ class Hero extends Entity {
           }
 
           NM.send({
-            type: 'SYNC_OBJECT',
+            type: "SYNC_OBJECT",
             data: {
               object: {
                 id: this.id,
@@ -437,7 +439,7 @@ class Hero extends Entity {
         this.score = obj.score;
 
         const event = {
-          type: 'UPDATE_SCORE',
+          type: "UPDATE_SCORE",
           data: {
             id: this.playerID,
             score: this.score
@@ -450,10 +452,9 @@ class Hero extends Entity {
       }
       if (obj.weapon !== undefined) {
         if (obj.weapon.type !== this.weapon.type) {
-          this.setWeapon(obj.weapon.type)
+          this.setWeapon(obj.weapon.type);
         }
         this.weapon.deserialize(obj.weapon);
-
       }
       if (obj.name !== undefined) {
         this.name = obj.name;
@@ -490,7 +491,7 @@ class Hero extends Entity {
     // cannonGroup.translation.set(this.position.x, this.position.y);
     this.cannon = cannonGroup;
 
-    this.graphicsObject = two.makeGroup(object, cannonGroup)
+    this.graphicsObject = two.makeGroup(object, cannonGroup);
     this.graphicsObject.translation.set(this.position.x, this.position.y);
 
     // Select color
@@ -504,7 +505,7 @@ class Hero extends Entity {
   resetWeapon() {
     this.weapon = new Pistol();
     GM.emitEvent({
-      type: 'EQUIP_WEAPON',
+      type: "EQUIP_WEAPON",
       data: {
         playerID: this.playerID,
         weapon: this.weapon.serialize()
@@ -522,7 +523,7 @@ class Hero extends Entity {
         }
         this.weapon = weapon;
         GM.emitEvent({
-          type: 'EQUIP_WEAPON',
+          type: "EQUIP_WEAPON",
           data: {
             playerID: this.playerID,
             weapon: weapon.serialize()

@@ -1,26 +1,27 @@
-import GM from '../event/GameManager';
-import { diff, isServer } from '../util/util';
-import Rectangle from '../util/Rectangle';
-import InverseRectangle from '../util/InverseRectangle';
-import Projectile from '../entity/Projectile';
-import { Vector } from 'twojs-ts';
-import Hero from './Hero';
-import SizedQueue from '../util/SizedQueue';
-import NM from '../network/NetworkManager';
-import SETTINGS from '../util/settings';
-import LM from '../network/LogManager';
-import Enemy from './Enemy';
-import Laser from './Laser';
-import Explosion from './Explosion';
-import PickUp from './PickUp';
-import HealthPickUp from './HealthPickUp';
-import WeaponPickUp from './WeaponPickUp';
-import Entity from './Entity';
-import Pistol from './Pistol';
-import Shotgun from './Shotgun';
-import Raygun from './Raygun';
-import Madsen from './Madsen';
-import Rocket from './Rocket';
+import GM from "../event/GameManager";
+import { diff, isServer } from "../util/util";
+import Rectangle from "../util/Rectangle";
+import InverseRectangle from "../util/InverseRectangle";
+import Projectile from "../entity/Projectile";
+import { Vector } from "twojs-ts";
+import Hero from "./Hero";
+import SizedQueue from "../util/SizedQueue";
+import NM from "../network/NetworkManager";
+import SETTINGS from "../util/settings";
+import LM from "../network/LogManager";
+import Enemy from "./Enemy";
+import Laser from "./Laser";
+import Explosion from "./Explosion";
+import PickUp from "./PickUp";
+import HealthPickUp from "./HealthPickUp";
+import WeaponPickUp from "./WeaponPickUp";
+import Entity from "./Entity";
+import Pistol from "./Pistol";
+import Shotgun from "./Shotgun";
+import Raygun from "./Raygun";
+import Madsen from "./Madsen";
+import Rocket from "./Rocket";
+import Mortar from "./Mortar";
 
 class WorldManager {
   constructor() {
@@ -62,6 +63,7 @@ class WorldManager {
     this.registerWeapon(Rocket);
     this.registerWeapon(Madsen);
     this.registerWeapon(Raygun);
+    this.registerWeapon(Mortar);
   }
 
   registerEntity(EntityType) {
@@ -72,9 +74,7 @@ class WorldManager {
     this.weaponTable[WeaponType.name] = WeaponType;
   }
 
-  buildNavMesh(geometry) {
-
-  }
+  buildNavMesh(geometry) {}
 
   *getEntities() {
     for (const id in this.entities) {
@@ -117,23 +117,27 @@ class WorldManager {
   }
 
   setGeomtetry(geometry) {
-    this.geometry = geometry.map(({ type, x, y, width, height }) => {
-      switch (type) {
-        case 'Rectangle':
-          return new Rectangle(x, y, width, height);
-        case 'InverseRectangle':
-          this.setBounds(x - width / 2, y - height / 2, width, height);
-          return new InverseRectangle(x, y, width, height);
-        default:
-          return null;
-      }
-    }).filter(shape => shape !== null);
+    this.geometry = geometry
+      .map(({ type, x, y, width, height }) => {
+        switch (type) {
+          case "Rectangle":
+            return new Rectangle(x, y, width, height);
+          case "InverseRectangle":
+            this.setBounds(x - width / 2, y - height / 2, width, height);
+            return new InverseRectangle(x, y, width, height);
+          default:
+            return null;
+        }
+      })
+      .filter(shape => shape !== null);
   }
 
   getRandomPoint(w = 0, h = 0) {
     const { x, y, width, height } = this.bounds;
 
-    let rx, ry, notFound = true;
+    let rx,
+      ry,
+      notFound = true;
 
     // If there are no valid spots, this will hang
     while (notFound) {
@@ -148,7 +152,9 @@ class WorldManager {
 
       notFound = false;
       for (const shape of this.geometry) {
-        const condition = (rect !== null && shape.intersects(rect)) || shape.containsPoint(rx, ry);
+        const condition =
+          (rect !== null && shape.intersects(rect)) ||
+          shape.containsPoint(rx, ry);
         if (condition) {
           notFound = true;
           // break;
@@ -159,7 +165,7 @@ class WorldManager {
   }
 
   initialize() {
-    GM.registerHandler('STEP', ({ step, dt }) => {
+    GM.registerHandler("STEP", ({ step, dt }) => {
       this.step(step, dt);
     });
     this.initializeEntityTypes();
@@ -175,7 +181,7 @@ class WorldManager {
     this.entityCount += 1;
 
     const event = {
-      type: 'CREATE_OBJECT',
+      type: "CREATE_OBJECT",
       data: {
         object: entity
       }
@@ -301,7 +307,10 @@ class WorldManager {
             // Revert to last valid position
             // Emit collision event
             entity.setPositionXY(oldX, entity.position.y);
-            entity.velocity.setXY(entity.velocity.x * -entity.bounce, entity.velocity.y);
+            entity.velocity.setXY(
+              entity.velocity.x * -entity.bounce,
+              entity.velocity.y
+            );
             collidedX = true;
             break;
           }
@@ -318,7 +327,10 @@ class WorldManager {
             // Then we cannot move here
             // Revert to last valid position
             entity.setPositionXY(entity.position.x, oldY);
-            entity.velocity.setXY(entity.velocity.x, entity.velocity.y * -entity.bounce);
+            entity.velocity.setXY(
+              entity.velocity.x,
+              entity.velocity.y * -entity.bounce
+            );
             collidedY = true;
             break;
           }
@@ -349,7 +361,7 @@ class WorldManager {
 
     if (collidedX || collidedY) {
       const event = {
-        type: 'GEOMETRY_COLLISION',
+        type: "GEOMETRY_COLLISION",
         data: {
           object: entity
         }
@@ -360,7 +372,7 @@ class WorldManager {
 
     for (const id in collidedEntities) {
       const event = {
-        type: 'OBJECT_COLLISION',
+        type: "OBJECT_COLLISION",
         data: {
           object1: entity,
           object2: collidedEntities[id]
@@ -442,7 +454,7 @@ class WorldManager {
 
         for (const event of events) {
           times.push(event.time);
-          if (event.type === 'STEP') {
+          if (event.type === "STEP") {
             GM.step(event.data.dt, event.id);
           } else {
             GM.emitEvent(event);
@@ -476,7 +488,7 @@ class WorldManager {
         this.sync(NM.node, -1, true, true);
         return;
       } else {
-        LM.logData('Attempted to rollback, but state could not be found');
+        LM.logData("Attempted to rollback, but state could not be found");
       }
     }
 
@@ -526,7 +538,7 @@ class WorldManager {
   }
 
   /**
-   * 
+   *
    */
   serializeArray() {
     const batch = [];
@@ -570,7 +582,6 @@ class WorldManager {
           if (entity.doSynchronize) {
             const serialized = entity.serialize();
             if (serialized) {
-
               // Add it to the state
               state[entity.id] = serialized;
 
@@ -598,22 +609,28 @@ class WorldManager {
       }
 
       if (batch.length > 0) {
-        NM.send({
-          type: 'SYNC_OBJECT_BATCH',
-          data: {
-            time: GM.timeElapsed,
-            objects: batch
-          }
-        }, socket);
+        NM.send(
+          {
+            type: "SYNC_OBJECT_BATCH",
+            data: {
+              time: GM.timeElapsed,
+              objects: batch
+            }
+          },
+          socket
+        );
       }
       if (this.deleted.length > 0) {
-        NM.send({
-          type: 'SYNC_DELETE_OBJECT_BATCH',
-          data: {
-            ids: this.deleted,
-            forceDelete
-          }
-        }, socket);
+        NM.send(
+          {
+            type: "SYNC_DELETE_OBJECT_BATCH",
+            data: {
+              ids: this.deleted,
+              forceDelete
+            }
+          },
+          socket
+        );
         this.deleted = [];
       }
     }
@@ -625,7 +642,7 @@ class WorldManager {
 
   syncObjectClient(client, object) {
     const packet = {
-      type: 'SYNC_OBJECT',
+      type: "SYNC_OBJECT",
       data: {
         time: GM.timeElapsed,
         object: object.serialize()

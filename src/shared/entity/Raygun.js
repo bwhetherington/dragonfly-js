@@ -1,8 +1,8 @@
-import Weapon from './Weapon';
-import WM from './WorldManager';
-import AM from '../audio/AudioManager';
-import Ray from './Ray';
-import { color } from '../util/util';
+import Weapon from "./Weapon";
+import WM from "./WorldManager";
+import AM from "../audio/AudioManager";
+import Ray from "./Ray";
+import { color } from "../util/util";
 
 class Raygun extends Weapon {
   constructor() {
@@ -13,12 +13,12 @@ class Raygun extends Weapon {
   }
 
   fire(fx, fy, sourceHero) {
-    AM.playSound('fire.wav', 0.125, sourceHero.position.clone());
+    AM.playSound("fire.wav", 0.125, sourceHero.position.clone());
     const ray = new Ray(sourceHero.id);
     WM.add(ray);
     ray.position.set(sourceHero.position);
     ray.castRay({ x: fx, y: fy });
-    ray.registerHandler('HIT_OBJECT', event => {
+    ray.registerHandler("HIT_OBJECT", event => {
       const { hitID, sourceID, projectileID } = event;
       if (projectileID === ray.id) {
         const object = WM.findByID(hitID);

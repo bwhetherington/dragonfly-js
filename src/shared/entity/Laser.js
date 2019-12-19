@@ -1,6 +1,6 @@
 import Entity from "./Entity";
 import Vector from "../util/Vector";
-import Rectangle from '../util/Rectangle';
+import Rectangle from "../util/Rectangle";
 import { registerEntity, color } from "../util/util";
 
 const DURATION = 0.375;
@@ -21,7 +21,7 @@ class Laser extends Entity {
     this.p1.set(p1);
     this.p2.set(p2);
 
-    this.registerHandler('STEP', event => {
+    this.registerHandler("STEP", event => {
       const { dt } = event;
       this.timer += dt;
       this.updateSize();
@@ -40,7 +40,7 @@ class Laser extends Entity {
     }
   }
 
-  updatePosition() { }
+  updatePosition() {}
 
   initializeGraphics(two) {
     const { p1, p2 } = this;

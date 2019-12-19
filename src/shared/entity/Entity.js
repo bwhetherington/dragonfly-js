@@ -1,22 +1,25 @@
-import Vector from '../util/Vector';
+import Vector from "../util/Vector";
 // import uuid from 'uuid/v1';
-import GM from '../event/GameManager';
-import WM from './WorldManager';
-import Rectangle from '../util/Rectangle';
-import { isClient, registerEntity, color, uuid } from '../util/util';
+import GM from "../event/GameManager";
+import WM from "./WorldManager";
+import Rectangle from "../util/Rectangle";
+import { isClient, registerEntity, color, uuid } from "../util/util";
 
 const getFill = color => {
   const { red, green, blue, alpha = 1 } = color;
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
-}
+};
 
 const getStroke = color => {
   let { red, green, blue, alpha = 1 } = color;
   red -= 50;
   green -= 50;
   blue -= 50;
-  return `rgb(${Math.max(0, red)}, ${Math.max(0, green)}, ${Math.max(0, blue)}, ${alpha})`;
-}
+  return `rgb(${Math.max(0, red)}, ${Math.max(0, green)}, ${Math.max(
+    0,
+    blue
+  )}, ${alpha})`;
+};
 
 class Entity {
   constructor() {
@@ -46,16 +49,12 @@ class Entity {
     this.canDelete = false;
     this.setColor(color(50, 50, 50));
     this.predictionAdjustment = 0;
+    this.timers = {};
   }
 
   registerHandler(type, handler) {
     const id = GM.registerHandler(type, handler);
-    let handlers = this.handlers[type];
-    if (!handlers) {
-      handlers = [];
-      this.handlers[type] = handlers;
-    }
-    handlers.push(id);
+    this.handlers[id] = type;
   }
 
   /**
@@ -140,7 +139,7 @@ class Entity {
   markForDelete() {
     this.markedForDelete = true;
     const event = {
-      type: 'MARK_FOR_DELETE',
+      type: "MARK_FOR_DELETE",
       data: {
         id: this.id
       }
@@ -151,7 +150,7 @@ class Entity {
   cleanup() {
     if (this.graphicsObject) {
       const event = {
-        type: 'CLEANUP_GRAPHICS',
+        type: "CLEANUP_GRAPHICS",
         data: {
           object: this.graphicsObject
         }
@@ -160,11 +159,9 @@ class Entity {
     }
 
     // Cleanup handlers attached to this entity
-    for (const type in this.handlers) {
-      const handlers = this.handlers[type];
-      for (const id of handlers) {
-        GM.removeHandler(type, id);
-      }
+    for (const handlerID in this.handlers) {
+      const type = this.handlers[handlerID];
+      this.removeHandler(type, handlerID);
     }
   }
 
@@ -178,13 +175,24 @@ class Entity {
       isCollidable: this.isCollidable,
       isSpectral: this.isSpectral,
       opacity: this.opacity,
-      syncMove: this.syncMove
+      syncMove: this.syncMove,
+      timers: this.timers
     };
   }
 
   deserialize(obj) {
     if (this.doSynchronize) {
-      const { position, velocity, acceleration, isCollidable, isSpectral, opacity, syncMove, bounce } = obj;
+      const {
+        position,
+        velocity,
+        acceleration,
+        isCollidable,
+        isSpectral,
+        opacity,
+        syncMove,
+        bounce,
+        timers
+      } = obj;
       if (syncMove !== undefined) {
         this.syncMove = syncMove;
       }
@@ -208,6 +216,11 @@ class Entity {
       }
       if (bounce !== undefined) {
         this.bounce = bounce;
+      }
+      if (timers) {
+        for (const timerID in timers) {
+          this.timers[timerID] = timers[timerID];
+        }
       }
       this.hasSpawned = true;
       return true;
@@ -244,7 +257,41 @@ class Entity {
     }
   }
 
-  damage(amount) { }
+  damage(amount) {}
+
+  runInterval(interval, callback) {
+    const handlerID = this.registerHandler("STEP", (event, _, id) => {
+      const { dt } = event;
+      this.timers[id] = (this.timers[id] || 0) + dt;
+
+      // Check time
+      if (this.timers[id] >= interval) {
+        this.timers[id] -= interval;
+        callback();
+      }
+    });
+    this.timers[handlerID] = 0;
+  }
+
+  removeHandler(type, id) {
+    GM.removeHandler(type, id);
+    delete this.handlers[id];
+  }
+
+  runDelay(delay, callback) {
+    const handlerID = this.registerHandler("STEP", (event, remove, id) => {
+      const { dt } = event;
+      this.timers[id] = (this.timers[id] || 0) + dt;
+
+      // Check time
+      if (this.timers[id] >= delay) {
+        callback();
+        this.removeHandler("STEP", id);
+        delete this.timers[id];
+      }
+    });
+    this.timers[handlerID] = 0;
+  }
 }
 
 export default Entity;

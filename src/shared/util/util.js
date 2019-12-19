@@ -1,5 +1,5 @@
-import WM from '../entity/WorldManager';
-import short from 'short-uuid';
+import WM from "../entity/WorldManager";
+import short from "short-uuid";
 
 const uuidGenerator = short();
 
@@ -17,55 +17,55 @@ export const isClient = () => {
 };
 
 export const initializeInput = node => {
-  GM.registerHandler('KEY_DOWN', event => {
+  GM.registerHandler("KEY_DOWN", event => {
     const hero = this.heroes[event.socketIndex];
     switch (event.key) {
-      case 'KeyW':
-        hero.setInput('up', true);
+      case "KeyW":
+        hero.setInput("up", true);
         break;
-      case 'KeyS':
-        hero.setInput('down', true);
+      case "KeyS":
+        hero.setInput("down", true);
         break;
-      case 'KeyA':
-        hero.setInput('left', true);
+      case "KeyA":
+        hero.setInput("left", true);
         break;
-      case 'KeyD':
-        hero.setInput('right', true);
+      case "KeyD":
+        hero.setInput("right", true);
         break;
-      case 'KeyF':
+      case "KeyF":
         hero.applyForce(new Vector(100, 0));
         break;
-      case 'KeyQ':
+      case "KeyQ":
         hero.setWeapon(Pistol);
         break;
-      case 'ShiftLeft':
-      case 'ShiftRight':
+      case "ShiftLeft":
+      case "ShiftRight":
         hero.setSlow(true);
         break;
-    };
+    }
   });
-  GM.registerHandler('KEY_UP', event => {
+  GM.registerHandler("KEY_UP", event => {
     const hero = this.heroes[event.socketIndex];
     switch (event.key) {
-      case 'KeyW':
-        hero.setInput('up', false);
+      case "KeyW":
+        hero.setInput("up", false);
         break;
-      case 'KeyS':
-        hero.setInput('down', false);
+      case "KeyS":
+        hero.setInput("down", false);
         break;
-      case 'KeyA':
-        hero.setInput('left', false);
+      case "KeyA":
+        hero.setInput("left", false);
         break;
-      case 'KeyD':
-        hero.setInput('right', false);
+      case "KeyD":
+        hero.setInput("right", false);
         break;
-      case 'ShiftLeft':
-      case 'ShiftRight':
+      case "ShiftLeft":
+      case "ShiftRight":
         hero.setSlow(false);
         break;
-    };
+    }
   });
-}
+};
 
 export const diff = (a, b) => {
   const obj = {};
@@ -89,7 +89,7 @@ const isEmpty = obj => {
 };
 
 export const pruneEmpty = obj => {
-  if (typeof obj === 'object') {
+  if (typeof obj === "object") {
     for (const key in obj) {
       if (isEmpty(obj[key])) {
         delete obj[key];
@@ -101,7 +101,7 @@ export const pruneEmpty = obj => {
 };
 
 export const deepDiff = (a, b, keepProperties = []) => {
-  if (typeof a === 'object' && typeof b === 'object') {
+  if (typeof a === "object" && typeof b === "object") {
     let obj;
     let isDifferent = false;
 
@@ -139,7 +139,7 @@ export const deepDiff = (a, b, keepProperties = []) => {
 };
 
 export const equals = (a, b) => {
-  if (typeof a === 'object' && typeof b === 'object') {
+  if (typeof a === "object" && typeof b === "object") {
     const aKeys = Object.keys(a);
     const bKeys = Object.keys(b);
 
@@ -157,7 +157,7 @@ export const equals = (a, b) => {
   } else {
     return a === b;
   }
-}
+};
 
 export const registerEntity = Type => {
   setTimeout(() => {
@@ -166,7 +166,7 @@ export const registerEntity = Type => {
 };
 
 export const sizeOf = object => {
-  if (typeof object === 'object') {
+  if (typeof object === "object") {
     let size = 0;
     for (const key in object) {
       size += sizeOf(object[key]);
@@ -178,52 +178,52 @@ export const sizeOf = object => {
 };
 
 const ensureString = value => {
-  if (typeof value !== 'string') {
+  if (typeof value !== "string") {
     if (value === undefined) {
-      return 'undefined';
+      return "undefined";
     } else if (value === null) {
-      return 'null';
+      return "null";
     } else {
       return value.toString();
     }
   } else {
     return value;
   }
-}
+};
 
 const line = (content, depth = 0) => {
   content = ensureString(content);
 
   const lines = [];
 
-  for (const line of content.split('\n')) {
-    let lineOutput = '';
+  for (const line of content.split("\n")) {
+    let lineOutput = "";
     for (let i = 0; i < depth * 2; i++) {
-      lineOutput += ' ';
+      lineOutput += " ";
     }
     lineOutput += line;
     lines.push(lineOutput);
   }
 
-  return lines.join('\n');
+  return lines.join("\n");
 };
 
 const formatArray = (arr, depth = 0) => {
-  let content = '';
+  let content = "";
   if (arr.length > 0) {
-    content += line('[', depth) + '\n';
+    content += line("[", depth) + "\n";
 
     // Each item besides the first should have a comma
     for (let i = 0; i < arr.length - 1; i++) {
-      content += formatJSON(arr[i], depth + 1) + ',\n';
+      content += formatJSON(arr[i], depth + 1) + ",\n";
     }
 
     // Final item should not have comma
-    content += formatJSON(arr[arr.length - 1], depth + 1) + '\n';
+    content += formatJSON(arr[arr.length - 1], depth + 1) + "\n";
 
-    content += line(']', depth);
+    content += line("]", depth);
   } else {
-    content += line('[]');
+    content += line("[]");
   }
   return content;
 };
@@ -232,13 +232,14 @@ const isDiff = obj => {
   const keys = Object.keys(obj);
   if (keys.length === 2) {
     const [a, b] = keys;
-    return (a === 'from' && b === 'to') || (a === 'to' && b === 'from');
+    return (a === "from" && b === "to") || (a === "to" && b === "from");
   } else {
     return false;
   }
-}
+};
 
-const formatDiff = ({ from, to }, depth = 0) => line(`${formatJSON(from)} => ${formatJSON(to)}`, depth);
+const formatDiff = ({ from, to }, depth = 0) =>
+  line(`${formatJSON(from)} => ${formatJSON(to)}`, depth);
 
 const formatObject = (obj, depth = 0) => {
   if (isDiff(obj)) {
@@ -246,52 +247,54 @@ const formatObject = (obj, depth = 0) => {
   }
   const { type, ...rest } = obj;
   const keys = Object.keys(rest);
-  let content = '';
+  let content = "";
   if (keys.length > 0) {
     if (type) {
-      content += line(type + ' {', depth) + '\n';
+      content += line(type + " {", depth) + "\n";
     } else {
-      content += line('{', depth) + '\n';
+      content += line("{", depth) + "\n";
     }
 
     // Each item besides the first should have a comma
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i];
       const keyDisplay = isIdentifier(key) ? key : '"' + key + '"';
-      content += line(keyDisplay + ': ' + formatJSON(rest[key], 0), depth + 1) + ',\n';
+      content +=
+        line(keyDisplay + ": " + formatJSON(rest[key], 0), depth + 1) + ",\n";
     }
 
     // Final item should not have comma
     const key = keys[keys.length - 1];
     const keyDisplay = isIdentifier(key) ? key : '"' + key + '"';
-    content += line(keyDisplay + ': ' + formatJSON(rest[key], 0), depth + 1) + '\n';
+    content +=
+      line(keyDisplay + ": " + formatJSON(rest[key], 0), depth + 1) + "\n";
 
-    content += line('}', depth);
+    content += line("}", depth);
   } else {
     if (type) {
-      content += line(type + ' {}', depth);
+      content += line(type + " {}", depth);
     } else {
-      content += line('{}', depth);
+      content += line("{}", depth);
     }
   }
   return content;
-}
+};
 
 export const formatJSON = (obj, depth = 0) => {
-  if (typeof obj === 'object') {
+  if (typeof obj === "object") {
     if (obj instanceof Array) {
       return formatArray(obj, depth);
     } else {
       return formatObject(obj, depth);
     }
-  } else if (typeof obj === 'number') {
+  } else if (typeof obj === "number") {
     return line(round(obj, 2), depth);
-  } else if (typeof obj === 'string') {
+  } else if (typeof obj === "string") {
     return line('"' + obj + '"', depth);
   } else {
     return line(obj, depth);
   }
-}
+};
 
 export const round = (number, places = 0) => {
   const multiplier = 10 ** places;
@@ -306,7 +309,7 @@ export const color = (red, green, blue) => ({
 
 export const isIdentifier = str => {
   try {
-    eval('let ' + str + ';');
+    eval("let " + str + ";");
     return true;
   } catch (_) {
     return false;

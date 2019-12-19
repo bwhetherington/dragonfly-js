@@ -4,18 +4,17 @@ import AM from "../audio/AudioManager";
 import WM from "./WorldManager";
 import { registerEntity, color } from "../util/util";
 
-const DURATION = 0.5;
 const BORDER_SIZE = 10;
 
 const CENTER_SIZE = 5;
 
 const DEFAULT_COLOR = color(200, 150, 50);
 
-class Explosion extends Entity {
-  constructor(color = DEFAULT_COLOR, radius = 5) {
+class Shadow extends Entity {
+  constructor(duration = 0.5, radius = 5) {
     super();
+    this.duration = duration;
     this.radius = radius;
-    this.color = color;
     this.timer = 0;
     this.isCollidable = false;
     this.isSpectral = true;
@@ -26,7 +25,7 @@ class Explosion extends Entity {
       const { dt } = event;
       this.timer += dt;
       this.updateSize();
-      if (this.timer >= DURATION) {
+      if (this.timer >= this.duration) {
         this.markForDelete();
       }
     });
@@ -56,33 +55,37 @@ class Explosion extends Entity {
   }
 
   updateSize() {
-    if (this.graphicsObject) {
-      const progress = Math.min(1, this.timer / DURATION);
-      const scale = (progress * this.radius) / CENTER_SIZE;
-      this.graphicsObject.scale = scale;
-      if (progress > 0) {
-        this.graphicsObject.linewidth = (CENTER_SIZE / scale) * 2.5;
-        this.graphicsObject.opacity = (1 - progress) * 0.7;
-      }
+    if (this.circle) {
+      const progress = Math.min(1, this.timer / this.duration);
+      const scale = progress * this.radius;
+      this.circle.scale = scale;
+      // this.circle.fill = "blue";
+      // this.circle.scale = 100;
     }
   }
 
+  setColor(color) {
+    // Intentionally do nothing
+  }
+
   initializeGraphics(two) {
-    const circle = two.makeCircle(
-      this.position.x,
-      this.position.y,
-      CENTER_SIZE
-    );
+    const circle = two.makeCircle(0, 0, 1);
+    circle.fill = "black";
     circle.scale = 0;
-    circle.opacity = 0;
-    circle.linewidth = BORDER_SIZE;
+    circle.opacity = 0.3;
+    circle.linewidth = 0;
+    this.circle = circle;
 
-    this.graphicsObject = circle;
-    this.setColor(this.color);
+    const outline = two.makeCircle(0, 0, this.radius);
+    outline.fill = "rgba(0, 0, 0, 0)";
+    outline.linewidth = 5;
+    outline.opacity = 0.3;
+    outline.stroke = "black";
+
+    this.graphicsObject = two.makeGroup([outline, circle]);
+    console.log(this.graphicsObject);
     this.updateSize();
-
-    AM.playSound("explode.wav", 0.25, this.position.clone());
   }
 }
 
-export default Explosion;
+export default Shadow;

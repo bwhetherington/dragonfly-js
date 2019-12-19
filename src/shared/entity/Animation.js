@@ -1,9 +1,7 @@
 import GM from "../event/GameManager";
 import { uuid } from "../util/util";
 
-class Animation {
-
-}
+class Animation {}
 
 const clamp = (x, low, high) => Math.max(low, Math.min(x, high));
 
@@ -18,7 +16,7 @@ export const makeAnimation = (from, to, duration, smoother = smoothStep) => {
   const state = {};
   const keys = Object.keys(from);
 
-  GM.registerHandler('STEP', (event, remove) => {
+  GM.registerHandler("STEP", (event, remove) => {
     const { dt } = event;
     time += dt;
 
@@ -33,7 +31,7 @@ export const makeAnimation = (from, to, duration, smoother = smoothStep) => {
     }
 
     const update = {
-      type: 'ANIMATION_UPDATE',
+      type: "ANIMATION_UPDATE",
       data: {
         id,
         state
@@ -48,4 +46,4 @@ export const makeAnimation = (from, to, duration, smoother = smoothStep) => {
   });
 
   return id;
-}
+};

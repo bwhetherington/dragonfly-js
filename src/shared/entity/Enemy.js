@@ -1,13 +1,13 @@
-import Entity from './Entity';
-import Rocket from './Rocket';
-import { iterator } from 'lazy-iters';
-import WM from './WorldManager';
-import Hero from './Hero';
-import { registerEntity, isServer, isClient } from '../util/util';
-import Madsen from './Madsen';
-import Explosion from './Explosion';
-import Vector from '../util/Vector';
-import GM from '../event/GameManager';
+import Entity from "./Entity";
+import Rocket from "./Rocket";
+import { iterator } from "lazy-iters";
+import WM from "./WorldManager";
+import Hero from "./Hero";
+import { registerEntity, isServer, isClient } from "../util/util";
+import Madsen from "./Madsen";
+import Explosion from "./Explosion";
+import Vector from "../util/Vector";
+import GM from "../event/GameManager";
 
 const SPAWNER = {
   count: 0,
@@ -15,7 +15,6 @@ const SPAWNER = {
 };
 
 class Enemy extends Entity {
-
   static initializeSpawnPoints(count) {
     const points = [];
     for (let i = 0; i < count; i++) {
@@ -35,7 +34,7 @@ class Enemy extends Entity {
     this.friction = 1;
     this.damageAmount = 0;
     this.maxDamage = 100;
-    this.name = 'Enemy';
+    this.name = "Enemy";
     this.setPositionXY(0, 0);
     this.weapon = new Madsen();
     // this.weapon.delayAmount = 1;
@@ -52,18 +51,21 @@ class Enemy extends Entity {
     });
 
     if (isServer()) {
-      this.registerHandler('STEP', event => {
+      this.registerHandler("STEP", event => {
         this.onStep(event.dt);
       });
-      this.registerHandler('GEOMETRY_COLLISION', event => {
+      this.registerHandler("GEOMETRY_COLLISION", event => {
         const { object } = event;
         if (object.id === this.id) {
           this.chooseTarget();
         }
       });
+      this.runInterval(2, () => {
+        this.selectTargetHero();
+      });
     }
 
-    this.registerHandler('OBJECT_COLLISION', event => {
+    this.registerHandler("OBJECT_COLLISION", event => {
       const { object1, object2 } = event;
       let other = null;
       if (object1.id === this.id) {
@@ -87,9 +89,7 @@ class Enemy extends Entity {
     });
   }
 
-  kill() {
-
-  }
+  kill() {}
 
   damage(amount, sourceID) {
     this.damageAmount += amount;
@@ -131,13 +131,6 @@ class Enemy extends Entity {
   }
 
   onStep(dt) {
-    // Handle timer
-    this.timer += dt;
-    if (this.timer >= 2) {
-      this.timer -= 2;
-      this.selectTargetHero();
-    }
-
     // Look for nearest hero
     this.weapon.step(dt);
 
@@ -201,7 +194,10 @@ class Enemy extends Entity {
     this.cannonAngle = angle;
 
     // Calculate cannon tip
-    this.vectorBuffer2.setXY(Math.cos(angle - Math.PI / 2), Math.sin(angle - Math.PI / 2));
+    this.vectorBuffer2.setXY(
+      Math.cos(angle - Math.PI / 2),
+      Math.sin(angle - Math.PI / 2)
+    );
     this.vectorBuffer2.scale(30);
 
     if (this.cannon) {
@@ -221,7 +217,7 @@ class Enemy extends Entity {
     // cannonGroup.translation.set(this.position.x, this.position.y);
     this.cannon = cannonGroup;
 
-    this.graphicsObject = two.makeGroup(object, cannonGroup)
+    this.graphicsObject = two.makeGroup(object, cannonGroup);
     this.graphicsObject.translation.set(this.position.x, this.position.y);
 
     // Select color

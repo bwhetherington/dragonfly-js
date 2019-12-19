@@ -1,10 +1,12 @@
-html, body, #game {
+html,
+body,
+#game {
   width: 100%;
   height: 100%;
-  margin: 0px; 
+  margin: 0px;
   background: lightgrey;
   color: white;
-  font-family: 'Roboto Mono', monospace;
+  font-family: "Roboto Mono", monospace;
   font-size: 0.9em;
 }
 
@@ -58,7 +60,7 @@ html, body, #game {
   opacity: 50%;
 }
 
-input[type='text'] {
+input[type="text"] {
   margin: 2px;
   flex-grow: 1;
   font-family: inherit;
@@ -70,7 +72,7 @@ input[type='text'] {
   font-size: inherit;
 }
 
-input[type='text']:focus {
+input[type="text"]:focus {
   outline: none;
   border-radius: 2px;
   content: normal;
@@ -141,7 +143,7 @@ input[type='text']:focus {
 } */
 
 .tooltip-container:hover .tooltip {
-  visibility: visible !important; 
+  visibility: visible !important;
 }
 
 .modal {
@@ -219,15 +221,15 @@ input[type="checkbox"] {
   /* margin-top: 3%; */
 }
 
-.radio-label{
+.radio-label {
   margin-top: 9%;
 }
 
-.checkbox-label{
+.checkbox-label {
   margin-top: 9%;
 }
 
-.form{
+.form {
   text-align: left;
 }
 

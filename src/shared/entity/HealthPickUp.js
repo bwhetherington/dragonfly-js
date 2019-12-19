@@ -1,8 +1,8 @@
-import PickUp from './PickUp';
-import { isClient, registerEntity } from '../util/util';
-import Explosion from './Explosion';
-import GM from '../event/GameManager';
-import Hero from './Hero';
+import PickUp from "./PickUp";
+import { isClient, registerEntity } from "../util/util";
+import Explosion from "./Explosion";
+import GM from "../event/GameManager";
+import Hero from "./Hero";
 
 const COLOR = {
   red: 50,

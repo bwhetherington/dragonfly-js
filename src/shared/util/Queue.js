@@ -12,7 +12,7 @@
 //   }
 // }
 
-import SizedQueue from './SizedQueue';
+import SizedQueue from "./SizedQueue";
 
 class Queue extends SizedQueue {
   constructor() {

@@ -1,13 +1,13 @@
-import { server as WebsocketServer } from 'websocket';
-import express from 'express';
-import http from 'http';
-import path from 'path';
-import GM from '../event/GameManager';
-import NM from '../network/NetworkManager';
-import WM from '../entity/WorldManager';
+import { server as WebsocketServer } from "websocket";
+import express from "express";
+import http from "http";
+import path from "path";
+import GM from "../event/GameManager";
+import NM from "../network/NetworkManager";
+import WM from "../entity/WorldManager";
 // import uuid from 'uuid/v1';
-import { uuid } from '../util/util';
-import LM from './LogManager';
+import { uuid } from "../util/util";
+import LM from "./LogManager";
 
 const toSeconds = (seconds, nanoseconds) => seconds + nanoseconds * 0.000000001;
 
@@ -15,15 +15,15 @@ const now = () => {
   const [seconds, nanoseconds] = process.hrtime();
   const time = toSeconds(seconds, nanoseconds);
   return time;
-}
+};
 
-const HTML_FILE = path.join(__dirname, '..', 'client', 'index.html');
+const HTML_FILE = path.join(__dirname, "..", "client", "index.html");
 
 const serveHTTP = () => {
   const app = express();
-  app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
-  app.use('/dist', express.static(path.join(__dirname, '..', 'client')));
-  app.get('/', (req, res) => {
+  app.use("/assets", express.static(path.join(__dirname, "..", "assets")));
+  app.use("/dist", express.static(path.join(__dirname, "..", "client")));
+  app.get("/", (req, res) => {
     res.sendFile(HTML_FILE);
   });
   return http.createServer(app);
@@ -54,30 +54,44 @@ class Server {
     NM.initialize(this);
     LM.initialize();
 
-    this.recordEventType('JOIN_GAME');
-    this.recordEventType('STEP');
-    this.recordEventType('KEY_DOWN');
-    this.recordEventType('KEY_UP');
-    this.recordEventType('TIME_WARPED_MOUSE_DOWN');
-    this.recordEventType('MOUSE_UP');
-    this.recordEventType('ROTATE_CANNON');
+    this.recordEventType("JOIN_GAME");
+    this.recordEventType("STEP");
+    this.recordEventType("KEY_DOWN");
+    this.recordEventType("KEY_UP");
+    this.recordEventType("TIME_WARPED_MOUSE_DOWN");
+    this.recordEventType("MOUSE_UP");
+    this.recordEventType("ROTATE_CANNON");
 
-    GM.registerHandler('SYNC_OBJECT', event => {
+    GM.registerHandler("SYNC_OBJECT", event => {
       WM.receiveSyncObject(event.object);
     });
 
-    GM.registerHandler('CREATE_RAY', data => {
+    GM.registerHandler("CREATE_RAY", data => {
       this.send({
-        type: 'CREATE_RAY',
+        type: "CREATE_RAY",
         data
       });
-    })
+    });
+
+    GM.registerHandler("CREATE_EXPLOSION", data => {
+      this.send({
+        type: "CREATE_EXPLOSION",
+        data
+      });
+    });
+
+    GM.registerHandler("CREATE_SHADOW", data => {
+      this.send({
+        type: "CREATE_SHADOW",
+        data
+      });
+    });
 
     // Attach websocket server to http server
     this.wsServer = new WebsocketServer({ httpServer: this.httpServer });
 
     // Handle incoming requests
-    this.wsServer.on('request', request => {
+    this.wsServer.on("request", request => {
       if (this.numConnections < this.maxConnections) {
         this.accept(request);
       }
@@ -104,10 +118,13 @@ class Server {
     return new Promise(resolve => {
       const id = uuid();
       const start = now();
-      this.send({
-        type: 'CHECK_PING',
-        data: { id }
-      }, playerID);
+      this.send(
+        {
+          type: "CHECK_PING",
+          data: { id }
+        },
+        playerID
+      );
       this.pingChecks[id] = {
         start,
         id,
@@ -121,7 +138,7 @@ class Server {
     for (const playerID in this.connections) {
       this.getPing(playerID).then(ping => {
         this.send({
-          type: 'DISPLAY_PING',
+          type: "DISPLAY_PING",
           data: {
             id: playerID,
             ping
@@ -131,7 +148,7 @@ class Server {
     }
   }
 
-  onLastConnection() { }
+  onLastConnection() {}
 
   send(message, socketIndex = -1) {
     message.time = Date.now();
@@ -164,7 +181,7 @@ class Server {
 
   onMessage(message, socketIndex) {
     message.data.socketIndex = socketIndex;
-    if (message.type === 'CHECK_PING') {
+    if (message.type === "CHECK_PING") {
       const { id } = message.data;
       const check = this.pingChecks[id];
       if (check) {
@@ -185,7 +202,7 @@ class Server {
   onClose(socketIndex) {
     this.freedIDs.push(socketIndex);
     const message = {
-      type: 'PLAYER_DISCONNECT',
+      type: "PLAYER_DISCONNECT",
       data: { socketIndex }
     };
     GM.emitEvent(message);
@@ -210,8 +227,8 @@ class Server {
     this.onOpen(connectionIndex);
 
     // Handle receive message from client
-    connection.on('message', message => {
-      if (message.type === 'utf8') {
+    connection.on("message", message => {
+      if (message.type === "utf8") {
         // LM.logData(
         //   {
         //     type: 'PACKET_IN',
@@ -224,7 +241,7 @@ class Server {
     });
 
     // Remove connection
-    connection.on('close', () => {
+    connection.on("close", () => {
       this.onClose(connectionIndex);
       delete this.connections[connectionIndex];
     });

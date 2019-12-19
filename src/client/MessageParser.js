@@ -31,7 +31,7 @@ class MessageParser {
   }
 
   parseTo(type, end) {
-    let value = '';
+    let value = "";
     let ch;
     while ((ch = this.getChar()) !== null) {
       this.consumeChar();
@@ -50,25 +50,25 @@ class MessageParser {
   nextToken() {
     let ch = this.getChar();
     switch (ch) {
-      case '*':
+      case "*":
         this.consumeChar();
-        return this.parseTo('BOLD', '*');
-      case '_':
+        return this.parseTo("BOLD", "*");
+      case "_":
         this.consumeChar();
-        return this.parseItalics('ITALICS', '_');
-      case '~':
+        return this.parseItalics("ITALICS", "_");
+      case "~":
         this.consumeChar();
-        return this.parseStrikethrough('STRIKETHROUGH', '~');
+        return this.parseStrikethrough("STRIKETHROUGH", "~");
       case null:
         return null;
       default:
-        let str = '';
+        let str = "";
         while ((ch = this.getChar()) !== null) {
           this.consumeChar();
           str += ch;
         }
         return {
-          type: 'TEXT',
+          type: "TEXT",
           value: str
         };
     }
@@ -77,16 +77,15 @@ class MessageParser {
   parseExpression() {
     let tok;
     while ((tok = this.nextToken()) !== null) {
-      if (tok.type === 'TEXT') {
+      if (tok.type === "TEXT") {
         return tok.value;
-      } else if (tok.type === 'OPENING_TAG') {
-
+      } else if (tok.type === "OPENING_TAG") {
       }
     }
   }
 }
 
-const parser = new MessageParser('*_This is bold_* foo');
+const parser = new MessageParser("*_This is bold_* foo");
 console.log(parser.nextToken());
 console.log(parser.nextToken());
 console.log(parser.nextToken());

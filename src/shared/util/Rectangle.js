@@ -1,5 +1,5 @@
-import { iterator } from 'lazy-iters';
-import Vector from './Vector';
+import { iterator } from "lazy-iters";
+import Vector from "./Vector";
 
 class Rectangle {
   constructor(x, y, w, h) {
@@ -37,10 +37,13 @@ class Rectangle {
     const brX = other.x + halfWidth;
     const brY = other.y + halfHeight;
 
-    return (this.containsXY(tlX, tlY) ||
+    return (
+      this.containsXY(tlX, tlY) ||
       this.containsXY(trX, trY) ||
       this.containsXY(blX, blY) ||
-      this.containsXY(brX, brY)) || (first && other.intersects(this, false));
+      this.containsXY(brX, brY) ||
+      (first && other.intersects(this, false))
+    );
   }
 
   setCenterXY(x, y) {
@@ -104,10 +107,12 @@ class Rectangle {
     const brX = other.x + halfWidth;
     const brY = other.y + halfHeight;
 
-    return this.containsXY(tlX, tlY) &&
+    return (
+      this.containsXY(tlX, tlY) &&
       this.containsXY(trX, trY) &&
       this.containsXY(blX, blY) &&
-      this.containsXY(brX, brY);
+      this.containsXY(brX, brY)
+    );
   }
 
   containsPoint(x, y) {

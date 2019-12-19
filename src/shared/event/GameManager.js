@@ -1,10 +1,10 @@
-import Queue from '../util/Queue';
-import SizedQueue from '../util/SizedQueue';
+import Queue from "../util/Queue";
+import SizedQueue from "../util/SizedQueue";
 // import uuid from 'uuid/v1';
-import WM from '../entity/WorldManager';
-import { isServer, uuid } from '../util/util';
-import NM from '../network/NetworkManager';
-import LM from '../network/LogManager';
+import WM from "../entity/WorldManager";
+import { isServer, uuid } from "../util/util";
+import NM from "../network/NetworkManager";
+import LM from "../network/LogManager";
 
 class GameManager {
   constructor() {
@@ -31,14 +31,14 @@ class GameManager {
   doesRecordType(type) {
     // Converts it to a boolean
     // Yes we meant to have two exclamation marks
-    return !!(this.recordedTypes[type]);
+    return !!this.recordedTypes[type];
   }
 
   createRootEvent() {
     const id = uuid();
     const time = this.timeElapsed;
     const rootEvent = {
-      type: 'ROOT',
+      type: "ROOT",
       data: {},
       id,
       time
@@ -77,7 +77,7 @@ class GameManager {
 
   runTimer(interval, callback) {
     let elapsed = 0;
-    this.registerHandler('STEP', event => {
+    this.registerHandler("STEP", event => {
       elapsed += event.dt;
       while (elapsed >= interval) {
         elapsed -= interval;
@@ -88,13 +88,13 @@ class GameManager {
 
   runDelay(seconds, callback) {
     let elapsed = 0;
-    this.registerHandler('STEP', (event, remove) => {
+    this.registerHandler("STEP", (event, remove) => {
       elapsed += event.dt;
       if (elapsed >= seconds) {
         callback();
         remove();
       }
-    })
+    });
   }
 
   runOnce(callback) {
@@ -123,14 +123,14 @@ class GameManager {
     if (handlers) {
       for (const id in handlers) {
         const handler = handlers[id];
-        handler(data, () => this.removeHandler(type, id));
+        handler(data, () => this.removeHandler(type, id), id);
       }
     }
 
-    const anyHandlers = this.handlers['ANY'];
+    const anyHandlers = this.handlers["ANY"];
     for (const id in anyHandlers) {
       const handler = anyHandlers[id];
-      handler(data, () => this.removeHandler('ANY', id));
+      handler(data, () => this.removeHandler("ANY", id));
     }
 
     if (record) {
@@ -138,7 +138,7 @@ class GameManager {
       this.recordEvent(event);
     }
 
-    if ('socketIndex' in data) {
+    if ("socketIndex" in data) {
       LM.logData(event, data.socketIndex);
     } else {
       LM.logData(event);
@@ -195,7 +195,7 @@ class GameManager {
     WM.recordState();
 
     const stepEvent = {
-      type: 'STEP',
+      type: "STEP",
       id,
       data: {
         step: this.stepCount,

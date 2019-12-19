@@ -1,6 +1,6 @@
-import GM from '../event/GameManager';
-import WM from '../entity/WorldManager';
-import NM from './NetworkManager';
+import GM from "../event/GameManager";
+import WM from "../entity/WorldManager";
+import NM from "./NetworkManager";
 
 const transformClientCoordinates = (two, x, y) => {
   const { translation, scale } = two.scene;
@@ -10,7 +10,7 @@ const transformClientCoordinates = (two, x, y) => {
     y: (y - translation.y) / scale
   };
   return pt;
-}
+};
 
 class Client {
   constructor(two, addr) {
@@ -23,7 +23,7 @@ class Client {
     this.socket = new WebSocket(addr);
     this.socket.onmessage = message => {
       this.onMessage(JSON.parse(message.data));
-    }
+    };
     this.socket.onclose = this.onClose.bind(this);
     this.socket.onopen = () => {
       for (let i = 0; i < this.sendBuffer.length; i++) {
@@ -36,12 +36,12 @@ class Client {
   }
 
   attachInput(two, root) {
-    root.addEventListener('keydown', event => {
+    root.addEventListener("keydown", event => {
       const { code, shiftKey, ctrlKey } = event;
       if (!this.keyStates[code]) {
         this.keyStates[code] = true;
         const newEvent = {
-          type: 'KEY_DOWN',
+          type: "KEY_DOWN",
           data: {
             key: code,
             shift: shiftKey,
@@ -52,12 +52,12 @@ class Client {
       }
     });
 
-    root.addEventListener('keyup', event => {
+    root.addEventListener("keyup", event => {
       const { code, shiftKey, ctrlKey } = event;
       if (this.keyStates[code]) {
         delete this.keyStates[code];
         const newEvent = {
-          type: 'KEY_UP',
+          type: "KEY_UP",
           data: {
             key: code,
             shift: shiftKey,
@@ -68,10 +68,14 @@ class Client {
       }
     });
 
-    root.addEventListener('mousedown', event => {
-      const { x, y } = transformClientCoordinates(two, event.clientX, event.clientY);
+    root.addEventListener("mousedown", event => {
+      const { x, y } = transformClientCoordinates(
+        two,
+        event.clientX,
+        event.clientY
+      );
       const newEvent = {
-        type: 'MOUSE_DOWN',
+        type: "MOUSE_DOWN",
         data: {
           button: event.button,
           position: { x, y }
@@ -80,10 +84,14 @@ class Client {
       GM.emitEvent(newEvent);
     });
 
-    root.addEventListener('mouseup', event => {
-      const { x, y } = transformClientCoordinates(two, event.clientX, event.clientY);
+    root.addEventListener("mouseup", event => {
+      const { x, y } = transformClientCoordinates(
+        two,
+        event.clientX,
+        event.clientY
+      );
       const newEvent = {
-        type: 'MOUSE_UP',
+        type: "MOUSE_UP",
         data: {
           button: event.button,
           position: { x, y }
@@ -92,10 +100,14 @@ class Client {
       GM.emitEvent(newEvent);
     });
 
-    root.addEventListener('mousemove', event => {
-      const { x, y } = transformClientCoordinates(two, event.clientX, event.clientY);
+    root.addEventListener("mousemove", event => {
+      const { x, y } = transformClientCoordinates(
+        two,
+        event.clientX,
+        event.clientY
+      );
       const newEvent = {
-        type: 'MOUSE_MOVE',
+        type: "MOUSE_MOVE",
         data: {
           position: { x, y }
         }
@@ -130,7 +142,7 @@ class Client {
     //     }
     //   });
     // });
-  };
+  }
 
   syncObject(object, time) {
     WM.receiveSyncObject(object, time);
@@ -140,12 +152,12 @@ class Client {
     this.attachInput(this.two, window);
     NM.initialize(this);
 
-    GM.registerHandler('CREATE_OBJECT', event => {
+    GM.registerHandler("CREATE_OBJECT", event => {
       event.object.initializeGraphicsInternal(this.two);
     });
 
     // Batch sync
-    GM.registerHandler('SYNC_OBJECT_BATCH', event => {
+    GM.registerHandler("SYNC_OBJECT_BATCH", event => {
       for (let i = 0; i < event.objects.length; i++) {
         this.syncObject(event.objects[i], event.time);
       }
@@ -153,18 +165,18 @@ class Client {
     });
 
     // Single sync
-    GM.registerHandler('SYNC_OBJECT', event => {
+    GM.registerHandler("SYNC_OBJECT", event => {
       this.syncObject(event.object, event.time);
     });
 
-    GM.registerHandler('SYNC_DELETE_OBJECT_BATCH', event => {
+    GM.registerHandler("SYNC_DELETE_OBJECT_BATCH", event => {
       for (let i = 0; i < event.ids.length; i++) {
         const id = event.ids[i];
         const entity = WM.findByID(id);
 
         // Only delete the entity if it is synchronizable
         if (entity) {
-          if (entity.doSynchronize || event.forceDelete || (!entity.isActive)) {
+          if (entity.doSynchronize || event.forceDelete || !entity.isActive) {
             entity.markForDelete();
           } else {
             entity.canDelete = true;
@@ -175,7 +187,7 @@ class Client {
   }
 
   onClose() {
-    console.log('closed');
+    console.log("closed");
   }
 
   /**
@@ -183,7 +195,7 @@ class Client {
    * @param message The received message
    */
   onMessage(message) {
-    if (message.type === 'CHECK_PING') {
+    if (message.type === "CHECK_PING") {
       this.send(message);
     } else {
       GM.emitEvent(message);
@@ -193,7 +205,7 @@ class Client {
   /**
    * This method is triggered when the socket is opened.
    */
-  onOpen() { }
+  onOpen() {}
 
   /**
    * Sends the specified message across the websocket.

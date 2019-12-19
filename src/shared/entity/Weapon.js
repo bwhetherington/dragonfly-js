@@ -1,6 +1,6 @@
-import GM from '../event/GameManager';
-import NM from '../network/NetworkManager';
-import { isServer, isClient } from '../util/util';
+import GM from "../event/GameManager";
+import NM from "../network/NetworkManager";
+import { isServer, isClient } from "../util/util";
 
 class Weapon {
   constructor(name = "Weapon", delayAmount = 0.5, isAutomatic = false) {
@@ -20,7 +20,7 @@ class Weapon {
   /**
    * Since a weapon is not an entity, we must rely on its owning entity to step
    * it.
-   * @param dt 
+   * @param dt
    */
   step(dt, sourceHero = null) {
     if (this.delayTimer !== 0) {
@@ -28,12 +28,21 @@ class Weapon {
     }
 
     // If it is automatic, attempt to fire
-    if (sourceHero && this.isAutomatic && this.delayTimer === 0 && this.isActive) {
+    if (
+      sourceHero &&
+      this.isAutomatic &&
+      this.delayTimer === 0 &&
+      this.isActive
+    ) {
       // Calculate target from cannon angle
       const { cannonAngle } = sourceHero;
       const offsetX = Math.cos(cannonAngle - Math.PI / 2);
       const offsetY = Math.sin(cannonAngle - Math.PI / 2);
-      this.fire(sourceHero.position.x + offsetX, sourceHero.position.y + offsetY, sourceHero);
+      this.fire(
+        sourceHero.position.x + offsetX,
+        sourceHero.position.y + offsetY,
+        sourceHero
+      );
       this.delayTimer = this.delayAmount;
       this.fireEvent(sourceHero);
     }
@@ -78,12 +87,11 @@ class Weapon {
     }
   }
 
-  cleanup() {
-  }
+  cleanup() {}
 
   fireEvent(sourceHero) {
     const fireEvent = {
-      type: 'FIRE_WEAPON',
+      type: "FIRE_WEAPON",
       data: {
         id: sourceHero.id
       }
@@ -107,14 +115,12 @@ class Weapon {
     }
   }
 
-  fire(fx, fy, sourceHero) {
-
-  }
+  fire(fx, fy, sourceHero) {}
 
   renderTooltip() {
     return {
-      'Rate': this.delayAmount,
-      'Damage': this.damage
+      Rate: this.delayAmount,
+      Damage: this.damage
     };
   }
 }

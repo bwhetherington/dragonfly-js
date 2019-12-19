@@ -1,9 +1,9 @@
-import Weapon from './Weapon';
-import WM from './WorldManager';
-import Vector from '../util/Vector';
-import Projectile from './Projectile';
-import AM from '../audio/AudioManager';
-import { color } from '../util/util';
+import Weapon from "./Weapon";
+import WM from "./WorldManager";
+import Vector from "../util/Vector";
+import Projectile from "./Projectile";
+import AM from "../audio/AudioManager";
+import { color } from "../util/util";
 
 // Build the random spray pattern
 const SPRAY_PATTERN = [];
@@ -18,7 +18,7 @@ const COLOR = color(200, 200, 80);
 
 class Madsen extends Weapon {
   constructor() {
-    super('Minigun', 0.2, true);
+    super("Minigun", 0.2, true);
     this.sprayIndex = 0;
     this.damage = 8;
   }
@@ -39,7 +39,6 @@ class Madsen extends Weapon {
   }
 
   fire(fx, fy, sourceHero) {
-
     const vector = new Vector(0, 0);
     const offset = new Vector(0, 0);
 
@@ -58,7 +57,7 @@ class Madsen extends Weapon {
     bullet.velocity.set(vector);
     bullet.velocity.scale(750);
 
-    bullet.registerHandler('HIT_OBJECT', event => {
+    bullet.registerHandler("HIT_OBJECT", event => {
       const { hitID, sourceID, projectileID } = event;
       if (projectileID === bullet.id) {
         const object = WM.findByID(hitID);
@@ -77,7 +76,7 @@ class Madsen extends Weapon {
     vector.scale(30);
     bullet.addPosition(vector);
 
-    AM.playSound('fire.wav', 0.125, sourceHero.position.clone());
+    AM.playSound("fire.wav", 0.125, sourceHero.position.clone());
     this.incrementSpray();
   }
 
