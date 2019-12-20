@@ -1,29 +1,21 @@
-class Encoder {
-  constructor() {
-    this.floatBuf = new Float32Array(1);
-    this.byteBuf = new Uint8Array(4);
+function isIterable(obj) {
+  if (obj === null || obj === undefined) {
+    return false;
   }
 
-  encode(num) {
-    this.floatBuf[0] = num;
-    this.byteBuf = new Uint8Array(this.floatBuf.buffer);
+  return typeof obj[Symbol.iterator] === "function";
+}
 
-    let str = '';
-    for (let i = 0; i < this.byteBuf.length; i++) {
-      str += String.fromCharCode(this.byteBuf[i]);
+function* flatten(obj) {
+  if (isIterable(obj)) {
+    for (const x of obj) {
+      yield* flatten(x);
     }
-    return str;
-  }
-
-  decode(str) {
-    for (let i = 0; i < 4; i++) {
-      this.byteBuf[i] = str.charCodeAt(i);
-    }
-    this.floatBuf = new Float32Array(this.byteBuf.buffer);
-    return this.floatBuf[0];
+  } else {
+    yield obj;
   }
 }
 
-enc = new Encoder();
+const obj = [[1, 2, 3], 4, [5, 6, 7], [8, [9, 10]]];
 
-console.log(enc.decode('ª[ÙÃ'), enc.decode('ÜÃ'));
+console.log(Array.from(flatten(obj)));

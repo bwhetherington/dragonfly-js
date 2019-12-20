@@ -3,7 +3,7 @@ import GM from "../shared/event/GameManager";
 import SizedQueue from "../shared/util/SizedQueue";
 import { iterator } from "lazy-iters";
 import WM from "../shared/entity/WorldManager";
-import { formatJSON } from "../shared/util/util";
+import { formatJSON, flatten } from "../shared/util/util";
 import Enemy from "../shared/entity/Enemy";
 import { makeAnimation } from "../shared/entity/Animation";
 import Shadow from "../shared/entity/Shadow";
@@ -103,6 +103,7 @@ class ChatManager {
   }
 
   flash() {
+    this.timer = FLASH_DURATION;
     if (!this.isFlashed) {
       this.isFlashed = true;
       // this.chatInput.style.backgroundColor = rgba(60, 60, 60, 0.67);
@@ -226,6 +227,11 @@ class ChatManager {
 
     GM.registerHandler("CHAT_OUTPUT", event => {
       this.addMessage(event.message);
+
+      // Flash
+      if (!this.isFocused) {
+        this.flash();
+      }
     });
 
     GM.registerHandler("KEY_DOWN", event => {
@@ -258,27 +264,41 @@ class ChatManager {
       this.anim = anim;
     });
 
-    this.registerCommand("anim", () => {
-      const entity = new Enemy();
-      entity.setPositionXY(0, 0);
-      entity.updateOpacity(0);
-      WM.add(entity);
-
-      const time = 1;
-
-      const anim = makeAnimation({ opacity: 0 }, { opacity: 1 }, time);
-      entity.registerHandler("ANIMATION_UPDATE", event => {
-        const { state, id } = event;
-        if (id === anim) {
-          entity.updateOpacity(state.opacity);
+    const compareLetters = letter => [
+      {
+        value: letter,
+        style: {
+          fontWeight: "bold"
+          // fontWeight: "bold"
         }
-      });
+      },
+      {
+        value: letter,
+        style: {
+          fontWeight: "normal"
+        }
+      },
+      " "
+    ];
 
-      this.hero.runDelay(time, () => {
-        entity.markForDelete();
-        const shadow = new Shadow(5, 200);
-        WM.add(shadow);
-      });
+    function* getLetters() {
+      for (let code = "A".charCodeAt(0); code <= "Z".charCodeAt(0); code++) {
+        const ch = String.fromCharCode(code);
+        yield ch;
+      }
+      for (let code = "a".charCodeAt(0); code <= "z".charCodeAt(0); code++) {
+        const ch = String.fromCharCode(code);
+        yield ch;
+      }
+    }
+
+    const letterComponents = iterator(getLetters())
+      .map(compareLetters)
+      .flatten()
+      .collect();
+
+    this.registerCommand("test", () => {
+      this.displayComponents(letterComponents);
     });
 
     this.registerCommand("spawn", args => {
@@ -368,27 +388,6 @@ class ChatManager {
         const error = `\'roll\' expects 1 argument, received ${args.length}.`;
         this.addError(error);
       }
-    });
-
-    this.registerCommand("test", () => {
-      const comps = [
-        {
-          value: [
-            {
-              value: "Hello",
-              style: {
-                fontStyle: "italic"
-              }
-            },
-            " world!"
-          ],
-          style: {
-            fontWeight: "bold"
-          }
-        },
-        " This is the rest of it."
-      ];
-      this.displayComponents(comps);
     });
 
     this.registerCommand("setname", args => {
@@ -568,12 +567,6 @@ class ChatManager {
   addLine(line) {
     this.messageContainer.appendChild(line);
     this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
-
-    // Flash
-    if (!this.isFocused) {
-      this.flash();
-      this.timer = FLASH_DURATION;
-    }
   }
 
   addError(error) {

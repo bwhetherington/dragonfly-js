@@ -315,3 +315,21 @@ export const isIdentifier = str => {
     return false;
   }
 };
+
+const isIterable = obj => {
+  if (obj === null || obj === undefined) {
+    return false;
+  }
+
+  return typeof obj[Symbol.iterator] === "function";
+};
+
+export function* flatten(obj) {
+  if (isIterable(obj)) {
+    for (const x of obj) {
+      yield* flatten(x);
+    }
+  } else {
+    yield obj;
+  }
+}
