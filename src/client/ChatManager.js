@@ -22,6 +22,10 @@ class ElementQueue {
     this.queue = new SizedQueue(size);
   }
 
+  get style() {
+    return this.parent.style;
+  }
+
   appendChild(element) {
     const removed = this.queue.enqueue(element);
     if (removed) {
@@ -52,9 +56,12 @@ class ElementQueue {
   }
 }
 
+const FLASH_DURATION = 3;
+
 class ChatManager {
   constructor() {
     this.messageContainer = new ElementQueue("chat-container", 250);
+    this.chatboxContainer = document.getElementById("chatbox-container");
     this.chatForm = document.getElementById("chat-form");
     this.chatInput = document.getElementById("chat-input");
 
@@ -68,29 +75,47 @@ class ChatManager {
 
     this.chatInput.onfocus = () => {
       this.isFocused = true;
+      this.unhide();
     };
     this.chatInput.onblur = () => {
       this.isFocused = false;
+      this.hide();
     };
+
+    this.timer = 0;
+
+    GM.registerHandler("STEP", event => {
+      this.timer = Math.max(0, this.timer - event.dt);
+      if (this.timer === 0) {
+        this.unflash();
+      }
+    });
+  }
+
+  hide() {
+    if (!this.isFocused) {
+      this.chatboxContainer.style.visibility = "hidden";
+    }
+  }
+
+  unhide() {
+    this.chatboxContainer.style.visibility = "visible";
   }
 
   flash() {
     if (!this.isFlashed) {
       this.isFlashed = true;
-      this.chatInput.style.backgroundColor = rgba(60, 60, 60, 0.67);
-      this.chatInput.style.color = "black";
-      GM.runDelay(0.25, () => {
-        if (this.isFlashed) {
-          this.unflash();
-        }
-      });
+      // this.chatInput.style.backgroundColor = rgba(60, 60, 60, 0.67);
+      // this.chatInput.style.color = "black";
+      this.unhide();
     }
   }
 
   unflash() {
     this.isFlashed = false;
-    this.chatInput.style.backgroundColor = rgba(0, 0, 0, 0.67);
-    this.chatInput.style.color = "white";
+    // this.chatInput.style.backgroundColor = rgba(0, 0, 0, 0.67);
+    // this.chatInput.style.color = "white";
+    this.hide();
   }
 
   registerCommand(command, callback) {
@@ -499,7 +524,6 @@ class ChatManager {
   renderMessage(message) {
     const { author, time, id, content, pre } = message;
     const hero = this.client.heroes[id];
-    console.log(this.client.heroes);
     const color = hero ? this.getColor(hero.color) : "white";
     const components = [
       {
@@ -548,6 +572,7 @@ class ChatManager {
     // Flash
     if (!this.isFocused) {
       this.flash();
+      this.timer = FLASH_DURATION;
     }
   }
 

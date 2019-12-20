@@ -177,8 +177,8 @@ input[type="text"]:focus {
 
 .chatbox-container {
   visibility: hidden;
-  /* opacity: 50%; */
-  pointer-events: auto;
+  pointer-events: none;
+  opacity: 66.7%;
   bottom: 50px;
 }
 
@@ -186,9 +186,9 @@ input[type="text"]:focus {
 }
 
 .chatbox-container:focus-within {
+  opacity: 100%;
   visibility: visible;
   pointer-events: auto;
-  /* opacity: 100%; */
 }
 
 td {
