@@ -59,6 +59,8 @@ class GameServer extends Server {
       }
     }
 
+    console.log(winner);
+
     const wonEvent = {
       type: "GAME_WON",
       data: {
