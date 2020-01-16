@@ -16,14 +16,14 @@ import Enemy from "../shared/entity/Enemy";
 import Entity from "../shared/entity/Entity";
 import { iterator } from "lazy-iters";
 
-const REQUIRED_PLAYERS = 1;
+const REQUIRED_PLAYERS = 4;
 const REFRESH_RATE = 60;
 const LAG_OPTIONS = [0.075, 0.15, 0.3];
-// const ROUND_TIME = 180;
-// const TIME_WARNINGS = [120, 150, 170, 175, 176, 177, 178, 179];
+const ROUND_TIME = 180;
+const TIME_WARNINGS = [120, 150, 170, 175, 176, 177, 178, 179];
 
-const ROUND_TIME = 10;
-const TIME_WARNINGS = [5, 6, 7, 8, 9];
+// const ROUND_TIME = 10;
+// const TIME_WARNINGS = [5, 6, 7, 8, 9];
 
 class GameServer extends Server {
   constructor(maxConnections) {
