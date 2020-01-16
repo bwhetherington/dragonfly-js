@@ -44,13 +44,21 @@ class GameServer extends Server {
   }
 
   endGame() {
-    const winner = iterator(this.getHeroes()).fold(null, (prev, cur) => {
-      if (prev === null || cur.score > prev.score) {
-        return cur;
-      } else {
-        return prev;
+    // const winner = iterator(this.getHeroes()).fold(null, (prev, cur) => {
+    //   if (prev === null || cur.score > prev.score) {
+    //     return cur;
+    //   } else {
+    //     return prev;
+    //   }
+    // });
+    let winner = null;
+
+    for (const hero of this.getHeroes()) {
+      if (winner === null || hero.score > winner.score) {
+        winner = hero;
       }
-    });
+    }
+
     const wonEvent = {
       type: "GAME_WON",
       data: {
