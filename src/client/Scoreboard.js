@@ -125,7 +125,8 @@ class Scoreboard {
               //   break;
             }
           }
-          return (obj[prop] = val);
+          obj[prop] = val;
+          return true;
         }
       });
 
