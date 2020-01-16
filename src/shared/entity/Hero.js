@@ -219,7 +219,7 @@ class Hero extends Entity {
 
     if (isServer()) {
       const damager = WM.findByID(sourceID);
-      if (damager instanceof Hero && damager.id !== sourceID) {
+      if (damager instanceof Hero && damager.id !== this.id) {
         damager.score += amount;
       }
     }
@@ -263,9 +263,13 @@ class Hero extends Entity {
       this.updateOpacity(0);
     }
     this.isCollidable = false;
-    if (this.lives > 0) {
-      this.deathTimer = this.deathAmount;
-    }
+    // Uncomment to cause respawning to be based on lives remaining
+    // if (this.lives > 0) {
+    //   this.deathTimer = this.deathAmount;
+    // }
+
+    // Always respawn
+    this.deathTimer = this.deathAmount;
   }
 
   respawn(position) {

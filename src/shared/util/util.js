@@ -333,3 +333,8 @@ export function* flatten(obj) {
     yield obj;
   }
 }
+
+export const randomInt = (min, max) => {
+  const diff = max - min;
+  return Math.floor(Math.random() * diff) + min;
+};

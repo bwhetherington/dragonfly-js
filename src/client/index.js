@@ -172,7 +172,3 @@ const main = async () => {
 };
 
 main().catch(console.log);
-
-// if (module.hot) {
-//   module.hot.accept();
-// }

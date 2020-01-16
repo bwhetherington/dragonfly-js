@@ -91,18 +91,17 @@ class Scoreboard {
       const playerScore = document.createElement("td");
       playerScore.innerText = 0;
 
-      const playerLives = document.createElement("td");
-      playerLives.innerText = hero.lives;
+      // const playerLives = document.createElement("td");
+      // playerLives.innerText = hero.lives;
 
-      const playerPing = document.createElement("td");
-      playerPing.innerText = 0;
+      // const playerPing = document.createElement("td");
+      // playerPing.innerText = 0;
 
-      row.append(playerName, playerScore, playerLives, playerPing);
+      row.append(playerName, playerScore);
 
       const playerObject = {
         name,
         score: 0,
-        ping: 0,
         element: row
       };
 
@@ -117,13 +116,13 @@ class Scoreboard {
               case "score":
                 playerScore.innerText = val;
                 break;
-              case "lives":
-                playerLives.innerText = val;
-                break;
-              case "ping":
-                const ping = Math.round(val * 1000) + "ms";
-                playerPing.innerText = ping;
-                break;
+              // case "lives":
+              //   playerLives.innerText = val;
+              //   break;
+              // case "ping":
+              //   const ping = Math.round(val * 1000) + "ms";
+              //   playerPing.innerText = ping;
+              //   break;
             }
           }
           return (obj[prop] = val);

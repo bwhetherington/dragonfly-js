@@ -9,12 +9,21 @@ import Rectangle from "../shared/util/Rectangle";
 import WeaponPickUp from "../shared/entity/WeaponPickUp";
 import HealthPickUp from "../shared/entity/HealthPickUp";
 import NM from "../shared/network/NetworkManager";
-import { diff, deepDiff, pruneEmpty } from "../shared/util/util";
+import { diff, deepDiff, pruneEmpty, randomInt } from "../shared/util/util";
 import LM from "../shared/network/LogManager";
 import SETTINGS from "../shared/util/settings";
 import Enemy from "../shared/entity/Enemy";
+import Entity from "../shared/entity/Entity";
+import { iterator } from "lazy-iters";
 
+const REQUIRED_PLAYERS = 1;
 const REFRESH_RATE = 60;
+const LAG_OPTIONS = [0.075, 0.15, 0.3];
+// const ROUND_TIME = 180;
+// const TIME_WARNINGS = [120, 150, 170, 175, 176, 177, 178, 179];
+
+const ROUND_TIME = 10;
+const TIME_WARNINGS = [5, 6, 7, 8, 9];
 
 class GameServer extends Server {
   constructor(maxConnections) {
@@ -26,6 +35,52 @@ class GameServer extends Server {
     this.numberOfHeroes = 0;
     this.minPlayers = 2;
     this.spawnPoints = [];
+  }
+
+  *getHeroes() {
+    for (const heroID in this.heroes) {
+      yield this.heroes[heroID];
+    }
+  }
+
+  endGame() {
+    const winner = iterator(this.getHeroes()).fold(null, (prev, cur) => {
+      if (prev === null || cur.score > prev.score) {
+        return cur;
+      } else {
+        return prev;
+      }
+    });
+    const wonEvent = {
+      type: "GAME_WON",
+      data: {
+        winningHeroID: winner.playerID
+      }
+    };
+    NM.send(wonEvent);
+    this.resetGame();
+  }
+
+  createTimer() {
+    const timerEntity = new Entity();
+    timerEntity.isCollidable = false;
+    // Arbitrary position to be way away from everything else
+    timerEntity.setPositionXY(-10000, -100000);
+
+    WM.add(timerEntity);
+
+    timerEntity.runDelay(ROUND_TIME, () => {
+      // End game
+      this.endGame();
+    });
+
+    for (const warning of TIME_WARNINGS) {
+      timerEntity.runDelay(warning, () => {
+        const remaining = Math.round(ROUND_TIME - warning);
+        const message = `${remaining} second(s) remaining.`;
+        NM.log(message);
+      });
+    }
   }
 
   onClose(socketIndex) {
@@ -56,12 +111,33 @@ class GameServer extends Server {
   }
 
   addHeroes() {
+    const heroesAdded = [];
     for (let index in this.heroesToCreate) {
       index = parseInt(index);
       if (this.heroes[index] === undefined) {
         this.createHero(index);
+        heroesAdded.push(this.heroes[index]);
       }
     }
+
+    // Pick unlagged player
+    const unlagged = randomInt(0, heroesAdded.length);
+    for (let i = 0; i < heroesAdded.length; i++) {
+      if (i !== unlagged) {
+        const latency = LAG_OPTIONS[randomInt(0, LAG_OPTIONS.length)];
+        this.setDelay(i, latency / 2);
+        const newState = {
+          type: "ASSIGN_LATENCY",
+          data: {
+            socketIndex: i,
+            latency
+          }
+        };
+        GM.emitEvent(newState);
+      }
+    }
+
+    this.createTimer();
   }
 
   scheduleHeroToCreate(socketIndex, name) {
@@ -149,7 +225,7 @@ class GameServer extends Server {
   }
 
   isFull() {
-    return Object.keys(this.heroesToCreate).length >= 1;
+    return Object.keys(this.heroesToCreate).length >= REQUIRED_PLAYERS;
   }
 
   initialize() {
@@ -241,10 +317,6 @@ class GameServer extends Server {
           case "KeyD":
             hero.setInput("right", false);
             break;
-          case "ShiftLeft":
-          case "ShiftRight":
-            hero.setSlow(false);
-            break;
         }
       }
     });
@@ -291,28 +363,28 @@ class GameServer extends Server {
       );
     });
 
-    GM.registerHandler("PLAYER_KILLED", event => {
-      let winningHeroID = -1;
-      for (const key in this.heroes) {
-        const hero = this.heroes[key];
-        if (hero.lives > 0) {
-          if (winningHeroID !== -1) {
-            return;
-          } else {
-            winningHeroID = hero.id;
-          }
-        }
-      }
+    // GM.registerHandler("PLAYER_KILLED", event => {
+    //   let winningHeroID = -1;
+    //   for (const key in this.heroes) {
+    //     const hero = this.heroes[key];
+    //     if (hero.lives > 0) {
+    //       if (winningHeroID !== -1) {
+    //         return;
+    //       } else {
+    //         winningHeroID = hero.id;
+    //       }
+    //     }
+    //   }
 
-      const wonEvent = {
-        type: "GAME_WON",
-        data: {
-          winningHeroID
-        }
-      };
-      NM.send(wonEvent);
-      this.resetGame();
-    });
+    //   const wonEvent = {
+    //     type: "GAME_WON",
+    //     data: {
+    //       winningHeroID
+    //     }
+    //   };
+    //   NM.send(wonEvent);
+    //   this.resetGame();
+    // });
 
     // Load level
     const levelString = readFileSync("level.json", "utf-8");
