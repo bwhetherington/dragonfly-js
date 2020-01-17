@@ -18,9 +18,33 @@ import { iterator } from "lazy-iters";
 
 const REQUIRED_PLAYERS = 4;
 const REFRESH_RATE = 60;
-const LAG_OPTIONS = [0.075, 0.15, 0.3];
-const ROUND_TIME = 180;
-const TIME_WARNINGS = [120, 150, 170, 175, 176, 177, 178, 179];
+const LAG_OPTIONS = [0, 0.075, 0.15, 0.3];
+
+const CONFIG_OPTIONS = [
+  {
+    opponentPredictionEnabled: false,
+    predictionEnabled: false,
+    timeWarpEnabled: false
+  },
+  {
+    opponentPredictionEnabled: true,
+    predictionEnabled: true,
+    timeWarpEnabled: false
+  },
+  {
+    opponentPredictionEnabled: false,
+    predictionEnabled: false,
+    timeWarpEnabled: true
+  },
+  {
+    opponentPredictionEnabled: true,
+    predictionEnabled: true,
+    timeWarpEnabled: true
+  }
+];
+
+const ROUND_TIME = 60;
+const TIME_WARNINGS = [30, 45, 50, 55, 56, 57, 58, 59];
 
 // const ROUND_TIME = 10;
 // const TIME_WARNINGS = [5, 6, 7, 8, 9];
@@ -35,6 +59,7 @@ class GameServer extends Server {
     this.numberOfHeroes = 0;
     this.minPlayers = 2;
     this.spawnPoints = [];
+    this.latencyLevelIndex = 0;
   }
 
   *getHeroes() {
@@ -44,30 +69,23 @@ class GameServer extends Server {
   }
 
   endGame() {
-    // const winner = iterator(this.getHeroes()).fold(null, (prev, cur) => {
-    //   if (prev === null || cur.score > prev.score) {
-    //     return cur;
-    //   } else {
-    //     return prev;
-    //   }
-    // });
-    let winner = null;
-
-    for (const hero of this.getHeroes()) {
-      if (winner === null || hero.score > winner.score) {
-        winner = hero;
+    const winner = iterator(this.getHeroes()).fold(null, (prev, cur) => {
+      if (prev === null || cur.score > prev.score) {
+        return cur;
+      } else {
+        return prev;
       }
+    });
+
+    if (winner) {
+      const wonEvent = {
+        type: "GAME_WON",
+        data: {
+          winningHeroID: winner.id
+        }
+      };
+      NM.send(wonEvent);
     }
-
-    console.log(winner);
-
-    const wonEvent = {
-      type: "GAME_WON",
-      data: {
-        winningHeroID: winner.playerID
-      }
-    };
-    NM.send(wonEvent);
     this.resetGame();
   }
 
@@ -120,6 +138,19 @@ class GameServer extends Server {
     super.onClose(socketIndex);
   }
 
+  setConfig(config) {
+    for (const option in config) {
+      SETTINGS[option] = config[option];
+    }
+    const event = {
+      type: "CHANGE_SETTINGS",
+      data: {
+        settings: config
+      }
+    };
+    NM.send(event);
+  }
+
   addHeroes() {
     const heroesAdded = [];
     for (let index in this.heroesToCreate) {
@@ -131,10 +162,24 @@ class GameServer extends Server {
     }
 
     // Pick unlagged player
+    const latencyIndex = this.latencyLevelIndex % LAG_OPTIONS.length;
+    const configIndex =
+      (this.latencyLevelIndex / LAG_OPTIONS.length) % CONFIG_OPTIONS.length;
+
+    this.setConfig(CONFIG_OPTIONS[configIndex]);
+
+    LM.logData({
+      type: "START_GAME",
+      data: {
+        settings: CONFIG_OPTIONS[configIndex],
+        latency: LAG_OPTIONS[latencyIndex]
+      }
+    });
+
     const unlagged = randomInt(0, heroesAdded.length);
     for (let i = 0; i < heroesAdded.length; i++) {
       if (i !== unlagged) {
-        const latency = LAG_OPTIONS[randomInt(0, LAG_OPTIONS.length)];
+        const latency = LAG_OPTIONS[latencyIndex];
         this.setDelay(i, latency / 2);
         const newState = {
           type: "ASSIGN_LATENCY",
@@ -146,6 +191,7 @@ class GameServer extends Server {
         GM.emitEvent(newState);
       }
     }
+    this.latencyLevelIndex += 1;
 
     this.createTimer();
   }

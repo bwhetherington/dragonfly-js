@@ -22,6 +22,8 @@ import Shadow from "../shared/entity/Shadow";
 
 const defaultColor = "rgba(0, 0, 0, 0.67)";
 
+const PLAYER_COLORS = ["Red", "Blue", "Green", "Yellow"];
+
 const rgba = (r, g, b, a) => "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
 
 const rgb = (r, g, b) => rgba(r, g, b, 1);
@@ -316,11 +318,18 @@ class GameClient extends Client {
       for (const key in settings) {
         SETTINGS[key] = settings[key];
       }
+      console.log(SETTINGS);
     });
   }
 
   initializeGameResult(winningHeroID) {
     const { hero } = this;
+    const { playerID } = hero;
+
+    const colorName = PLAYER_COLORS[playerID % PLAYER_COLORS.length];
+    const colorLabel = document.getElementById("player-color-field");
+    colorLabel.innerText = colorName;
+
     const modal = document.getElementById("game-end-page");
     const modalText = document.getElementById("game-end-text");
     const form = document.getElementById("rejoin-game");
@@ -390,6 +399,8 @@ class GameClient extends Client {
 
   initialize(window) {
     super.initialize(window);
+
+    this.initializeSettings();
 
     this.registerInput();
     this.initializeUI();

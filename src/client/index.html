@@ -106,7 +106,7 @@
         <h2 class="center">Join</h2>
         <form class="center" id="join-game">
           <label for="name">Name</label>
-          <input autofocus type="text" id="name"></input>
+          <input autofocus required type="text" id="name"></input>
         </form>
       </div>
     </div>
@@ -124,7 +124,7 @@
               <div>Low</div>
             </div>
             <div class="center child">
-              <input type="radio" name="v-glitch" value="2"></input>
+              <input required type="radio" name="v-glitch" value="2"></input>
             </div>
             <div class="center child">
               <input type="radio" name="v-glitch" value="3"></input>
@@ -140,7 +140,7 @@
           <p class="radio-label">How noticeable was the latency?</p>
           <div class="input-group">
             <div class="center child">
-              <input type="radio" name="latency" value="1"></input>
+              <input required type="radio" name="latency" value="1"></input>
               <div>Low</div>
             </div>
             <div class="center child">
@@ -157,7 +157,10 @@
               <div>High</div>
             </div>
           </div>
-          <p class="checkbox-label">Who do you think had high latency last round?</p>
+          <p class="checkbox-label">
+            Who do you think had high latency last round?
+            You were <span id="player-color-field">Color</span>.
+          </p>
           <div class="input-group">
             <div class="center child">
               <input type="checkbox" name="player-lat" value="Red"></input>

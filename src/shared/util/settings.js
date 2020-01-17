@@ -1,5 +1,5 @@
 const SETTINGS = {
-  opponentPredictionEnabled: false,
+  opponentPredictionEnabled: true,
   predictionEnabled: true,
   timeWarpEnabled: true,
   colorDebugMenu: false,
