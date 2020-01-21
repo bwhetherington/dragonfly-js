@@ -16,7 +16,7 @@ import Enemy from "../shared/entity/Enemy";
 import Entity from "../shared/entity/Entity";
 import { iterator } from "lazy-iters";
 
-const REQUIRED_PLAYERS = 1;
+const REQUIRED_PLAYERS = 4;
 const REFRESH_RATE = 60;
 const LAG_OPTIONS = [0, 0.075, 0.15, 0.3];
 
