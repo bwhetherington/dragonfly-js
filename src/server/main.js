@@ -16,7 +16,7 @@ import Enemy from "../shared/entity/Enemy";
 import Entity from "../shared/entity/Entity";
 import { iterator } from "lazy-iters";
 
-const REQUIRED_PLAYERS = 4;
+const REQUIRED_PLAYERS = 1;
 const REFRESH_RATE = 60;
 const LAG_OPTIONS = [0, 0.075, 0.15, 0.3];
 
@@ -191,6 +191,15 @@ class GameServer extends Server {
         GM.emitEvent(newState);
       }
     }
+
+    const totalOptions = LAG_OPTIONS.length * CONFIG_OPTIONS.length;
+    const gameIndex = (this.latencyLevelIndex % totalOptions) + 1;
+    let startLine = `Beginning game ${gameIndex}`;
+    if (gameIndex == totalOptions) {
+      startLine += " (final game)";
+    }
+    NM.log(startLine + ".");
+
     this.latencyLevelIndex += 1;
 
     this.createTimer();
