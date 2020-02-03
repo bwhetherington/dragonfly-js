@@ -22,26 +22,34 @@ const LAG_OPTIONS = [0, 0.075, 0.15, 0.3];
 
 const CONFIG_OPTIONS = [
   {
-    opponentPredictionEnabled: false,
-    predictionEnabled: false,
-    timeWarpEnabled: false
-  },
-  {
-    opponentPredictionEnabled: true,
-    predictionEnabled: true,
-    timeWarpEnabled: false
-  },
-  {
-    opponentPredictionEnabled: false,
-    predictionEnabled: false,
-    timeWarpEnabled: true
-  },
-  {
     opponentPredictionEnabled: true,
     predictionEnabled: true,
     timeWarpEnabled: true
   }
 ];
+
+// const CONFIG_OPTIONS = [
+//   {
+//     opponentPredictionEnabled: false,
+//     predictionEnabled: false,
+//     timeWarpEnabled: false
+//   },
+//   {
+//     opponentPredictionEnabled: true,
+//     predictionEnabled: true,
+//     timeWarpEnabled: false
+//   },
+//   {
+//     opponentPredictionEnabled: false,
+//     predictionEnabled: false,
+//     timeWarpEnabled: true
+//   },
+//   {
+//     opponentPredictionEnabled: true,
+//     predictionEnabled: true,
+//     timeWarpEnabled: true
+//   }
+// ];
 
 const ROUND_TIME = 60;
 const TIME_WARNINGS = [30, 45, 50, 55, 56, 57, 58, 59];
@@ -401,6 +409,21 @@ class GameServer extends Server {
       const enemy = new Enemy();
       enemy.setPosition(WM.getRandomPoint(40, 40));
       WM.add(enemy);
+    });
+
+    GM.registerHandler("KILL_AI", event => {
+      iterator(WM.getEntities())
+        .filter(entity => entity.type === "Enemy")
+        .forEach(entity => entity.markForDelete());
+    });
+
+    GM.registerHandler("ROLLBACK", event => {
+      const successful = WM.rollbackFrom(GM.timeElapsed - event.amount);
+      if (successful) {
+        NM.log("Rollback completed.");
+      } else {
+        NM.log("Rollback not completed.");
+      }
     });
 
     GM.registerHandler("REQUEST_STATS", event => {

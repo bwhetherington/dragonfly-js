@@ -240,12 +240,25 @@ class ChatManager {
       }
     });
 
-    this.registerCommand("rollback", () => {
-      this.displayMessage("Attempted rollback.");
-      NM.send({
-        type: "ROLLBACK",
-        data: {}
-      });
+    this.registerCommand("rollback", args => {
+      if (args.length === 1) {
+        try {
+          const time = parseFloat(args[0]);
+          NM.send({
+            type: "ROLLBACK",
+            data: {
+              amount: time
+            }
+          });
+        } catch (ex) {
+          this.displayMessage("Error parsing argument.");
+        }
+      }
+      // this.displayMessage("Attempted rollback.");
+      // NM.send({
+      //   type: "ROLLBACK",
+      //   data: {}
+      // });
     });
 
     GM.registerHandler("ANIMATION_UPDATE", event => {
@@ -326,6 +339,13 @@ class ChatManager {
       //     }
       //   }
       // ]);
+    });
+
+    this.registerCommand("killai", () => {
+      NM.send({
+        type: "KILL_AI",
+        data: {}
+      });
     });
 
     this.registerCommand("clear", () => {

@@ -38,7 +38,7 @@ class WorldManager {
     this.entityTable = {};
     this.weaponTable = {};
     if (isServer()) {
-      this.previousStates = new SizedQueue(60);
+      this.previousStates = new SizedQueue(600);
     } else {
       this.previousStates = null;
     }
@@ -486,15 +486,21 @@ class WorldManager {
         // }
 
         this.sync(NM.node, -1, true, true);
-        return;
+        return true;
       } else {
-        LM.logData("Attempted to rollback, but state could not be found");
+        NM.log("Attempted to rollback, but state could not be found");
+        // If we did not roll back, still process the event
+        if (event) {
+          GM.emitEventFirst(event);
+        }
+        return false;
       }
-    }
-
-    // If we did not roll back, still process the event
-    if (event) {
-      GM.emitEventFirst(event);
+    } else {
+      NM.log("Timewarp not enabled.");
+      if (event) {
+        GM.emitEventFirst(event);
+      }
+      return false;
     }
   }
 
