@@ -19,6 +19,9 @@ class Client {
     this.keyStates = {};
     if (!addr) {
       addr = `ws://${location.host}`;
+      if (location.port) {
+        addr += "+" + location.port;
+      }
     }
     this.socket = new WebSocket(addr);
     this.socket.onmessage = message => {
