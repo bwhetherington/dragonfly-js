@@ -19,10 +19,8 @@ class Client {
     this.keyStates = {};
     if (!addr) {
       addr = `ws://${location.host}`;
-      if (location.port) {
-        addr += "+" + location.port;
-      }
     }
+    console.log("Attempt to connect to: " + addr);
     this.socket = new WebSocket(addr);
     this.socket.onmessage = message => {
       this.onMessage(JSON.parse(message.data));
