@@ -10,9 +10,10 @@ const parseLogs = (fileName, cb) => {
 
 const main = async () => {
   const fileName = "game-logs/game:0/player:-1.log";
+  const objects = [];
   parseLogs(fileName, (err, log) => {
-    if (log.data.type !== "STEP") {
-      console.log(log);
+    if (log.data.type === "CREATE_OBJECT") {
+      console.log(JSON.stringify(log.data.data));
     }
   });
 };

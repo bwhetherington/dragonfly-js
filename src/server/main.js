@@ -16,7 +16,7 @@ import Enemy from "../shared/entity/Enemy";
 import Entity from "../shared/entity/Entity";
 import { iterator } from "lazy-iters";
 
-const REQUIRED_PLAYERS = 4;
+const REQUIRED_PLAYERS = 1;
 const REFRESH_RATE = 60;
 const LAG_OPTIONS = [0, 0.075, 0.15, 0.3];
 
@@ -97,18 +97,18 @@ class GameServer extends Server {
 
     WM.add(timerEntity);
 
-    timerEntity.runDelay(ROUND_TIME, () => {
-      // End game
-      this.endGame();
-    });
+    // timerEntity.runDelay(ROUND_TIME, () => {
+    //   // End game
+    //   this.endGame();
+    // });
 
-    for (const warning of TIME_WARNINGS) {
-      timerEntity.runDelay(warning, () => {
-        const remaining = Math.round(ROUND_TIME - warning);
-        const message = `${remaining} second(s) remaining.`;
-        NM.log(message);
-      });
-    }
+    // for (const warning of TIME_WARNINGS) {
+    //   timerEntity.runDelay(warning, () => {
+    //     const remaining = Math.round(ROUND_TIME - warning);
+    //     const message = `${remaining} second(s) remaining.`;
+    //     NM.log(message);
+    //   });
+    // }
   }
 
   onClose(socketIndex) {
