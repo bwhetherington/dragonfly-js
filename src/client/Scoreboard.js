@@ -94,8 +94,8 @@ class Scoreboard {
       // const playerLives = document.createElement("td");
       // playerLives.innerText = hero.lives;
 
-      // const playerPing = document.createElement("td");
-      // playerPing.innerText = 0;
+      const playerPing = document.createElement("td");
+      playerPing.innerText = 0;
 
       row.append(playerName, playerScore);
 
@@ -119,10 +119,10 @@ class Scoreboard {
               // case "lives":
               //   playerLives.innerText = val;
               //   break;
-              // case "ping":
-              //   const ping = Math.round(val * 1000) + "ms";
-              //   playerPing.innerText = ping;
-              //   break;
+              case "ping":
+                const ping = Math.round(val * 1000) + "ms";
+                playerPing.innerText = ping;
+                break;
             }
           }
           obj[prop] = val;
