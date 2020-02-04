@@ -62,7 +62,8 @@ body,
   width: 100%;
   text-align: center;
   line-height: 100%;
-  opacity: 50%;
+  color: rgba(255, 255, 255, 0.5);
+  /* opacity: 50%; */
 }
 
 input[type="text"] {
@@ -168,7 +169,6 @@ input[type="text"]:focus {
   height: 150px;
   overflow-y: auto;
   margin-bottom: 5px;
-  z-index: 100000;
 }
 
 .chatbox-input {
@@ -184,7 +184,7 @@ input[type="text"]:focus {
 .chatbox-container {
   visibility: hidden;
   pointer-events: none;
-  opacity: 66.7%;
+  opacity: 0.67;
   bottom: 50px;
 }
 
@@ -192,7 +192,7 @@ input[type="text"]:focus {
 }
 
 .chatbox-container:focus-within {
-  opacity: 100%;
+  opacity: 1;
   visibility: visible;
   pointer-events: auto;
 }
