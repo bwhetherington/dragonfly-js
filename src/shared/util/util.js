@@ -5,16 +5,16 @@ const uuidGenerator = short();
 
 export const uuid = () => uuidGenerator.generate();
 
-export const isServer = () => !isClient();
-
 export const isClient = () => {
   try {
-    window;
+    eval("window");
     return true;
   } catch (_) {
     return false;
   }
 };
+
+export const isServer = () => !isClient();
 
 export const initializeInput = node => {
   GM.registerHandler("KEY_DOWN", event => {

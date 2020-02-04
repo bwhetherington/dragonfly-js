@@ -13,6 +13,7 @@ const WEAPON_COLORS = {
 class WeaponPickUp extends PickUp {
   constructor(type) {
     super();
+    this.type = "WeaponPickUp";
     this.setWeaponType(type);
   }
 

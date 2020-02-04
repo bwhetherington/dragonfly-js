@@ -15,6 +15,7 @@ const HEAL_AMOUNT = 20;
 class HealthPickUp extends PickUp {
   constructor() {
     super();
+    this.type = "HealthPickUp";
   }
 
   cleanup() {

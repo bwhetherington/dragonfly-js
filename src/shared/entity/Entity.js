@@ -23,6 +23,7 @@ const getStroke = color => {
 
 class Entity {
   constructor() {
+    this.type = "Entity";
     this.position = new Vector(0, 0);
     this.velocity = new Vector(0, 0);
     this.acceleration = new Vector(0, 0);
@@ -82,10 +83,6 @@ class Entity {
       obj.fill = fill;
       obj.stroke = stroke;
     }
-  }
-
-  get type() {
-    return this.constructor.name;
   }
 
   applyForce(vector) {

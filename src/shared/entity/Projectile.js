@@ -12,6 +12,7 @@ const DEFAULT_COLOR = color(200, 150, 50);
 class Projectile extends Entity {
   constructor(sourceID = null, color = DEFAULT_COLOR, explosionRadius = 30) {
     super();
+    this.type = "Projectile";
     this.explosionRadius = explosionRadius;
     this.sourceID = sourceID;
     this.boundingBox = new Rectangle(0, 0, 20, 20);

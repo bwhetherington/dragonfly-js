@@ -46,32 +46,32 @@ class WorldManager {
   }
 
   initializeEntityTypes() {
-    this.registerEntity(Entity);
-    this.registerEntity(Hero);
-    this.registerEntity(Projectile);
-    this.registerEntity(Enemy);
-    this.registerEntity(Laser);
-    this.registerEntity(Explosion);
-    this.registerEntity(PickUp);
-    this.registerEntity(HealthPickUp);
-    this.registerEntity(WeaponPickUp);
+    this.registerEntity("Entity", Entity);
+    this.registerEntity("Hero", Hero);
+    this.registerEntity("Projectile", Projectile);
+    this.registerEntity("Enemy", Enemy);
+    this.registerEntity("Laser", Laser);
+    this.registerEntity("Explosion", Explosion);
+    this.registerEntity("PickUp", PickUp);
+    this.registerEntity("HealthPickUp", HealthPickUp);
+    this.registerEntity("WeaponPickUp", WeaponPickUp);
   }
 
   initializeWeaponTypes() {
-    this.registerWeapon(Pistol);
-    this.registerWeapon(Shotgun);
-    this.registerWeapon(Rocket);
-    this.registerWeapon(Madsen);
-    this.registerWeapon(Raygun);
-    this.registerWeapon(Mortar);
+    this.registerWeapon("Pistol", Pistol);
+    this.registerWeapon("Shotgun", Shotgun);
+    this.registerWeapon("Rocket", Rocket);
+    this.registerWeapon("Madsen", Madsen);
+    this.registerWeapon("Raygun", Raygun);
+    this.registerWeapon("Mortar", Mortar);
   }
 
-  registerEntity(EntityType) {
-    this.entityTable[EntityType.name] = EntityType;
+  registerEntity(type, EntityType) {
+    this.entityTable[type] = EntityType;
   }
 
-  registerWeapon(WeaponType) {
-    this.weaponTable[WeaponType.name] = WeaponType;
+  registerWeapon(type, WeaponType) {
+    this.weaponTable[type] = WeaponType;
   }
 
   buildNavMesh(geometry) {}
@@ -537,7 +537,8 @@ class WorldManager {
   createEntity(type) {
     const EntityType = this.entityTable[type];
     if (EntityType) {
-      return new EntityType();
+      const entity = new EntityType();
+      return entity;
     } else {
       return null;
     }

@@ -19,6 +19,7 @@ const COLOR = color(200, 200, 80);
 class Madsen extends Weapon {
   constructor() {
     super("Minigun", 0.2, true);
+    this.type = "Madsen";
     this.sprayIndex = 0;
     this.damage = 8;
   }

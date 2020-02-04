@@ -11,10 +11,7 @@ class Weapon {
     this.isActive = false;
     this.isAutomatic = isAutomatic;
     this.damage = 1;
-  }
-
-  get type() {
-    return this.constructor.name;
+    this.type = name;
   }
 
   /**

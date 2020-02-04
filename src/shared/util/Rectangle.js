@@ -3,6 +3,7 @@ import Vector from "./Vector";
 
 class Rectangle {
   constructor(x, y, w, h) {
+    this.type = "Rectangle";
     this.x = x;
     this.y = y;
     this.width = w;

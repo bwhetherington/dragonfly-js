@@ -57,6 +57,7 @@ const COLORS_LIST = Object.keys(COLORS).map(key => COLORS[key]);
 class Hero extends Entity {
   constructor(playerID = -1) {
     super();
+    this.type = "Hero";
     this.maxDamage = 100;
     this.movementSpeed = MOVEMENT_SPEED;
     this.playerID = playerID;

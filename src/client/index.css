@@ -10,11 +10,16 @@ body,
   font-size: 0.9em;
 }
 
+#game {
+  z-index: 0;
+}
+
 .no-pointer {
   pointer-events: none;
 }
 
 .menu {
+  z-index: 10;
   background: rgba(0, 0, 0, 0.67);
   color: white;
   /* border: 2px solid white; */
@@ -163,6 +168,7 @@ input[type="text"]:focus {
   height: 150px;
   overflow-y: auto;
   margin-bottom: 5px;
+  z-index: 100000;
 }
 
 .chatbox-input {

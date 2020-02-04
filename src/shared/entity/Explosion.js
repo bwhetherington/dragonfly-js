@@ -14,6 +14,7 @@ const DEFAULT_COLOR = color(200, 150, 50);
 class Explosion extends Entity {
   constructor(color = DEFAULT_COLOR, radius = 5) {
     super();
+    this.type = "Explosion";
     this.radius = radius;
     this.color = color;
     this.timer = 0;

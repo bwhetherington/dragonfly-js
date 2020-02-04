@@ -13,6 +13,7 @@ const DEFAULT_COLOR = color(200, 150, 50);
 class Shadow extends Entity {
   constructor(duration = 0.5, radius = 5) {
     super();
+    this.type = "Shadow";
     this.duration = duration;
     this.radius = radius;
     this.timer = 0;

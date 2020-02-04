@@ -7,6 +7,7 @@ import GM from "../event/GameManager";
 class PickUp extends Entity {
   constructor() {
     super();
+    this.type = "PickUp";
     this.boundingBox = new Rectangle(0, 0, 20, 20);
     this.isCollidable = false;
     this.isSpectral = true;

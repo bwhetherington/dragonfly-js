@@ -540,11 +540,11 @@ class GameServer extends Server {
         data: {
           friction: WM.friction,
           ice: WM.icePatches.map(shape => ({
-            type: shape.constructor.name,
+            type: shape.type,
             ...shape
           })),
           geometry: WM.geometry.map(shape => ({
-            type: shape.constructor.name,
+            type: shape.type,
             ...shape
           }))
         }

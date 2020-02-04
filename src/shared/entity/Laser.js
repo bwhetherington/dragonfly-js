@@ -10,16 +10,19 @@ const DEFAULT_COLOR = color(200, 50, 50);
 class Laser extends Entity {
   constructor(p1, p2) {
     super();
+    this.type = "Laser";
     this.timer = 0;
     this.isCollidable = false;
     this.doSynchronize = false;
     this.boundingBox = new Rectangle(0, 0, 0, 0);
 
-    this.p1 = new Vector();
-    this.p2 = new Vector();
+    this.p1 = new Vector(0, 0);
+    this.p2 = new Vector(0, 0);
 
-    this.p1.set(p1);
-    this.p2.set(p2);
+    if (p1 && p2) {
+      this.p1.set(p1);
+      this.p2.set(p2);
+    }
 
     this.registerHandler("STEP", event => {
       const { dt } = event;

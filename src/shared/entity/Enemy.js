@@ -30,6 +30,7 @@ class Enemy extends Entity {
 
   constructor() {
     super();
+    this.type = "Enemy";
     this.cannonAngle = 0;
     this.friction = 1;
     this.damageAmount = 0;

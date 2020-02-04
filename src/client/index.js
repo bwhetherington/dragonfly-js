@@ -169,6 +169,8 @@ const main = async () => {
     GM.step(dt);
   });
   timer.start();
+
+  console.log("Game started.");
 };
 
 main().catch(console.log);
