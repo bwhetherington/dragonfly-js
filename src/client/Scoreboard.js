@@ -38,6 +38,7 @@ class Scoreboard {
 
     GM.registerHandler("DISPLAY_PING", event => {
       const { id, ping } = event;
+      console.log(event);
       const player = this.players[id];
       if (player) {
         player.ping = ping;
@@ -97,7 +98,7 @@ class Scoreboard {
       const playerPing = document.createElement("td");
       playerPing.innerText = 0;
 
-      row.append(playerName, playerScore);
+      row.append(playerName, playerScore, playerPing);
 
       const playerObject = {
         name,
