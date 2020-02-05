@@ -7,9 +7,14 @@ import Hero from "../shared/entity/Hero";
 import { readFileSync } from "fs";
 import Rectangle from "../shared/util/Rectangle";
 import WeaponPickUp from "../shared/entity/WeaponPickUp";
-import HealthPickUp from "../shared/entity/HealthPickUp";
 import NM from "../shared/network/NetworkManager";
-import { diff, deepDiff, pruneEmpty, randomInt } from "../shared/util/util";
+import {
+  diff,
+  deepDiff,
+  pruneEmpty,
+  randomInt,
+  setServer
+} from "../shared/util/util";
 import LM from "../shared/network/LogManager";
 import SETTINGS from "../shared/util/settings";
 import Enemy from "../shared/entity/Enemy";
@@ -578,6 +583,7 @@ const cleanup = (server, timer, options) => {
 };
 
 const main = async () => {
+  setServer();
   const server = new (delayServer(GameServer))(8);
   server.initialize();
 
