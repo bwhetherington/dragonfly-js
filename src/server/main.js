@@ -29,7 +29,7 @@ const CONFIG_OPTIONS = [
   {
     opponentPredictionEnabled: true,
     predictionEnabled: true,
-    timeWarpEnabled: true
+    timeWarpEnabled: false
   }
 ];
 

@@ -405,6 +405,18 @@ class GameClient extends Client {
     this.registerInput();
     this.initializeUI();
 
+    GM.registerHandler("ENTITY_DAMAGED", event => {
+      const { sourceID, damagedID, amount } = event;
+      const source = WM.findByID(sourceID);
+      const damaged = WM.findByID(damagedID);
+      if (source && damaged) {
+        console.log(
+          `${damaged.getDebugName()} damaged for ${amount} by ${source.getDebugName()}`
+        );
+        damaged.flash();
+      }
+    });
+
     GM.registerHandler("CLEANUP_GRAPHICS", event => {
       const { object } = event;
       this.two.remove(object);

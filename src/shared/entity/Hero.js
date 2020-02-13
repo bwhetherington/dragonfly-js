@@ -216,6 +216,7 @@ class Hero extends Entity {
     if (this.invilTimer !== -1) {
       return;
     }
+    super.damage(amount, sourceID);
     this.damageAmount += amount;
 
     if (isServer()) {

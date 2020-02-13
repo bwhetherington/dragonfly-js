@@ -3,7 +3,8 @@ import Vector from "../util/Vector";
 import GM from "../event/GameManager";
 import WM from "./WorldManager";
 import Rectangle from "../util/Rectangle";
-import { isClient, registerEntity, color, uuid } from "../util/util";
+import { isClient, registerEntity, color, uuid, isServer } from "../util/util";
+import NM from "../network/NetworkManager";
 
 const getFill = color => {
   const { red, green, blue, alpha = 1 } = color;
@@ -20,6 +21,18 @@ const getStroke = color => {
     blue
   )}, ${alpha})`;
 };
+
+const getBrighter = (original, amount) => {
+  const { red, green, blue, alpha = 1 } = original;
+  return color(
+    Math.min(red * amount, 255),
+    Math.min(green * amount, 255),
+    Math.min(blue * amount, 255),
+    alpha
+  );
+};
+
+const flashColor = color(255, 255, 255);
 
 class Entity {
   constructor() {
@@ -51,6 +64,7 @@ class Entity {
     this.setColor(color(50, 50, 50));
     this.predictionAdjustment = 0;
     this.timers = {};
+    this.flashDuration = 0;
   }
 
   registerHandler(type, handler) {
@@ -73,8 +87,7 @@ class Entity {
     }
   }
 
-  setColor(color) {
-    this.color = color;
+  setGraphicsObjectColor(color) {
     const { colorObject, graphicsObject } = this;
     const obj = colorObject || graphicsObject;
     if (obj) {
@@ -83,6 +96,12 @@ class Entity {
       obj.fill = fill;
       obj.stroke = stroke;
     }
+  }
+
+  setColor(color) {
+    this.color = color;
+    this.flashColor = getBrighter(color, 2);
+    this.setGraphicsObjectColor(color);
   }
 
   applyForce(vector) {
@@ -131,6 +150,14 @@ class Entity {
   step(step, dt) {
     WM.move(this, dt + this.predictionAdjustment);
     this.predictionAdjustment = 0;
+
+    if (this.graphicsObject || this.colorObject) {
+      const wasZero = this.flashDuration === 0;
+      this.flashDuration = Math.max(0, this.flashDuration - dt);
+      if (this.flashDuration === 0 && !wasZero) {
+        this.setColor(this.color);
+      }
+    }
   }
 
   markForDelete() {
@@ -254,7 +281,27 @@ class Entity {
     }
   }
 
-  damage(amount) {}
+  flash() {
+    if (this.graphicsObject) {
+      this.flashDuration = 0.1;
+      this.setGraphicsObjectColor(this.flashColor);
+    }
+  }
+
+  damage(amount, sourceID) {
+    if (isServer()) {
+      const event = {
+        type: "ENTITY_DAMAGED",
+        data: {
+          damagedID: this.id,
+          sourceID: sourceID,
+          amount
+        }
+      };
+      GM.emitEvent(event);
+      NM.send(event);
+    }
+  }
 
   runInterval(interval, callback) {
     const handlerID = this.registerHandler("STEP", (event, _, id) => {
@@ -288,6 +335,10 @@ class Entity {
       }
     });
     this.timers[handlerID] = 0;
+  }
+
+  getDebugName() {
+    return `${this.type}<${this.id}>`;
   }
 }
 

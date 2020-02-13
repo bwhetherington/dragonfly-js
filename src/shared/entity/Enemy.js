@@ -93,17 +93,10 @@ class Enemy extends Entity {
   kill() {}
 
   damage(amount, sourceID) {
+    super.damage(amount, sourceID);
     this.damageAmount += amount;
     if (this.damageAmount >= this.maxDamage) {
       this.markForDelete();
-      // const event = {
-      //   type: 'PLAYER_KILLED',
-      //   data: {
-      //     deadID: this.id,
-      //     killerID: sourceID
-      //   }
-      // };
-      // GM.emitEvent(event);
     }
   }
 
