@@ -3,14 +3,14 @@ import WM from "./WorldManager";
 import Vector from "../util/Vector";
 import Projectile from "./Projectile";
 import AM from "../audio/AudioManager";
-import { color } from "../util/util";
+import { color } from "../util/color";
 
 // Build the random spray pattern
 const SPRAY_PATTERN = [];
 for (let i = 0; i < 100; i++) {
   SPRAY_PATTERN.push({
     x: Math.random() - 0.5,
-    y: Math.random() - 0.5
+    y: Math.random() - 0.5,
   });
 }
 
@@ -27,7 +27,7 @@ class Madsen extends Weapon {
   serialize() {
     return {
       ...super.serialize(),
-      sprayIndex: this.sprayIndex
+      sprayIndex: this.sprayIndex,
     };
   }
 
@@ -58,7 +58,7 @@ class Madsen extends Weapon {
     bullet.velocity.set(vector);
     bullet.velocity.scale(750);
 
-    bullet.registerHandler("HIT_OBJECT", event => {
+    bullet.registerHandler("HIT_OBJECT", (event) => {
       const { hitID, sourceID, projectileID } = event;
       if (projectileID === bullet.id) {
         const object = WM.findByID(hitID);

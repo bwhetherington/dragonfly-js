@@ -3,36 +3,10 @@ import Vector from "../util/Vector";
 import GM from "../event/GameManager";
 import WM from "./WorldManager";
 import Rectangle from "../util/Rectangle";
-import { isClient, registerEntity, color, uuid, isServer } from "../util/util";
+import { isClient, registerEntity, uuid, isServer } from "../util/util";
 import NM from "../network/NetworkManager";
-
-const getFill = color => {
-  const { red, green, blue, alpha = 1 } = color;
-  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
-};
-
-const getStroke = color => {
-  let { red, green, blue, alpha = 1 } = color;
-  red -= 50;
-  green -= 50;
-  blue -= 50;
-  return `rgb(${Math.max(0, red)}, ${Math.max(0, green)}, ${Math.max(
-    0,
-    blue
-  )}, ${alpha})`;
-};
-
-const getBrighter = (original, amount) => {
-  const { red, green, blue, alpha = 1 } = original;
-  return color(
-    Math.min(red * amount, 255),
-    Math.min(green * amount, 255),
-    Math.min(blue * amount, 255),
-    alpha
-  );
-};
-
-const flashColor = color(255, 255, 255);
+import { color, getStroke, getFill, getBrighter } from "../util/color";
+import Projectile from "./Projectile";
 
 class Entity {
   constructor() {
@@ -44,16 +18,15 @@ class Entity {
     this.vectorBuffer2 = new Vector(0, 0);
     this.graphicsObject = null;
     this.markedForDelete = false;
-    this.boundingBox = new Rectangle(0, 0, 30, 30);
-    this.boundingBox.setCenter(this.position);
+    this.setBounds(new Rectangle(0, 0, 30, 30));
     this.handlers = {};
-    this.id = uuid();
+    this.setID(uuid());
     this.doSynchronize = true;
     this.isCollidable = true;
     this.movementSpeed = 0;
     this.isSlow = false;
     this.friction = 0;
-    this.bounce = 0;
+    this.bounce = 1;
     this.isSpectral = false;
     this.hasMoved = true;
     this.syncMove = true;
@@ -65,6 +38,12 @@ class Entity {
     this.predictionAdjustment = 0;
     this.timers = {};
     this.flashDuration = 0;
+  }
+
+  setBounds(shape) {
+    this.boundingBox = shape;
+    shape.setCenter(this);
+    shape.parent = this.id;
   }
 
   registerHandler(type, handler) {
@@ -108,10 +87,6 @@ class Entity {
     this.velocity.add(vector);
   }
 
-  setID(id) {
-    this.id = id;
-  }
-
   getID() {
     return this.id;
   }
@@ -123,8 +98,8 @@ class Entity {
     }
   }
 
-  addPosition(vector) {
-    this.position.add(vector);
+  addPosition(vector, scalar = 1) {
+    this.position.add(vector, scalar);
     this.updatePosition();
   }
 
@@ -148,7 +123,7 @@ class Entity {
   }
 
   step(step, dt) {
-    WM.move(this, dt + this.predictionAdjustment);
+    // WM.move(this, dt + this.predictionAdjustment);
     this.predictionAdjustment = 0;
 
     if (this.graphicsObject || this.colorObject) {
@@ -165,8 +140,8 @@ class Entity {
     const event = {
       type: "MARK_FOR_DELETE",
       data: {
-        id: this.id
-      }
+        id: this.id,
+      },
     };
     GM.emitEvent(event);
   }
@@ -176,8 +151,8 @@ class Entity {
       const event = {
         type: "CLEANUP_GRAPHICS",
         data: {
-          object: this.graphicsObject
-        }
+          object: this.graphicsObject,
+        },
       };
       GM.emitEvent(event);
     }
@@ -200,8 +175,15 @@ class Entity {
       isSpectral: this.isSpectral,
       opacity: this.opacity,
       syncMove: this.syncMove,
-      timers: this.timers
+      timers: this.timers,
     };
+  }
+
+  setID(id) {
+    this.id = id;
+    if (this.boundingBox) {
+      this.boundingBox.parent = id;
+    }
   }
 
   deserialize(obj) {
@@ -215,7 +197,7 @@ class Entity {
         opacity,
         syncMove,
         bounce,
-        timers
+        timers,
       } = obj;
       if (syncMove !== undefined) {
         this.syncMove = syncMove;
@@ -295,8 +277,8 @@ class Entity {
         data: {
           damagedID: this.id,
           sourceID: sourceID,
-          amount
-        }
+          amount,
+        },
       };
       GM.emitEvent(event);
       NM.send(event);

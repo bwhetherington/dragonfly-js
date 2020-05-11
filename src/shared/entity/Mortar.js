@@ -2,7 +2,7 @@ import Weapon from "./Weapon";
 import { iterator } from "lazy-iters";
 import WM from "./WorldManager";
 import Vector from "../util/Vector";
-import { color } from "../util/util";
+import { color } from "../util/color";
 import GM from "../event/GameManager";
 import AM from "../audio/AudioManager";
 
@@ -28,8 +28,8 @@ class Mortar extends Weapon {
       data: {
         position: point.serialize(),
         duration: time,
-        radius: this.radius
-      }
+        radius: this.radius,
+      },
     };
     GM.emitEvent(event);
 
@@ -41,15 +41,15 @@ class Mortar extends Weapon {
         data: {
           position: point.serialize(),
           color: COLOR,
-          radius: this.radius
-        }
+          radius: this.radius,
+        },
       };
       GM.emitEvent(event);
 
       // Damage entities
       iterator(WM.getEntitiesByRadius(point, this.radius))
         // .filter(entity => entity.id !== sourceHero.id)
-        .forEach(entity => entity.damage(this.damage, sourceHero));
+        .forEach((entity) => entity.damage(this.damage, sourceHero));
     });
 
     AM.playSound("fire.wav", 0.125, sourceHero.position.clone());
@@ -58,7 +58,7 @@ class Mortar extends Weapon {
   renderTooltip() {
     return {
       ...super.renderTooltip(),
-      Radius: this.radius
+      Radius: this.radius,
     };
   }
 }

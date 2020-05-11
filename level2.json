@@ -1,35 +1,6 @@
 {
-  "friction": 0.05,
-  "features": [
-    {
-      "type": "IcePatch",
-      "x": 420,
-      "y": 0,
-      "width": 80,
-      "height": 680
-    },
-    {
-      "type": "IcePatch",
-      "x": -420,
-      "y": 0,
-      "width": 80,
-      "height": 680
-    },
-    {
-      "type": "IcePatch",
-      "x": 0,
-      "y": 420,
-      "width": 680,
-      "height": 80
-    },
-    {
-      "type": "IcePatch",
-      "x": 0,
-      "y": -420,
-      "width": 680,
-      "height": 80
-    }
-  ],
+  "friction": 5,
+  "features": [],
   "geometry": [
     {
       "type": "InverseRectangle",

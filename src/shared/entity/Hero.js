@@ -23,36 +23,36 @@ const COLORS = {
   red: {
     red: 200,
     green: 80,
-    blue: 50
+    blue: 50,
   },
   blue: {
     red: 50,
     green: 80,
-    blue: 200
+    blue: 200,
   },
   green: {
     red: 80,
     green: 120,
-    blue: 50
+    blue: 50,
   },
   yellow: {
     red: 200,
     green: 200,
-    blue: 50
+    blue: 50,
   },
   white: {
     red: 220,
     green: 220,
-    blue: 220
+    blue: 220,
   },
   black: {
     red: 75,
     green: 75,
-    blue: 75
-  }
+    blue: 75,
+  },
 };
 
-const COLORS_LIST = Object.keys(COLORS).map(key => COLORS[key]);
+const COLORS_LIST = Object.keys(COLORS).map((key) => COLORS[key]);
 
 class Hero extends Entity {
   constructor(playerID = -1) {
@@ -65,7 +65,7 @@ class Hero extends Entity {
       up: false,
       down: false,
       left: false,
-      right: false
+      right: false,
     };
     this.damageAmount = 0;
     this.cannonAngle = 0;
@@ -82,7 +82,7 @@ class Hero extends Entity {
     this.lives = this.totalLives;
     this.target = new Vector(0, 0);
 
-    this.registerHandler("OBJECT_COLLISION", event => {
+    this.registerHandler("OBJECT_COLLISION", (event) => {
       const { object1, object2 } = event;
       let other = null;
       if (object1.id === this.id) {
@@ -105,7 +105,7 @@ class Hero extends Entity {
       }
     });
 
-    this.registerHandler("STEP", event => {
+    this.registerHandler("STEP", (event) => {
       const { dt } = event;
 
       if (isServer() && this.weapon) {
@@ -126,8 +126,8 @@ class Hero extends Entity {
           const event = {
             type: "INVICIBILITY_END",
             data: {
-              id: this.id
-            }
+              id: this.id,
+            },
           };
           GM.emitEvent(event);
           if (isServer()) {
@@ -144,8 +144,8 @@ class Hero extends Entity {
             type: "RESPAWN",
             data: {
               id: this.id,
-              position: { x: 0, y: 0 }
-            }
+              position: { x: 0, y: 0 },
+            },
           };
           GM.emitEvent(event);
           if (isServer()) {
@@ -156,21 +156,21 @@ class Hero extends Entity {
       }
     });
 
-    this.registerHandler("PLAYER_KILLED", event => {
+    this.registerHandler("PLAYER_KILLED", (event) => {
       const { deadID } = event;
       if (this.id === deadID) {
         this.kill();
       }
     });
 
-    this.registerHandler("RESPAWN", event => {
+    this.registerHandler("RESPAWN", (event) => {
       const { id } = event;
       if (this.id === id) {
         this.respawn(WM.getSpawnPoint(this.playerID));
       }
     });
 
-    this.registerHandler("INVICIBILITY_END", event => {
+    this.registerHandler("INVICIBILITY_END", (event) => {
       const { id } = event;
       if (this.id === id) {
         this.endInvincibility();
@@ -202,8 +202,8 @@ class Hero extends Entity {
       GM.emitEvent({
         type: "DROP_WEAPON",
         data: {
-          type: weapon.type
-        }
+          type: weapon.type,
+        },
       });
     }
   }
@@ -231,8 +231,8 @@ class Hero extends Entity {
         type: "PLAYER_KILLED",
         data: {
           deadID: this.id,
-          killerID: sourceID
-        }
+          killerID: sourceID,
+        },
       };
       this.lives--;
       GM.emitEvent(event);
@@ -355,7 +355,7 @@ class Hero extends Entity {
       score: this.score,
       deathTimer: this.deathTimer,
       name: this.name,
-      lives: this.lives
+      lives: this.lives,
     };
     if (this.weapon instanceof Weapon) {
       obj.weapon = this.weapon.serialize();
@@ -427,9 +427,9 @@ class Hero extends Entity {
                 id: this.id,
                 position: this.position.serialize(),
                 velocity: this.velocity.serialize(),
-                acceleration: this.acceleration.serialize()
-              }
-            }
+                acceleration: this.acceleration.serialize(),
+              },
+            },
           });
         }
         this.updatePosition();
@@ -448,8 +448,8 @@ class Hero extends Entity {
           type: "UPDATE_SCORE",
           data: {
             id: this.playerID,
-            score: this.score
-          }
+            score: this.score,
+          },
         };
         GM.emitEvent(event);
       }
@@ -514,8 +514,8 @@ class Hero extends Entity {
       type: "EQUIP_WEAPON",
       data: {
         playerID: this.playerID,
-        weapon: this.weapon.serialize()
-      }
+        weapon: this.weapon.serialize(),
+      },
     });
   }
 
@@ -532,8 +532,8 @@ class Hero extends Entity {
           type: "EQUIP_WEAPON",
           data: {
             playerID: this.playerID,
-            weapon: weapon.serialize()
-          }
+            weapon: weapon.serialize(),
+          },
         });
       }
     }

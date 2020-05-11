@@ -45,7 +45,7 @@ class Shotgun extends Weapon {
 
       bullet.setPosition(sourceHero.position);
       bullet.position.add(offset);
-      bullet.registerHandler("HIT_OBJECT", event => {
+      bullet.registerHandler("HIT_OBJECT", (event) => {
         const { hitID, sourceID, projectileID } = event;
         if (projectileID === bullet.id) {
           const object = WM.findByID(hitID);
@@ -62,7 +62,7 @@ class Shotgun extends Weapon {
   renderTooltip() {
     return {
       ...super.renderTooltip(),
-      Shots: this.projectileNum
+      Shots: this.projectileNum,
     };
   }
 }

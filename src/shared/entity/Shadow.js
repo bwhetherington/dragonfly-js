@@ -2,7 +2,8 @@ import Entity from "./Entity";
 import Rectangle from "../util/Rectangle";
 import AM from "../audio/AudioManager";
 import WM from "./WorldManager";
-import { registerEntity, color } from "../util/util";
+import { registerEntity } from "../util/util";
+import { color } from "../util/color";
 
 const BORDER_SIZE = 10;
 
@@ -20,9 +21,9 @@ class Shadow extends Entity {
     this.isCollidable = false;
     this.isSpectral = true;
     this.doSynchronize = false;
-    this.boundingBox = new Rectangle(0, 0, 0, 0);
+    this.setBounds(new Rectangle(0, 0, 0, 0));
 
-    this.registerHandler("STEP", event => {
+    this.registerHandler("STEP", (event) => {
       const { dt } = event;
       this.timer += dt;
       this.updateSize();
@@ -36,7 +37,7 @@ class Shadow extends Entity {
     return {
       ...super.serialize(),
       radius: this.radius,
-      color: this.color
+      color: this.color,
     };
   }
 

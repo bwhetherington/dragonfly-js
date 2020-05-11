@@ -6,27 +6,27 @@ const now = () => {
   const [seconds, nanoseconds] = process.hrtime();
   const time = toSeconds(seconds, nanoseconds);
   return time;
-}
+};
 
 /**
-   * Spins until the amount of time in seconds has passed.
-   * @param time 
-   */
-const wait = time => {
+ * Spins until the amount of time in seconds has passed.
+ * @param time
+ */
+const wait = (time) => {
   const start = now();
   const goal = start + time;
   let cur = start;
   while (cur < goal) {
     cur = now();
   }
-}
+};
 
-const sleep = time => {
+const sleep = (time) => {
   const ms = time * 1000;
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(resolve, ms);
-  })
-}
+  });
+};
 
 class Timer {
   constructor(interval, callback) {
@@ -41,7 +41,11 @@ class Timer {
 
   async start() {
     this.isRunning = true;
-    let start, stop, dt = 0, duration, remaining;
+    let start,
+      stop,
+      dt = 0,
+      duration,
+      remaining;
     while (this.isRunning) {
       start = now();
       if (stop !== undefined) {

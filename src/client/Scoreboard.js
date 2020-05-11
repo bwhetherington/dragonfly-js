@@ -18,17 +18,17 @@ class Scoreboard {
   }
 
   initialize() {
-    GM.registerHandler("RESET_GAME", event => {
+    GM.registerHandler("RESET_GAME", (event) => {
       for (const id in this.players) {
         this.removePlayer(id);
       }
     });
 
-    GM.registerHandler("REMOVE_PLAYER", event => {
+    GM.registerHandler("REMOVE_PLAYER", (event) => {
       this.removePlayer(event.id);
     });
 
-    GM.registerHandler("UPDATE_SCORE", event => {
+    GM.registerHandler("UPDATE_SCORE", (event) => {
       const { id, score } = event;
       const player = this.players[id];
       if (player) {
@@ -36,16 +36,16 @@ class Scoreboard {
       }
     });
 
-    GM.registerHandler("DISPLAY_PING", event => {
+    GM.registerHandler("DISPLAY_PING", (event) => {
       const { id, ping } = event;
-      console.log(event);
+      // console.log(event);
       const player = this.players[id];
       if (player) {
         player.ping = ping;
       }
     });
 
-    GM.registerHandler("PLAYER_KILLED", event => {
+    GM.registerHandler("PLAYER_KILLED", (event) => {
       const { deadID } = event;
       const hero = WM.findByID(deadID);
       if (hero instanceof Hero) {
@@ -57,7 +57,7 @@ class Scoreboard {
       }
     });
 
-    GM.registerHandler("RESPAWN", event => {
+    GM.registerHandler("RESPAWN", (event) => {
       const { id } = event;
       const hero = WM.findByID(id);
       if (hero instanceof Hero) {
@@ -103,7 +103,7 @@ class Scoreboard {
       const playerObject = {
         name,
         score: 0,
-        element: row
+        element: row,
       };
 
       this.players[playerID] = new Proxy(playerObject, {
@@ -128,7 +128,7 @@ class Scoreboard {
           }
           obj[prop] = val;
           return true;
-        }
+        },
       });
 
       // Append row to table

@@ -1,5 +1,5 @@
 import GM from "../event/GameManager";
-import { diff, isServer } from "../util/util";
+import { diff, isServer, Corner } from "../util/util";
 import Rectangle from "../util/Rectangle";
 import InverseRectangle from "../util/InverseRectangle";
 import Projectile from "../entity/Projectile";
@@ -22,6 +22,7 @@ import Raygun from "./Raygun";
 import Madsen from "./Madsen";
 import Rocket from "./Rocket";
 import Mortar from "./Mortar";
+import Quadtree from "@timohausmann/quadtree-js";
 
 class WorldManager {
   constructor() {
@@ -30,7 +31,7 @@ class WorldManager {
     this.deleted = [];
     this.entityGenerator = () => null;
     this.setBounds(0, 0, 500, 500);
-    this.geometry = {};
+    this.geometry = [];
     this.friction = 5;
     this.background = null;
     this.foreground = null;
@@ -116,20 +117,20 @@ class WorldManager {
     }
   }
 
-  setGeomtetry(geometry) {
+  setGeometry(geometry) {
     this.geometry = geometry
       .map(({ type, x, y, width, height }) => {
         switch (type) {
           case "Rectangle":
             return new Rectangle(x, y, width, height);
           case "InverseRectangle":
-            this.setBounds(x - width / 2, y - height / 2, width, height);
+            this.setBounds(x, y, width, height);
             return new InverseRectangle(x, y, width, height);
           default:
             return null;
         }
       })
-      .filter(shape => shape !== null);
+      .filter((shape) => shape !== null);
   }
 
   getRandomPoint(w = 0, h = 0) {
@@ -183,8 +184,8 @@ class WorldManager {
     const event = {
       type: "CREATE_OBJECT",
       data: {
-        object: entity
-      }
+        object: entity,
+      },
     };
 
     GM.emitEvent(event);
@@ -192,6 +193,12 @@ class WorldManager {
 
   step(step, dt) {
     // Update all entities
+
+    // for (const entity of this.getEntities()) {
+    //   this.move(entity, dt);
+    // }
+    this.moveAll(dt);
+
     for (const id in this.entities) {
       const entity = this.entities[id];
       if (entity.markedForDelete) {
@@ -218,11 +225,260 @@ class WorldManager {
       const state = {
         time: GM.timeElapsed,
         step: GM.stepCount,
-        state: objects
+        state: objects,
       };
       this.previousStates.enqueue(state);
     }
   }
+
+  includeGeometry() {
+    for (const shape of this.geometry) {
+      this.tree.insert(shape);
+    }
+  }
+
+  shuntOutOfInverse(entity, other) {
+    const box = entity.boundingBox;
+    const { x, y } = entity.position;
+
+    const x1 = box.x;
+    const x2 = box.x + box.width;
+    const y1 = box.y;
+    const y2 = box.y + box.height;
+
+    const ox1 = other.x;
+    const ox2 = other.x + other.width;
+    const oy1 = other.y;
+    const oy2 = other.y + other.height;
+
+    let dx = 0;
+    let dy = 0;
+
+    if (x1 < ox1) {
+      dx = ox1 - x1;
+    }
+    if (x2 > ox2) {
+      dx = ox2 - x2;
+    }
+    if (y1 < oy1) {
+      dy = oy1 - y1;
+    }
+    if (y2 > oy2) {
+      dy = oy2 - y2;
+    }
+
+    if (Math.abs(dx) > 0) {
+      entity.velocity.x = -entity.bounce * entity.velocity.x;
+    }
+
+    if (Math.abs(dy) > 0) {
+      entity.velocity.y = -entity.bounce * entity.velocity.y;
+    }
+
+    entity.addPositionXY(dx, dy);
+  }
+
+  shuntOutOf(entity, other) {
+    const box = entity.boundingBox;
+    const { x, y } = entity.position;
+
+    const x1 = box.x;
+    const x2 = box.x + box.width;
+    const y1 = box.y;
+    const y2 = box.y + box.height;
+
+    const ox1 = other.x;
+    const ox2 = other.x + other.width;
+    const oy1 = other.y;
+    const oy2 = other.y + other.height;
+
+    let dx = 0;
+    let dy = 0;
+
+    let xAxis = 0;
+    let yAxis = 0;
+
+    if (x2 > ox2 && x1 < ox2) {
+      dx += ox2 - x1;
+      xAxis = 1;
+    }
+
+    if (x1 < ox1 && x2 > ox1) {
+      dx += ox1 - x2;
+      xAxis = -1;
+    }
+
+    if (y2 > oy2 && y1 < oy2) {
+      dy += oy2 - y1;
+      yAxis = 1;
+    }
+
+    if (y1 < oy1 && y2 > oy1) {
+      dy += oy1 - y2;
+      yAxis = -1;
+    }
+
+    if (Math.abs(dx) > 0 && Math.abs(dy) > 0) {
+      // Get the closest corner to the collision
+      const cx = other.getCenterX();
+      const cy = other.getCenterY();
+      const hw = other.width / 2;
+      const hh = other.height / 2;
+      const cornerX = cx + xAxis * hw;
+      const cornerY = cy + yAxis * hh;
+
+      const thisCornerX = x - xAxis * (box.width / 2);
+      const thisCornerY = y - yAxis * (box.height / 2);
+
+      // // Check quadrant
+      const cornerDX = Math.abs(cornerX - thisCornerX);
+      const cornerDY = Math.abs(cornerY - thisCornerY);
+      if (cornerDX > cornerDY) {
+        dx = 0;
+      } else {
+        dy = 0;
+      }
+    }
+
+    if (Math.abs(dx) > 0) {
+      entity.velocity.x = -entity.bounce * entity.velocity.x;
+    }
+
+    if (Math.abs(dy) > 0) {
+      entity.velocity.y = -entity.bounce * entity.velocity.y;
+    }
+
+    entity.addPositionXY(dx, dy);
+  }
+
+  moveEntity(entity, dt) {
+    let { friction } = this;
+    entity.vectorBuffer1.set(entity.acceleration);
+    entity.vectorBuffer1.scale(entity.friction * friction * dt);
+
+    // v += a * t
+    entity.velocity.add(entity.vectorBuffer1);
+
+    entity.vectorBuffer1.set(entity.velocity);
+
+    // Calculate friction and apply to velocity
+    // friction = -µ * v * t
+    entity.vectorBuffer1.scale(-entity.friction * friction * dt);
+
+    // velocity += friction
+    entity.velocity.add(entity.vectorBuffer1);
+
+    if (entity.velocity.magnitude < 0.1) {
+      entity.velocity.setXY(0, 0);
+    }
+    entity.vectorBuffer1.set(entity.velocity);
+    entity.vectorBuffer1.scale(dt);
+    entity.addPosition(entity.vectorBuffer1);
+
+    if (entity.isCollidable) {
+      this.tree.insert(entity.boundingBox);
+    }
+  }
+
+  raycast(x, y, r, direction, ignore = [], cb = () => {}, maxIters = 1000) {
+    const rect = new Rectangle(x, y, r, r);
+    for (let i = 0; i < maxIters; i++) {
+      const candidates = this.tree.retrieve(rect);
+      for (const candidate of candidates) {
+        if (candidate.intersects(rect)) {
+          const { parent } = candidate;
+          if (parent !== undefined) {
+            if (!ignore.includes(parent)) {
+              const entity = this.findByID(parent);
+              if (!entity.isSpectral) {
+                cb(new Vector(rect.getCenterX(), rect.getCenterY()), entity);
+                return true;
+              }
+            }
+          } else {
+            // Geometry collision
+            cb(new Vector(rect.getCenterX(), rect.getCenterY()), null);
+            return true;
+          }
+        }
+      }
+      rect.add(direction, r);
+    }
+    return false;
+  }
+
+  moveAll(dt) {
+    this.tree.clear();
+    this.includeGeometry();
+
+    // Process each entity
+    for (const entity of this.getEntities()) {
+      this.moveEntity(entity, dt);
+    }
+
+    // Check for collisions
+    for (const entity of this.getEntities()) {
+      if (entity.isCollidable) {
+        // Get possible collisions
+        const candidates = this.tree.retrieve(entity.boundingBox);
+        for (const other of candidates) {
+          const otherParent = other.parent && this.entities[other.parent];
+          let ignore = false;
+          if (otherParent) {
+            // console.log("other entity", otherParent);
+            ignore = entity.isSpectral && otherParent.isSpectral;
+          }
+          if (
+            !ignore &&
+            other !== entity.boundingBox &&
+            other.intersects(entity.boundingBox)
+          ) {
+            if (other.parent !== undefined) {
+              if (!(entity.isSpectral && otherParent.isSpectral)) {
+                // Entity collision
+                const event = {
+                  type: "OBJECT_COLLISION",
+                  data: {
+                    object1: entity,
+                    object2: otherParent,
+                  },
+                };
+                GM.emitEvent(event);
+              }
+            } else {
+              // Geometry collision
+              const event = {
+                type: "GEOMETRY_COLLISION",
+                data: {
+                  object: entity,
+                  other,
+                },
+              };
+              GM.emitEvent(event);
+
+              // Shunt object out of geometry
+              switch (other.type) {
+                case "Rectangle":
+                  this.shuntOutOf(entity, other);
+                  break;
+                case "InverseRectangle":
+                  this.shuntOutOfInverse(entity, other);
+                  break;
+              }
+
+              // const { velocity } = thisParent;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // move(entity, dt, ignore = []) {
+  //   this.tree.remove
+  //   let { friction } = this;
+  //   const
+  // }
 
   move(entity, dt, ignore = []) {
     // vb1 = a * t
@@ -259,17 +515,6 @@ class WorldManager {
 
     entity.vectorBuffer1.set(entity.velocity);
     entity.vectorBuffer1.scale(dt);
-
-    // // Check whether or not entity moves
-    // if (entity.vectorBuffer1.magnitude < 0.1) {
-    //   if (entity.hasMoved) {
-    //     entity.updatePosition();
-    //   }
-    //   entity.hasMoved = false;
-    //   return false;
-    // } else {
-    //   entity.hasMoved = true;
-    // }
 
     // Do full movement at once if no collision
     if (!entity.isCollidable) {
@@ -363,8 +608,8 @@ class WorldManager {
       const event = {
         type: "GEOMETRY_COLLISION",
         data: {
-          object: entity
-        }
+          object: entity,
+        },
       };
       GM.emitEvent(event);
       hadCollision = true;
@@ -375,23 +620,24 @@ class WorldManager {
         type: "OBJECT_COLLISION",
         data: {
           object1: entity,
-          object2: collidedEntities[id]
-        }
+          object2: collidedEntities[id],
+        },
       };
       GM.emitEvent(event);
 
       // If it was not an ignored entity
       hadCollision = true;
-      // if (ignore.indexOf(id) < 0) {
-      //   hadCollision = true;
-      // }
     }
 
     return hadCollision;
   }
 
   setBounds(x, y, width, height) {
-    this.bounds = { x, y, width, height };
+    this.bounds = { x: x - width / 2, y: y - height / 2, width, height };
+    if (this.tree instanceof Quadtree) {
+      this.tree.clear();
+    }
+    this.tree = new Quadtree(this.bounds);
   }
 
   getStateAtTime(time) {
@@ -496,7 +742,6 @@ class WorldManager {
         return false;
       }
     } else {
-      NM.log("Timewarp not enabled.");
       if (event) {
         GM.emitEventFirst(event);
       }
@@ -621,8 +866,8 @@ class WorldManager {
             type: "SYNC_OBJECT_BATCH",
             data: {
               time: GM.timeElapsed,
-              objects: batch
-            }
+              objects: batch,
+            },
           },
           socket
         );
@@ -633,8 +878,8 @@ class WorldManager {
             type: "SYNC_DELETE_OBJECT_BATCH",
             data: {
               ids: this.deleted,
-              forceDelete
-            }
+              forceDelete,
+            },
           },
           socket
         );
@@ -652,8 +897,8 @@ class WorldManager {
       type: "SYNC_OBJECT",
       data: {
         time: GM.timeElapsed,
-        object: object.serialize()
-      }
+        object: object.serialize(),
+      },
     };
     NM.send(packet);
   }

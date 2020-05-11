@@ -4,7 +4,8 @@ import Projectile from "./Projectile";
 import WM from "./WorldManager";
 import AM from "../audio/AudioManager";
 import GM from "../event/GameManager";
-import { isServer, color } from "../util/util";
+import { isServer } from "../util/util";
+import { color } from "../util/color";
 
 const RADIUS = 100;
 
@@ -40,7 +41,7 @@ class Rocket extends Weapon {
 
     bullet.velocity.scale(500);
 
-    bullet.registerHandler("HIT_OBJECT", event => {
+    bullet.registerHandler("HIT_OBJECT", (event) => {
       if (isServer()) {
         const { sourceID, projectileID } = event;
         if (projectileID === bullet.id) {
@@ -70,7 +71,7 @@ class Rocket extends Weapon {
   renderTooltip() {
     return {
       ...super.renderTooltip(),
-      Radius: RADIUS
+      Radius: RADIUS,
     };
   }
 }

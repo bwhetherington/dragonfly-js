@@ -2,7 +2,8 @@ import Entity from "./Entity";
 import Rectangle from "../util/Rectangle";
 import AM from "../audio/AudioManager";
 import WM from "./WorldManager";
-import { registerEntity, color } from "../util/util";
+import { registerEntity } from "../util/util";
+import { color } from "../util/color";
 
 const DURATION = 0.5;
 const BORDER_SIZE = 10;
@@ -21,9 +22,9 @@ class Explosion extends Entity {
     this.isCollidable = false;
     this.isSpectral = true;
     this.doSynchronize = false;
-    this.boundingBox = new Rectangle(0, 0, 0, 0);
+    this.setBounds(new Rectangle(0, 0, 30, 30));
 
-    this.registerHandler("STEP", event => {
+    this.registerHandler("STEP", (event) => {
       const { dt } = event;
       this.timer += dt;
       this.updateSize();
@@ -37,7 +38,7 @@ class Explosion extends Entity {
     return {
       ...super.serialize(),
       radius: this.radius,
-      color: this.color
+      color: this.color,
     };
   }
 

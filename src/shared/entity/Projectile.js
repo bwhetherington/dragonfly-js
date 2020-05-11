@@ -3,9 +3,11 @@ import GM from "../event/GameManager";
 import WM from "./WorldManager";
 import Rectangle from "../util/Rectangle";
 import Explosion from "./Explosion";
-import { isClient, isServer, registerEntity, color } from "../util/util";
+import { isClient, isServer, registerEntity } from "../util/util";
 import Hero from "../entity/Hero";
+import Enemy from "../entity/Enemy";
 import PickUp from "./PickUp";
+import { color } from "../util/color";
 
 const DEFAULT_COLOR = color(200, 150, 50);
 
@@ -15,7 +17,7 @@ class Projectile extends Entity {
     this.type = "Projectile";
     this.explosionRadius = explosionRadius;
     this.sourceID = sourceID;
-    this.boundingBox = new Rectangle(0, 0, 20, 20);
+    this.setBounds(new Rectangle(0, 0, 30, 30));
     this.bounce = 1;
     this.maxBounces = 0;
     this.bounces = 0;
@@ -27,7 +29,7 @@ class Projectile extends Entity {
     this.updatePosition();
 
     // if (isServer()) {
-    this.registerHandler("GEOMETRY_COLLISION", event => {
+    this.registerHandler("GEOMETRY_COLLISION", (event) => {
       const { object } = event;
       if (object.id === this.id) {
         this.handleBounce();
@@ -38,16 +40,12 @@ class Projectile extends Entity {
       }
     });
 
-    this.registerHandler("OBJECT_COLLISION", event => {
+    this.registerHandler("OBJECT_COLLISION", (event) => {
       const { object1, object2 } = event;
       let other = null;
       if (object1.id === this.id) {
         if (object2.id !== this.sourceID) {
           other = object2;
-        }
-      } else if (object2.id === this.id) {
-        if (object1.id !== this.sourceID) {
-          other = object1;
         }
       }
       if (other !== null) {
@@ -92,22 +90,27 @@ class Projectile extends Entity {
   }
 
   hit(entity) {
-    if (entity instanceof Hero && !entity.isInvincible) {
+    if (
+      entity instanceof Hero ||
+      (entity instanceof Enemy && !entity.isInvincible)
+    ) {
       const scale =
         ((entity.damageAmount / entity.maxDamage) * 0.8 + 0.2) * 200;
       this.velocity.normalize();
       this.velocity.scale(scale);
       entity.applyForce(this.velocity);
     }
-    const event = {
-      type: "HIT_OBJECT",
-      data: {
-        sourceID: this.sourceID,
-        projectileID: this.id,
-        hitID: entity ? entity.id : null
-      }
-    };
-    GM.emitEvent(event);
+    if (isServer()) {
+      const event = {
+        type: "HIT_OBJECT",
+        data: {
+          sourceID: this.sourceID,
+          projectileID: this.id,
+          hitID: entity ? entity.id : null,
+        },
+      };
+      GM.emitEvent(event);
+    }
   }
 
   serialize() {
@@ -117,7 +120,8 @@ class Projectile extends Entity {
       explosionRadius: this.explosionRadius,
       color: this.color,
       bounces: this.bounces,
-      maxBounces: this.maxBounces
+      maxBounces: this.maxBounces,
+      parent: this.parent,
     };
   }
 
@@ -126,7 +130,14 @@ class Projectile extends Entity {
       // Only synchronize once
       this.doSynchronize = false;
 
-      const { color, sourceID, explosionRadius, bounces, maxBounces } = object;
+      const {
+        color,
+        sourceID,
+        explosionRadius,
+        bounces,
+        maxBounces,
+        parent,
+      } = object;
       if (sourceID) {
         this.sourceID = sourceID;
       }
@@ -142,6 +153,10 @@ class Projectile extends Entity {
       if (maxBounces !== undefined) {
         this.maxBounces = maxBounces;
       }
+      if (parent) {
+        this.parent = parent;
+      }
+
       return true;
     } else {
       return false;

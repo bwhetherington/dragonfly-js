@@ -1,6 +1,13 @@
 import WM from "../entity/WorldManager";
 import short from "short-uuid";
 
+export const Corner = {
+  TOP_LEFT: 0,
+  TOP_RIGHT: 1,
+  BOTTOM_LEFT: 2,
+  BOTTOM_RIGHT: 3,
+};
+
 const uuidGenerator = short();
 
 export const uuid = () => uuidGenerator.generate();
@@ -19,8 +26,8 @@ export const isClient = () => !isServerInternal;
 
 export const isServer = () => isServerInternal;
 
-export const initializeInput = node => {
-  GM.registerHandler("KEY_DOWN", event => {
+export const initializeInput = (node) => {
+  GM.registerHandler("KEY_DOWN", (event) => {
     const hero = this.heroes[event.socketIndex];
     switch (event.key) {
       case "KeyW":
@@ -47,7 +54,7 @@ export const initializeInput = node => {
         break;
     }
   });
-  GM.registerHandler("KEY_UP", event => {
+  GM.registerHandler("KEY_UP", (event) => {
     const hero = this.heroes[event.socketIndex];
     switch (event.key) {
       case "KeyW":
@@ -82,7 +89,7 @@ export const diff = (a, b) => {
   return obj;
 };
 
-const isEmpty = obj => {
+const isEmpty = (obj) => {
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
       return false;
@@ -91,7 +98,7 @@ const isEmpty = obj => {
   return true;
 };
 
-export const pruneEmpty = obj => {
+export const pruneEmpty = (obj) => {
   if (typeof obj === "object") {
     for (const key in obj) {
       if (isEmpty(obj[key])) {
@@ -136,7 +143,7 @@ export const deepDiff = (a, b, keepProperties = []) => {
   } else {
     return {
       from: a,
-      to: b
+      to: b,
     };
   }
 };
@@ -162,13 +169,13 @@ export const equals = (a, b) => {
   }
 };
 
-export const registerEntity = Type => {
+export const registerEntity = (Type) => {
   setTimeout(() => {
     WM.registerEntity(Type);
   }, 1);
 };
 
-export const sizeOf = object => {
+export const sizeOf = (object) => {
   if (typeof object === "object") {
     let size = 0;
     for (const key in object) {
@@ -180,7 +187,7 @@ export const sizeOf = object => {
   }
 };
 
-const ensureString = value => {
+const ensureString = (value) => {
   if (typeof value !== "string") {
     if (value === undefined) {
       return "undefined";
@@ -231,7 +238,7 @@ const formatArray = (arr, depth = 0) => {
   return content;
 };
 
-const isDiff = obj => {
+const isDiff = (obj) => {
   const keys = Object.keys(obj);
   if (keys.length === 2) {
     const [a, b] = keys;
@@ -304,13 +311,7 @@ export const round = (number, places = 0) => {
   return Math.round(number * multiplier) / multiplier;
 };
 
-export const color = (red, green, blue) => ({
-  red,
-  green,
-  blue
-});
-
-export const isIdentifier = str => {
+export const isIdentifier = (str) => {
   try {
     eval("let " + str + ";");
     return true;
@@ -319,7 +320,7 @@ export const isIdentifier = str => {
   }
 };
 
-const isIterable = obj => {
+const isIterable = (obj) => {
   if (obj === null || obj === undefined) {
     return false;
   }

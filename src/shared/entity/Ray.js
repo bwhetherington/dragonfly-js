@@ -11,12 +11,12 @@ class Ray extends Entity {
     super();
     this.sourceID = sourceID;
     this.doSynchronize = false;
-    this.boundingBox = new Rectangle(0, 0, 10, 10);
+    this.setBounds(new Rectangle(0, 0, 10, 10));
     this.onHit = null;
     this.isSpectral = true;
 
     if (isServer()) {
-      this.registerHandler("OBJECT_COLLISION", event => {
+      this.registerHandler("OBJECT_COLLISION", (event) => {
         const { object1, object2 } = event;
         let other = null;
         if (object1.id === this.id) {
@@ -52,8 +52,8 @@ class Ray extends Entity {
       data: {
         sourceID: this.sourceID,
         projectileID: this.id,
-        hitID: entity.id
-      }
+        hitID: entity.id,
+      },
     };
     GM.emitEvent(event);
   }
@@ -82,13 +82,13 @@ class Ray extends Entity {
         source: this.sourceID,
         start: {
           x: start.x,
-          y: start.y
+          y: start.y,
         },
         end: {
           x: end.x,
-          y: end.y
-        }
-      }
+          y: end.y,
+        },
+      },
     };
     GM.emitEvent(event);
   }

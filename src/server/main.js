@@ -13,13 +13,16 @@ import {
   deepDiff,
   pruneEmpty,
   randomInt,
-  setServer
+  setServer,
 } from "../shared/util/util";
 import LM from "../shared/network/LogManager";
 import SETTINGS from "../shared/util/settings";
 import Enemy from "../shared/entity/Enemy";
 import Entity from "../shared/entity/Entity";
 import { iterator } from "lazy-iters";
+import CM from "./ChatManager";
+import PM from "../shared/plugins/PluginManager";
+import "./chat";
 
 const REQUIRED_PLAYERS = 1;
 const REFRESH_RATE = 60;
@@ -29,8 +32,8 @@ const CONFIG_OPTIONS = [
   {
     opponentPredictionEnabled: true,
     predictionEnabled: true,
-    timeWarpEnabled: false
-  }
+    timeWarpEnabled: false,
+  },
 ];
 
 // const CONFIG_OPTIONS = [
@@ -75,6 +78,10 @@ class GameServer extends Server {
     this.latencyLevelIndex = 0;
   }
 
+  getPlayerEntity(id) {
+    return this.heroes[id];
+  }
+
   *getHeroes() {
     for (const heroID in this.heroes) {
       yield this.heroes[heroID];
@@ -94,8 +101,8 @@ class GameServer extends Server {
       const wonEvent = {
         type: "GAME_WON",
         data: {
-          winningHeroID: winner.id
-        }
+          winningHeroID: winner.id,
+        },
       };
       NM.send(wonEvent);
     }
@@ -134,8 +141,8 @@ class GameServer extends Server {
       const message = {
         type: "REMOVE_PLAYER",
         data: {
-          id: socketIndex
-        }
+          id: socketIndex,
+        },
       };
 
       for (const socket in this.connections) {
@@ -158,8 +165,8 @@ class GameServer extends Server {
     const event = {
       type: "CHANGE_SETTINGS",
       data: {
-        settings: config
-      }
+        settings: config,
+      },
     };
     NM.send(event);
   }
@@ -185,8 +192,8 @@ class GameServer extends Server {
       type: "START_GAME",
       data: {
         settings: CONFIG_OPTIONS[configIndex],
-        latency: LAG_OPTIONS[latencyIndex]
-      }
+        latency: LAG_OPTIONS[latencyIndex],
+      },
     });
 
     const unlagged = randomInt(0, heroesAdded.length);
@@ -198,15 +205,13 @@ class GameServer extends Server {
           type: "ASSIGN_LATENCY",
           data: {
             socketIndex: i,
-            latency
-          }
+            latency,
+          },
         };
         GM.emitEvent(newState);
       }
     }
     this.latencyLevelIndex += 1;
-
-    this.createTimer();
   }
 
   scheduleHeroToCreate(socketIndex, name) {
@@ -230,16 +235,16 @@ class GameServer extends Server {
         data: {
           playerID: socketIndex,
           entityID: hero.id,
-          serverTime: GM.timeElapsed
-        }
+          serverTime: GM.timeElapsed,
+        },
       },
       socketIndex
     );
 
-    hero.registerHandler("MOUSE_DOWN", data => {
+    hero.registerHandler("MOUSE_DOWN", (data) => {
       const event = {
         type: "TIME_WARPED_MOUSE_DOWN",
-        data
+        data,
       };
 
       const { socketIndex } = data;
@@ -255,7 +260,7 @@ class GameServer extends Server {
       }
     });
 
-    hero.registerHandler("MOUSE_UP", event => {
+    hero.registerHandler("MOUSE_UP", (event) => {
       const { position, socketIndex } = event;
       if (hero.playerID === socketIndex) {
         hero.setTarget(position);
@@ -265,7 +270,7 @@ class GameServer extends Server {
       }
     });
 
-    hero.registerHandler("TIME_WARPED_MOUSE_DOWN", event => {
+    hero.registerHandler("TIME_WARPED_MOUSE_DOWN", (event) => {
       const { position, socketIndex } = event;
       if (hero.playerID === socketIndex) {
         const { x, y } = position;
@@ -277,7 +282,7 @@ class GameServer extends Server {
       }
     });
 
-    hero.registerHandler("ROTATE_CANNON", event => {
+    hero.registerHandler("ROTATE_CANNON", (event) => {
       const { playerID, angle, target, socketIndex } = event;
       if (playerID === socketIndex && hero.playerID === playerID) {
         hero.rotateCannon(angle);
@@ -285,7 +290,7 @@ class GameServer extends Server {
       }
     });
 
-    hero.registerHandler("PLAYER_KILLED", event => {
+    hero.registerHandler("PLAYER_KILLED", (event) => {
       const { killerID, killedID } = event;
       if (hero.id === killerID && hero.id !== killedID) {
         hero.score += hero.maxDamage;
@@ -300,28 +305,12 @@ class GameServer extends Server {
   initialize() {
     super.initialize();
 
-    // Assign random latency
-    // GM.registerHandler('JOIN_GAME', event => {
-    //   const { socketIndex } = event;
-    //   // const latency = Math.random() * SETTINGS.maxLatency / 2;
-    //   const latency = 0.2;
-    //   this.setDelay(socketIndex, latency);
-    //   const newState = {
-    //     type: 'ASSIGN_LATENCY',
-    //     data: {
-    //       socketIndex,
-    //       latency
-    //     }
-    //   };
-    //   GM.emitEvent(newState);
-    // });
-
-    GM.registerHandler("ASSIGN_LATENCY", event => {
+    GM.registerHandler("ASSIGN_LATENCY", (event) => {
       const { socketIndex, latency } = event;
       console.log(`Player ${socketIndex}: ${latency}`);
     });
 
-    GM.registerHandler("JOIN_GAME", event => {
+    GM.registerHandler("JOIN_GAME", (event) => {
       const { name, socketIndex } = event;
 
       // Create hero for player
@@ -332,7 +321,7 @@ class GameServer extends Server {
       }
     });
 
-    GM.registerHandler("REJOIN_GAME", event => {
+    GM.registerHandler("REJOIN_GAME", (event) => {
       console.log("REJOIN_GAME", event);
 
       const { socketIndex } = event;
@@ -341,13 +330,13 @@ class GameServer extends Server {
         type: "JOIN_GAME",
         data: {
           name,
-          socketIndex
-        }
+          socketIndex,
+        },
       };
       GM.emitEvent(rejoin);
     });
 
-    GM.registerHandler("KEY_DOWN", event => {
+    GM.registerHandler("KEY_DOWN", (event) => {
       const hero = this.heroes[event.socketIndex];
       if (hero) {
         switch (event.key) {
@@ -370,7 +359,7 @@ class GameServer extends Server {
       }
     });
 
-    GM.registerHandler("KEY_UP", event => {
+    GM.registerHandler("KEY_UP", (event) => {
       const hero = this.heroes[event.socketIndex];
       if (hero) {
         switch (event.key) {
@@ -390,39 +379,28 @@ class GameServer extends Server {
       }
     });
 
-    GM.registerHandler("PLAY_AUDIO", data => {
+    GM.registerHandler("PLAY_AUDIO", (data) => {
       const event = {
         type: "PLAY_AUDIO",
-        data
+        data,
       };
 
       NM.send(event);
     });
 
-    GM.registerHandler("CHAT_INPUT", data => {
-      console.log(data);
-      const event = {
-        type: "CHAT_OUTPUT",
-        data
-      };
-      NM.send(event);
-      const { id, author, content } = data.message;
-      console.log(`[${id}] ${author}: ${content}`);
-    });
-
-    GM.registerHandler("SPAWN_ENEMY", event => {
+    GM.registerHandler("SPAWN_ENEMY", (event) => {
       const enemy = new Enemy();
       enemy.setPosition(WM.getRandomPoint(40, 40));
       WM.add(enemy);
     });
 
-    GM.registerHandler("KILL_AI", event => {
+    GM.registerHandler("KILL_AI", (event) => {
       iterator(WM.getEntities())
-        .filter(entity => entity.type === "Enemy")
-        .forEach(entity => entity.markForDelete());
+        .filter((entity) => entity.type === "Enemy")
+        .forEach((entity) => entity.markForDelete());
     });
 
-    GM.registerHandler("ROLLBACK", event => {
+    GM.registerHandler("ROLLBACK", (event) => {
       const successful = WM.rollbackFrom(GM.timeElapsed - event.amount);
       if (successful) {
         NM.log("Rollback completed.");
@@ -431,7 +409,7 @@ class GameServer extends Server {
       }
     });
 
-    GM.registerHandler("REQUEST_STATS", event => {
+    GM.registerHandler("REQUEST_STATS", (event) => {
       const { socketIndex } = event;
       const entityCount = WM.getEntityCount();
       const listenerCount = GM.getHandlerCount();
@@ -440,12 +418,15 @@ class GameServer extends Server {
           type: "SEND_STATS",
           data: {
             entityCount,
-            listenerCount
-          }
+            listenerCount,
+          },
         },
         socketIndex
       );
     });
+
+    CM.initialize(this);
+    PM.initialize();
 
     // GM.registerHandler("PLAYER_KILLED", event => {
     //   let winningHeroID = -1;
@@ -475,7 +456,8 @@ class GameServer extends Server {
     const level = JSON.parse(levelString);
 
     WM.setSpawnPoints(level.spawnPoints);
-    WM.setGeomtetry(level.geometry);
+    WM.setGeometry(level.geometry);
+    console.log(WM.geometry);
     if (level.friction !== undefined) {
       WM.friction = level.friction;
     }
@@ -531,7 +513,7 @@ class GameServer extends Server {
 
     const message = {
       type: "RESET_GAME",
-      data: {}
+      data: {},
     };
     GM.emitEvent(message);
     NM.send(message);
@@ -544,15 +526,9 @@ class GameServer extends Server {
         type: "DEFINE_ARENA",
         data: {
           friction: WM.friction,
-          ice: WM.icePatches.map(shape => ({
-            type: shape.type,
-            ...shape
-          })),
-          geometry: WM.geometry.map(shape => ({
-            type: shape.type,
-            ...shape
-          }))
-        }
+          ice: WM.icePatches.map((shape) => shape.serialize()),
+          geometry: WM.geometry.map((shape) => shape.serialize()),
+        },
       },
       socketIndex
     );
@@ -594,7 +570,7 @@ const main = async () => {
   // Create the game timer
   const PING_INTERVAL = 1;
   let timeElapsed = 0;
-  const timer = new Timer(1 / REFRESH_RATE, dt => {
+  const timer = new Timer(1 / REFRESH_RATE, (dt) => {
     timeElapsed += dt;
     GM.step(dt);
     WM.sync(server);
@@ -612,4 +588,4 @@ const main = async () => {
   timer.start();
 };
 
-main().catch(console.error);
+main().catch(console.log);

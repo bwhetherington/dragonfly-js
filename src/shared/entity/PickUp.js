@@ -8,7 +8,7 @@ class PickUp extends Entity {
   constructor() {
     super();
     this.type = "PickUp";
-    this.boundingBox = new Rectangle(0, 0, 20, 20);
+    this.setBounds(new Rectangle(0, 0, 20, 20));
     this.isCollidable = false;
     this.isSpectral = true;
     this.opacity = 0.5;
@@ -16,7 +16,7 @@ class PickUp extends Entity {
     this.isSpawned = false;
 
     if (isServer()) {
-      this.registerHandler("STEP", event => {
+      this.registerHandler("STEP", (event) => {
         if (!this.isSpawned) {
           this.timer = Math.max(0, this.timer - event.dt);
           if (this.timer === 0) {
@@ -25,7 +25,7 @@ class PickUp extends Entity {
         }
       });
 
-      this.registerHandler("OBJECT_COLLISION", event => {
+      this.registerHandler("OBJECT_COLLISION", (event) => {
         const { object1, object2 } = event;
         let other = null;
         if (object1.id === this.id) {
@@ -49,7 +49,7 @@ class PickUp extends Entity {
     return {
       ...super.serialize(),
       timer: this.timer,
-      isSpawned: this.isSpawned
+      isSpawned: this.isSpawned,
     };
   }
 

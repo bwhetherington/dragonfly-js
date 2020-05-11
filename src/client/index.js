@@ -11,25 +11,25 @@ import Timer from "./timer";
 import { parseLocation } from "./util";
 import HealthPickUp from "../shared/entity/HealthPickUp";
 
-const removeChildren = element => {
+const removeChildren = (element) => {
   while (element.firstChild) {
     element.removeChild(element.firstChild);
   }
 };
 
-const adjustScale = two => {
+const adjustScale = (two) => {
   const minDimension = Math.min(two.width, two.height);
   two.scene.scale = minDimension / TARGET_SIZE;
 };
 
-const initializeLandingPage = game => {
+const initializeLandingPage = (game) => {
   // if (game) {
   //   game.hidden = true;
   // }
 
   const modal = document.getElementById("landing-page");
   const form = document.getElementById("join-game");
-  form.onsubmit = event => {
+  form.onsubmit = (event) => {
     event.preventDefault();
 
     const name = document.getElementById("name").value;
@@ -39,8 +39,8 @@ const initializeLandingPage = game => {
     const message = {
       type: "JOIN_GAME",
       data: {
-        name
-      }
+        name,
+      },
     };
 
     NM.send(message);
@@ -63,10 +63,15 @@ const main = async () => {
   const query = location.search || "";
   const { renderer = "svg" } = parseLocation(query);
 
+  element.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    return false;
+  });
+
   const two = new Two({
     fullscreen: true,
     autostart: true,
-    type: Two.Types[renderer]
+    type: Two.Types[renderer],
   }).appendTo(element);
 
   window.addEventListener("resize", () => {
@@ -96,14 +101,17 @@ const main = async () => {
 
     // Horizontal
     for (let i = GRID_SIZE; i <= width - GRID_SIZE; i += GRID_SIZE) {
-      makeLine(two, x, y + i, x + width, y + i);
       makeLine(two, x + i, y, x + i, y + height);
+    }
+
+    for (let i = GRID_SIZE; i <= height - GRID_SIZE; i += GRID_SIZE) {
+      makeLine(two, x, y + i, x + width, y + i);
     }
 
     // Define horizontal bars
     const border = two.makeRectangle(
       x + width / 2,
-      y + width / 2,
+      y + height / 2,
       width,
       height
     );
@@ -121,10 +129,12 @@ const main = async () => {
       ({ x, y, width, height }) => new Rectangle(x, y, width, height)
     );
 
-    WM.setGeomtetry(geometry);
+    WM.setGeometry(geometry);
 
     for (const shape of geometry) {
-      const { type, x, y, width, height } = shape;
+      let { type, x, y, width, height } = shape;
+      // x += width / 2;
+      // y += height / 2;
       switch (type) {
         case "InverseRectangle":
           // An InverseRectangle represents the outer bounds
@@ -165,7 +175,7 @@ const main = async () => {
   CM.initialize(client);
   CM.two = two;
 
-  const timer = new Timer(dt => {
+  const timer = new Timer((dt) => {
     GM.step(dt);
   });
   timer.start();

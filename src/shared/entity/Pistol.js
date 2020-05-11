@@ -26,7 +26,7 @@ class Pistol extends Weapon {
     bullet.velocity.set(vector);
     bullet.velocity.scale(650);
 
-    bullet.registerHandler("HIT_OBJECT", event => {
+    bullet.registerHandler("HIT_OBJECT", (event) => {
       const { hitID, sourceID, projectileID } = event;
       if (projectileID === bullet.id) {
         const object = WM.findByID(hitID);
@@ -50,7 +50,7 @@ class Pistol extends Weapon {
   renderTooltip() {
     return {
       ...super.renderTooltip(),
-      Bounces: BOUNCES
+      Bounces: BOUNCES,
     };
   }
 }

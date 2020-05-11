@@ -1,11 +1,13 @@
 import { iterator } from "lazy-iters";
 import Vector from "./Vector";
+// import InverseRectangle from "./InverseRectangle";
+import { Corner } from "../util/util";
 
 class Rectangle {
   constructor(x, y, w, h) {
     this.type = "Rectangle";
-    this.x = x;
-    this.y = y;
+    this.x = x - w / 2;
+    this.y = y - h / 2;
     this.width = w;
     this.height = h;
   }
@@ -15,28 +17,58 @@ class Rectangle {
     return Math.sqrt(width * width + height * height);
   }
 
+  getCorner(corner, to) {
+    let x, y;
+    switch (corner) {
+      case Corner.TOP_LEFT:
+        x = this.x;
+        y = this.y;
+        to.setXY(x, y);
+        break;
+      case Corner.TOP_RIGHT:
+        x = this.x + this.width;
+        y = this.y;
+        to.setXY(x, y);
+        break;
+      case Corner.BOTTOM_LEFT:
+        x = this.x;
+        y = this.y + this.height;
+        to.setXY(x, y);
+        break;
+      case Corner.BOTTOM_RIGHT:
+        x = this.x + this.width;
+        y = this.y + this.height;
+        to.setXY(x, y);
+        break;
+    }
+  }
+
   containsXY(x, y) {
-    const halfWidth = this.width / 2;
-    const halfHeight = this.height / 2;
-    const x1 = this.x - halfWidth;
-    const y1 = this.y - halfHeight;
-    const x2 = this.x + halfWidth;
-    const y2 = this.y + halfHeight;
-    return x1 <= x && x <= x2 && y1 <= y && y <= y2;
+    // const halfWidth = this.width / 2;
+    // const halfHeight = this.height / 2;
+    // const x1 = this.x - halfWidth;
+    // const y1 = this.y - halfHeight;
+    // const x2 = this.x + halfWidth;
+    // const y2 = this.y + halfHeight;
+    const x1 = this.x;
+    const y1 = this.y;
+    const x2 = this.x + this.width;
+    const y2 = this.y + this.height;
+    return x1 < x && x < x2 && y1 < y && y < y2;
   }
 
   intersects(other, first = true) {
-    const halfWidth = other.width / 2;
-    const halfHeight = other.height / 2;
+    // const halfWidth = other.width / 2;
+    // const halfHeight = other.height / 2;
 
-    const tlX = other.x - halfWidth;
-    const tlY = other.y - halfHeight;
-    const trX = other.x + halfWidth;
-    const trY = other.y - halfHeight;
-    const blX = other.x - halfWidth;
-    const blY = other.y + halfHeight;
-    const brX = other.x + halfWidth;
-    const brY = other.y + halfHeight;
+    const tlX = other.x;
+    const tlY = other.y;
+    const trX = other.x + other.width;
+    const trY = other.y;
+    const blX = other.x;
+    const blY = other.y + other.height;
+    const brX = other.x + other.width;
+    const brY = other.y + other.height;
 
     return (
       this.containsXY(tlX, tlY) ||
@@ -47,9 +79,17 @@ class Rectangle {
     );
   }
 
+  getCenterX() {
+    return this.x + this.width / 2;
+  }
+
+  getCenterY() {
+    return this.y + this.height / 2;
+  }
+
   setCenterXY(x, y) {
-    this.x = x;
-    this.y = y;
+    this.x = x - this.width / 2;
+    this.y = y - this.height / 2;
   }
 
   getAngleXY(x, y) {
@@ -77,7 +117,7 @@ class Rectangle {
       yield* this.getVertices();
     } else {
       const iter = iterator(this.getVertices())
-        .map(vertex => {
+        .map((vertex) => {
           const angle = this.getAngleXY(vertex.x, vertex.y);
           vertex.offset(angle, -normalOffset);
           return vertex;
@@ -88,25 +128,19 @@ class Rectangle {
   }
 
   setCenter(vector) {
-    this.x = vector.x;
-    this.y = vector.y;
+    const { x, y } = vector;
+    this.setCenterXY(x, y);
   }
 
   contains(other) {
-    const halfWidth = other.width / 2;
-    const halfHeight = other.height / 2;
-
-    const tlX = other.x - halfWidth;
-    const tlY = other.y - halfHeight;
-
-    const trX = other.x + halfWidth;
-    const trY = other.y - halfHeight;
-
-    const blX = other.x - halfWidth;
-    const blY = other.y + halfHeight;
-
-    const brX = other.x + halfWidth;
-    const brY = other.y + halfHeight;
+    const tlX = other.x;
+    const tlY = other.y;
+    const trX = other.x + other.width;
+    const trY = other.y;
+    const blX = other.x;
+    const blY = other.y + other.height;
+    const brX = other.x + other.width;
+    const brY = other.y + other.height;
 
     return (
       this.containsXY(tlX, tlY) &&
@@ -118,6 +152,27 @@ class Rectangle {
 
   containsPoint(x, y) {
     return this.containsXY(x, y);
+  }
+
+  serialize() {
+    const { type, x, y, width, height } = this;
+    return {
+      type,
+      x: x + width / 2,
+      y: y + height / 2,
+      width,
+      height,
+    };
+  }
+
+  addXY(x, y) {
+    this.x += x;
+    this.y += y;
+  }
+
+  add(vec, scalar = 1) {
+    const { x, y } = vec;
+    this.addXY(x * scalar, y * scalar);
   }
 }
 

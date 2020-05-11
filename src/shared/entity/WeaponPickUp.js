@@ -1,5 +1,6 @@
 import PickUp from "./PickUp";
-import { registerEntity, color } from "../util/util";
+import { registerEntity } from "../util/util";
+import { color } from "../util/color";
 import Hero from "./Hero";
 
 const WEAPON_COLORS = {
@@ -7,7 +8,7 @@ const WEAPON_COLORS = {
   Shotgun: color(200, 150, 0),
   Rocket: color(100, 200, 255),
   Madsen: color(200, 200, 80),
-  default: color(100, 100, 100)
+  default: color(100, 100, 100),
 };
 
 class WeaponPickUp extends PickUp {
@@ -20,7 +21,7 @@ class WeaponPickUp extends PickUp {
   serialize() {
     return {
       ...super.serialize(),
-      weaponType: this.weaponType
+      weaponType: this.weaponType,
     };
   }
 

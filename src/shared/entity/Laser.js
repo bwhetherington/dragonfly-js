@@ -1,7 +1,8 @@
 import Entity from "./Entity";
 import Vector from "../util/Vector";
 import Rectangle from "../util/Rectangle";
-import { registerEntity, color } from "../util/util";
+import { registerEntity } from "../util/util";
+import { color } from "../util/color";
 
 const DURATION = 0.375;
 
@@ -14,7 +15,7 @@ class Laser extends Entity {
     this.timer = 0;
     this.isCollidable = false;
     this.doSynchronize = false;
-    this.boundingBox = new Rectangle(0, 0, 0, 0);
+    this.setBounds(new Rectangle(0, 0, 0, 0));
 
     this.p1 = new Vector(0, 0);
     this.p2 = new Vector(0, 0);
@@ -24,7 +25,7 @@ class Laser extends Entity {
       this.p2.set(p2);
     }
 
-    this.registerHandler("STEP", event => {
+    this.registerHandler("STEP", (event) => {
       const { dt } = event;
       this.timer += dt;
       this.updateSize();

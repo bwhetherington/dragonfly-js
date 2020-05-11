@@ -8,10 +8,11 @@ import Madsen from "./Madsen";
 import Explosion from "./Explosion";
 import Vector from "../util/Vector";
 import GM from "../event/GameManager";
+import Raygun from "./Raygun";
 
 const SPAWNER = {
   count: 0,
-  spawnPoints: [new Vector(0, 0)]
+  spawnPoints: [new Vector(0, 0)],
 };
 
 class Enemy extends Entity {
@@ -33,13 +34,14 @@ class Enemy extends Entity {
     this.type = "Enemy";
     this.cannonAngle = 0;
     this.friction = 1;
+    this.bounce = 0.2;
     this.damageAmount = 0;
     this.maxDamage = 100;
     this.name = "Enemy";
     this.setPositionXY(0, 0);
     this.weapon = new Madsen();
-    // this.weapon.delayAmount = 1;
-    this.weapon.damage = 0;
+    this.weapon.delayAmount = 0.75;
+    this.weapon.damage = 12;
     this.doSynchronize = true;
     this.target = new Vector(0, 0);
     this.lastPosition = new Vector(0, 0);
@@ -48,14 +50,14 @@ class Enemy extends Entity {
     this.setColor({
       red: 75,
       green: 75,
-      blue: 75
+      blue: 75,
     });
 
     if (isServer()) {
-      this.registerHandler("STEP", event => {
+      this.registerHandler("STEP", (event) => {
         this.onStep(event.dt);
       });
-      this.registerHandler("GEOMETRY_COLLISION", event => {
+      this.registerHandler("GEOMETRY_COLLISION", (event) => {
         const { object } = event;
         if (object.id === this.id) {
           this.chooseTarget();
@@ -66,7 +68,7 @@ class Enemy extends Entity {
       });
     }
 
-    this.registerHandler("OBJECT_COLLISION", event => {
+    this.registerHandler("OBJECT_COLLISION", (event) => {
       const { object1, object2 } = event;
       let other = null;
       if (object1.id === this.id) {
@@ -111,9 +113,9 @@ class Enemy extends Entity {
 
   selectTargetHero() {
     const [hero] = iterator(WM.getEntities())
-      .filter(entity => entity.id !== this.id)
-      .filter(entity => entity instanceof Hero || entity instanceof Enemy)
-      .map(entity => [entity, entity.position.distance(this.position)])
+      .filter((entity) => entity.id !== this.id)
+      .filter((entity) => entity instanceof Hero || entity instanceof Enemy)
+      .map((entity) => [entity, entity.position.distance(this.position)])
       .fold([null, Infinity], ([closest, dist], [cur, newDist]) => {
         if (newDist < dist) {
           return [cur, newDist];
@@ -121,7 +123,9 @@ class Enemy extends Entity {
           return [closest, dist];
         }
       });
-    this.targetHero = hero.id;
+    if (hero) {
+      this.targetHero = hero.id;
+    }
   }
 
   onStep(dt) {
@@ -156,7 +160,7 @@ class Enemy extends Entity {
       damageAmount: this.damageAmount,
       cannonAngle: this.cannonAngle,
       targetHero: this.targetHero,
-      timer: this.timer
+      timer: this.timer,
     };
   }
 
