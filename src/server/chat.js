@@ -4,6 +4,7 @@ import CM from "./ChatManager";
 import WM from "../shared/entity/WorldManager";
 import Enemy from "../shared/entity/Enemy";
 import { iterator } from "lazy-iters";
+import SM from "./StressManager";
 
 class ChatPlugin extends Plugin {
   constructor() {
@@ -12,6 +13,17 @@ class ChatPlugin extends Plugin {
 
   initialize() {
     super.initialize();
+
+    CM.registerCommand("stress", (id) => {
+      const level = SM.getStress();
+      const label = Math.round(level * 1000) / 10;
+      const message = `Stress = ${label}%`;
+      if (level > 0.5) {
+        CM.warn(`Stress = ${label}%`, id);
+      } else {
+        CM.info(`Stress = ${label}%`, id);
+      }
+    });
 
     CM.registerCommand("sudo", (_, ...args) => {
       const [id, cmd, ...rest] = args;

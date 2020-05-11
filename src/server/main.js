@@ -23,6 +23,7 @@ import { iterator } from "lazy-iters";
 import CM from "./ChatManager";
 import PM from "../shared/plugins/PluginManager";
 import "./chat";
+import SM from "./StressManager";
 
 const REQUIRED_PLAYERS = 1;
 const REFRESH_RATE = 60;
@@ -560,7 +561,7 @@ const cleanup = (server, timer, options) => {
 
 const main = async () => {
   setServer();
-  const server = new (delayServer(GameServer))(8);
+  const server = new GameServer(8);
   server.initialize();
 
   WM.initialize();
@@ -570,8 +571,9 @@ const main = async () => {
   // Create the game timer
   const PING_INTERVAL = 1;
   let timeElapsed = 0;
-  const timer = new Timer(1 / REFRESH_RATE, (dt) => {
+  const timer = new Timer(1 / REFRESH_RATE, (dt, stress) => {
     timeElapsed += dt;
+    SM.addLevel(stress);
     GM.step(dt);
     WM.sync(server);
     if (timeElapsed >= PING_INTERVAL) {

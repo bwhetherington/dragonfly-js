@@ -17,7 +17,6 @@ class ChatManager {
           style: {
             fontWeight: "bold",
           },
-          color: "red",
         },
         " " + content,
       ];

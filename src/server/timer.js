@@ -44,14 +44,15 @@ class Timer {
     let start,
       stop,
       dt = 0,
-      duration,
+      duration = 0,
       remaining;
     while (this.isRunning) {
       start = now();
       if (stop !== undefined) {
         dt = start - stop;
       }
-      this.callback(dt);
+      const stress = duration / this.interval;
+      this.callback(dt, stress);
       stop = now();
       duration = stop - start;
       remaining = this.interval - duration;
