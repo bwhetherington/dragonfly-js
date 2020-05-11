@@ -17,11 +17,15 @@ class ChatPlugin extends Plugin {
     CM.registerCommand("stress", (id) => {
       const level = SM.getStress();
       const label = Math.round(level * 1000) / 10;
-      const message = `Stress = ${label}%`;
+
+      const mem =
+        Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 10) / 10;
+
+      const message = `Stress = ${label}%, Memory = ${mem}MB`;
       if (level > 0.5) {
-        CM.warn(`Stress = ${label}%`, id);
+        CM.warn(message, id);
       } else {
-        CM.info(`Stress = ${label}%`, id);
+        CM.info(message, id);
       }
     });
 
