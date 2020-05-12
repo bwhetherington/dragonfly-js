@@ -9,11 +9,13 @@ export const getFill = (c) => {
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 };
 
+const BORDER_DARKNESS = 40;
+
 export const getStroke = (c) => {
   let { red, green, blue, alpha = 1 } = c;
-  red -= 50;
-  green -= 50;
-  blue -= 50;
+  red -= BORDER_DARKNESS;
+  green -= BORDER_DARKNESS;
+  blue -= BORDER_DARKNESS;
   return `rgb(${Math.max(0, red)}, ${Math.max(0, green)}, ${Math.max(
     0,
     blue

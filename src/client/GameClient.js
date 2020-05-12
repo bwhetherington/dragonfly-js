@@ -17,7 +17,7 @@ import SizedQueue from "../shared/util/SizedQueue";
 import HealthPickUp from "../shared/entity/HealthPickUp";
 import NM from "../shared/network/NetworkManager";
 import LM from "../shared/network/LogManager";
-import { formatJSON, color } from "../shared/util/util";
+import { formatJSON, color, initializeInput } from "../shared/util/util";
 import Shadow from "../shared/entity/Shadow";
 
 const defaultColor = "rgba(0, 0, 0, 0.67)";
@@ -28,7 +28,7 @@ const rgba = (r, g, b, a) => "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
 
 const rgb = (r, g, b) => rgba(r, g, b, 1);
 
-const average = list => {
+const average = (list) => {
   let sum = 0;
   for (let i = 0; i < list.length; i++) {
     sum += list[i];
@@ -36,13 +36,13 @@ const average = list => {
   return sum / list.length;
 };
 
-const removeChildren = element => {
+const removeChildren = (element) => {
   while (element.firstChild) {
     element.removeChild(element.firstChild);
   }
 };
 
-const createTooltip = weapon => {
+const createTooltip = (weapon) => {
   const tooltip = document.createElement("div");
   // tooltip.className = 'tooltip menu';
 
@@ -78,7 +78,7 @@ const createTooltip = weapon => {
   return tooltip;
 };
 
-const gatherFormData = formElements => {
+const gatherFormData = (formElements) => {
   let formResults = {};
   for (let i = 0, element; (element = formElements[i++]); ) {
     if (element.checked) {
@@ -131,7 +131,7 @@ class GameClient extends Client {
 
     const weaponLabel = document.getElementById("hero-info");
 
-    GM.registerHandler("CREATE_OBJECT", event => {
+    GM.registerHandler("CREATE_OBJECT", (event) => {
       const { object } = event;
       // CM.displayComponents([{
       //   value: object.type,
@@ -150,7 +150,7 @@ class GameClient extends Client {
       }
     });
 
-    GM.registerHandler("EQUIP_WEAPON", event => {
+    GM.registerHandler("EQUIP_WEAPON", (event) => {
       const { playerID, weapon } = event;
       const actualWeapon = WM.createWeapon(weapon.type);
       actualWeapon.deserialize(weapon);
@@ -174,7 +174,7 @@ class GameClient extends Client {
     const debugMenu = document.getElementById("debug-menu");
     let canChangeToRed = true;
 
-    GM.registerHandler("STEP", event => {
+    GM.registerHandler("STEP", (event) => {
       // Update entities
       if (!this.entityMenu.hidden) {
         removeChildren(this.entities);
@@ -216,83 +216,30 @@ class GameClient extends Client {
   registerInput() {
     // Register handlers to send to server
     let isFullScreen = document.isFullScreen;
-    GM.registerHandler("KEY_DOWN", event => {
-      // Process locally
-      const { hero } = this;
-      if (hero) {
-        switch (event.key) {
-          case "KeyW":
-            hero.setInput("up", true);
-            break;
-          case "KeyS":
-            hero.setInput("down", true);
-            break;
-          case "KeyA":
-            hero.setInput("left", true);
-            break;
-          case "KeyD":
-            hero.setInput("right", true);
-            break;
-          case "KeyP":
-            SETTINGS.predictionEnabled = !SETTINGS.predictionEnabled;
-            break;
-          case "KeyE":
-            this.entityMenu.hidden = !this.entityMenu.hidden;
-            break;
-          case "ShiftLeft":
-          case "ShiftRight":
-            hero.setSlow(true);
-            break;
-          case "KeyF":
-        }
-      }
-
+    GM.registerHandler("KEY_DOWN", (data) => {
       NM.send({
         type: "KEY_DOWN",
-        data: event
+        data,
       });
     });
-
-    GM.registerHandler("KEY_UP", event => {
-      const { hero } = this;
-      if (hero) {
-        switch (event.key) {
-          case "KeyW":
-            hero.setInput("up", false);
-            break;
-          case "KeyS":
-            hero.setInput("down", false);
-            break;
-          case "KeyA":
-            hero.setInput("left", false);
-            break;
-          case "KeyD":
-            hero.setInput("right", false);
-            break;
-          case "ShiftLeft":
-          case "ShiftRight":
-            hero.setSlow(false);
-            break;
-        }
-      }
-
+    GM.registerHandler("KEY_UP", (data) => {
       NM.send({
         type: "KEY_UP",
-        data: event
+        data,
       });
     });
 
-    GM.registerHandler("MOUSE_DOWN", event => {
+    GM.registerHandler("MOUSE_DOWN", (event) => {
       NM.send({
         type: "MOUSE_DOWN",
-        data: event
+        data: event,
       });
     });
 
-    GM.registerHandler("MOUSE_UP", event => {
+    GM.registerHandler("MOUSE_UP", (event) => {
       NM.send({
         type: "MOUSE_UP",
-        data: event
+        data: event,
       });
     });
   }
@@ -313,7 +260,7 @@ class GameClient extends Client {
   }
 
   initializeSettings() {
-    GM.registerHandler("CHANGE_SETTINGS", data => {
+    GM.registerHandler("CHANGE_SETTINGS", (data) => {
       const { settings } = data;
       for (const key in settings) {
         SETTINGS[key] = settings[key];
@@ -340,7 +287,7 @@ class GameClient extends Client {
       modalText.innerHTML = "Game Over, You lost";
     }
     modal.hidden = false;
-    form.onsubmit = event => {
+    form.onsubmit = (event) => {
       let formElements = document.getElementById("rejoin-game").elements;
       let formResults = gatherFormData(formElements);
       event.preventDefault();
@@ -348,12 +295,12 @@ class GameClient extends Client {
       const message = {
         type: "REJOIN_GAME",
         data: {
-          heroID: hero.id
-        }
+          heroID: hero.id,
+        },
       };
       const formMessage = {
         type: "LOG_DATA",
-        data: formResults
+        data: formResults,
       };
       NM.send(message);
       NM.send(formMessage);
@@ -371,11 +318,12 @@ class GameClient extends Client {
 
   initializeHero(hero) {
     this.hero = hero;
+    initializeInput(() => hero);
     CM.hero = hero;
     this.hpBar.maxValue = hero.maxDamage;
     GM.hero = hero;
     this.attachCamera(hero);
-    hero.registerHandler("MOUSE_MOVE", event => {
+    hero.registerHandler("MOUSE_MOVE", (event) => {
       const { x, y } = event.position;
 
       const dx = x - hero.position.x;
@@ -389,8 +337,8 @@ class GameClient extends Client {
           data: {
             playerID: hero.playerID,
             angle: angle,
-            target: event.position
-          }
+            target: event.position,
+          },
         };
         GM.emitEvent(newEvent);
       }
@@ -405,7 +353,7 @@ class GameClient extends Client {
     this.registerInput();
     this.initializeUI();
 
-    GM.registerHandler("ENTITY_DAMAGED", event => {
+    GM.registerHandler("ENTITY_DAMAGED", (event) => {
       const { sourceID, damagedID, amount } = event;
       const source = WM.findByID(sourceID);
       const damaged = WM.findByID(damagedID);
@@ -417,12 +365,12 @@ class GameClient extends Client {
       }
     });
 
-    GM.registerHandler("CLEANUP_GRAPHICS", event => {
+    GM.registerHandler("CLEANUP_GRAPHICS", (event) => {
       const { object } = event;
       this.two.remove(object);
     });
 
-    GM.registerHandler("CREATE_OBJECT", event => {
+    GM.registerHandler("CREATE_OBJECT", (event) => {
       const { object } = event;
       if (object.type === "Hero") {
         if (object.playerID === this.playerID) {
@@ -447,7 +395,7 @@ class GameClient extends Client {
     //   }
     // });
 
-    GM.registerHandler("CREATE_RAY", event => {
+    GM.registerHandler("CREATE_RAY", (event) => {
       const { start, end, source } = event;
       const sourceEntity = source ? WM.findByID(source) : null;
       const sourceHero = sourceEntity instanceof Hero ? sourceEntity : null;
@@ -464,34 +412,39 @@ class GameClient extends Client {
       WM.add(explosion);
     });
 
-    GM.registerHandler("CREATE_EXPLOSION", event => {
+    GM.registerHandler("CREATE_EXPLOSION", (event) => {
       const { position, radius, color } = event;
       const explosion = new Explosion(color, radius);
       explosion.setPosition(position);
       WM.add(explosion);
     });
 
-    GM.registerHandler("CREATE_SHADOW", event => {
+    GM.registerHandler("CREATE_SHADOW", (event) => {
       const { position, radius, duration } = event;
       const shadow = new Shadow(duration, radius);
       shadow.setPosition(position);
       WM.add(shadow);
     });
 
-    GM.registerHandler("ROTATE_CANNON", event => {
+    GM.registerHandler("WEAPON_FIRE", (event) => {
+      const hero = WM.findByID(event.hero);
+      hero.fireAnimation();
+    });
+
+    GM.registerHandler("ROTATE_CANNON", (event) => {
       const packet = {
         type: "ROTATE_CANNON",
-        data: event
+        data: event,
       };
       NM.send(packet);
     });
 
-    GM.registerHandler("PLAY_AUDIO", data => {
+    GM.registerHandler("PLAY_AUDIO", (data) => {
       const position = GM.hero ? GM.hero.position : null;
       AM.playSoundInternal(data.filename, data.volume, data.position, position);
     });
 
-    GM.registerHandler("GAME_WON", event => {
+    GM.registerHandler("GAME_WON", (event) => {
       CM.clear();
       this.initializeGameResult(event.winningHeroID);
     });

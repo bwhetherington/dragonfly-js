@@ -1,4 +1,6 @@
 import WM from "../entity/WorldManager";
+import GM from "../event/GameManager";
+import Vector from "./Vector";
 import short from "short-uuid";
 
 export const Corner = {
@@ -26,9 +28,9 @@ export const isClient = () => !isServerInternal;
 
 export const isServer = () => isServerInternal;
 
-export const initializeInput = (node) => {
+export const initializeInput = (heroGetter) => {
   GM.registerHandler("KEY_DOWN", (event) => {
-    const hero = this.heroes[event.socketIndex];
+    const hero = heroGetter(event.socketIndex);
     switch (event.key) {
       case "KeyW":
         hero.setInput("up", true);
@@ -46,16 +48,12 @@ export const initializeInput = (node) => {
         hero.applyForce(new Vector(100, 0));
         break;
       case "KeyQ":
-        hero.setWeapon(Pistol);
-        break;
-      case "ShiftLeft":
-      case "ShiftRight":
-        hero.setSlow(true);
+        hero.setWeapon("Pistol");
         break;
     }
   });
   GM.registerHandler("KEY_UP", (event) => {
-    const hero = this.heroes[event.socketIndex];
+    const hero = heroGetter(event.socketIndex);
     switch (event.key) {
       case "KeyW":
         hero.setInput("up", false);
@@ -69,11 +67,9 @@ export const initializeInput = (node) => {
       case "KeyD":
         hero.setInput("right", false);
         break;
-      case "ShiftLeft":
-      case "ShiftRight":
-        hero.setSlow(false);
-        break;
     }
+
+    // console.log(hero);
   });
 };
 

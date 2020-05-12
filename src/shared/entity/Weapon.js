@@ -35,6 +35,7 @@ class Weapon {
       const { cannonAngle } = sourceHero;
       const offsetX = Math.cos(cannonAngle - Math.PI / 2);
       const offsetY = Math.sin(cannonAngle - Math.PI / 2);
+      this.fireAnimation(sourceHero);
       this.fire(
         sourceHero.position.x + offsetX,
         sourceHero.position.y + offsetY,
@@ -61,7 +62,7 @@ class Weapon {
       delayAmount: this.delayAmount,
       isAutomatic: this.isAutomatic,
       isActive: this.isActive,
-      damage: this.damage
+      damage: this.damage,
     };
   }
 
@@ -90,8 +91,8 @@ class Weapon {
     const fireEvent = {
       type: "FIRE_WEAPON",
       data: {
-        id: sourceHero.id
-      }
+        id: sourceHero.id,
+      },
     };
     if (!GM.rollback && isServer()) {
       NM.send(fireEvent);
@@ -100,9 +101,19 @@ class Weapon {
     }
   }
 
+  fireAnimation(sourceHero) {
+    NM.send({
+      type: "WEAPON_FIRE",
+      data: {
+        hero: sourceHero.id,
+      },
+    });
+  }
+
   fireInternal(fx, fy, sourceHero) {
     if (!this.automatic) {
       if (this.delayTimer <= 0) {
+        this.fireAnimation(sourceHero);
         this.fire(fx, fy, sourceHero);
         this.delayTimer = this.delayAmount;
         this.fireEvent(sourceHero);
@@ -117,7 +128,7 @@ class Weapon {
   renderTooltip() {
     return {
       Rate: this.delayAmount,
-      Damage: this.damage
+      Damage: this.damage,
     };
   }
 }

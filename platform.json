@@ -1,0 +1,87 @@
+{
+  "friction": 5,
+  "features": [],
+  "spawnPoints": [
+    {
+      "x": -440,
+      "y": -440
+    },
+    {
+      "x": 440,
+      "y": -440
+    },
+    {
+      "x": -440,
+      "y": 440
+    },
+    {
+      "x": 440,
+      "y": 440
+    }
+  ],
+  "geometry": [
+    {
+      "type": "InverseRectangle",
+      "x": 0,
+      "y": 0,
+      "width": 1120,
+      "height": 1120
+    },
+    {
+      "type": "Rectangle",
+      "x": 300,
+      "y": 300,
+      "width": 80,
+      "height": 80
+    },
+    {
+      "type": "Rectangle",
+      "x": -300,
+      "y": 300,
+      "width": 80,
+      "height": 80
+    },
+    {
+      "type": "Rectangle",
+      "x": 300,
+      "y": -300,
+      "width": 80,
+      "height": 80
+    },
+    {
+      "type": "Rectangle",
+      "x": -300,
+      "y": -300,
+      "width": 80,
+      "height": 80
+    },
+    {
+      "type": "Rectangle",
+      "x": 0,
+      "y": -300,
+      "width": 240,
+      "height": 40
+    },
+    {
+      "type": "Rectangle",
+      "x": 0,
+      "y": 300,
+      "width": 240,
+      "height": 40
+    },
+    {
+      "type": "Rectangle",
+      "x": -300,
+      "y": 0,
+      "width": 40,
+      "height": 240
+    },
+    {
+      "type": "Rectangle",
+      "x": 300,
+      "y": 0,
+      "width": 40,
+      "height": 240
+    }
+  ]
+}

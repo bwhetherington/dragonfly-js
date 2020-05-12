@@ -60,16 +60,16 @@ class AudioManager {
 
   async playSoundInternal(sound, volume, comeFrom = null, listenAt = null) {
     if (isClient()) {
-      // const url = '/assets/sounds/' + sound;
-      // const audio = new Audio(url);
-      // // Calculate volume based on distance
-      // if (comeFrom && listenAt) {
-      //   const dist = Vector.fromVector(comeFrom).distance(listenAt);
-      //   // Calculate volume based on distance
-      //   volume *= this.calculateVolume(dist);
-      // }
-      // audio.volume = volume / 2;
-      // await audio.play();
+      const url = "/assets/sounds/" + sound;
+      const audio = new Audio(url);
+      // Calculate volume based on distance
+      if (comeFrom && listenAt) {
+        const dist = Vector.fromVector(comeFrom).distance(listenAt);
+        // Calculate volume based on distance
+        volume *= this.calculateVolume(dist);
+      }
+      audio.volume = volume / 2;
+      await audio.play();
     }
   }
 

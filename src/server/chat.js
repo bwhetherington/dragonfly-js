@@ -67,6 +67,9 @@ class ChatPlugin extends Plugin {
           for (let i = 0; i < num; i++) {
             const enemy = new Enemy();
             enemy.setPosition(WM.getRandomPoint(40, 40));
+
+            enemy.weapon.delayTimer = Math.random() * 5;
+
             WM.add(enemy);
           }
           CM.info(`Spawned ${num} enemies.`, id);

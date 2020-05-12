@@ -358,6 +358,9 @@ class WorldManager {
 
     // v += a * t
     entity.velocity.add(entity.vectorBuffer1);
+    // if (entity.isCollidable) {
+    //   entity.velocity.addXY(0, 700 * dt);
+    // }
 
     entity.vectorBuffer1.set(entity.velocity);
 
@@ -474,13 +477,8 @@ class WorldManager {
     }
   }
 
-  // move(entity, dt, ignore = []) {
-  //   this.tree.remove
-  //   let { friction } = this;
-  //   const
-  // }
-
   move(entity, dt, ignore = []) {
+    console.error("THIS SHOULD NOT BE CALLED");
     // vb1 = a * t
     let { friction } = this;
     const { boundingBox } = entity;

@@ -9,6 +9,7 @@ import Explosion from "./Explosion";
 import Vector from "../util/Vector";
 import GM from "../event/GameManager";
 import Raygun from "./Raygun";
+import WeaponAnimation from "./WeaponAnimation";
 
 const SPAWNER = {
   count: 0,
@@ -66,6 +67,12 @@ class Enemy extends Entity {
       this.runInterval(2, () => {
         this.selectTargetHero();
       });
+    } else {
+      this.weaponAnim = new WeaponAnimation();
+      this.registerHandler("STEP", () => {
+        const progress = this.weaponAnim.getProgress();
+        this.cannon.scale = progress;
+      });
     }
 
     this.registerHandler("OBJECT_COLLISION", (event) => {
@@ -100,6 +107,10 @@ class Enemy extends Entity {
     if (this.damageAmount >= this.maxDamage) {
       this.markForDelete();
     }
+  }
+
+  fireAnimation() {
+    this.weaponAnim.fire();
   }
 
   getTargetHero() {
@@ -228,6 +239,9 @@ class Enemy extends Entity {
 
   cleanup() {
     super.cleanup();
+    if (this.weaponAnim) {
+      this.weaponAnim.cleanup();
+    }
     if (isClient()) {
       const explosion = new Explosion(this.color, 50);
       explosion.setPosition(this.position);

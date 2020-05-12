@@ -14,6 +14,7 @@ import WeaponPickUp from "./WeaponPickUp";
 import Rocket from "./Rocket";
 import Madsen from "./Madsen";
 import Enemy from "./Enemy";
+import WeaponAnimation from "./WeaponAnimation";
 
 const MOVEMENT_SPEED = 300;
 
@@ -82,6 +83,8 @@ class Hero extends Entity {
     this.lives = this.totalLives;
     this.target = new Vector(0, 0);
 
+    this.weaponAnim = new WeaponAnimation();
+
     this.registerHandler("OBJECT_COLLISION", (event) => {
       const { object1, object2 } = event;
       let other = null;
@@ -112,7 +115,9 @@ class Hero extends Entity {
         this.weapon.step(dt, this);
       }
 
-      if (isClient()) {
+      if (isClient() && this.cannon) {
+        const progress = this.weaponAnim.getProgress();
+        this.cannon.scale = progress;
         return;
       }
 
@@ -188,6 +193,10 @@ class Hero extends Entity {
 
   setTarget(point) {
     this.target.set(point);
+  }
+
+  fireAnimation() {
+    this.weaponAnim.fire();
   }
 
   dropWeapon() {
@@ -546,6 +555,9 @@ class Hero extends Entity {
     }
     if (this.weapon) {
       this.weapon.cleanup();
+    }
+    if (this.weaponAnim) {
+      this.weaponAnim.cleanup();
     }
     return super.cleanup();
   }

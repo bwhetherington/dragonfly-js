@@ -1,6 +1,7 @@
 import uuid from "uuid/v1";
 import NM from "../shared/network/NetworkManager";
 import GM from "../shared/event/GameManager";
+import Vector from "../shared/util/Vector";
 
 export const scaleVector = (vec, scale = 1) => {
   vec[0] *= scale;
@@ -12,7 +13,7 @@ export const addVector = (vec, [x, y]) => {
   vec[1] += y;
 };
 
-export const parseLocation = url => {
+export const parseLocation = (url) => {
   const obj = {};
   const start = url.indexOf("?");
   if (start >= 0) {

@@ -26,7 +26,7 @@ class Entity {
     this.movementSpeed = 0;
     this.isSlow = false;
     this.friction = 0;
-    this.bounce = 1;
+    this.bounce = 0.5;
     this.isSpectral = false;
     this.hasMoved = true;
     this.syncMove = true;
@@ -39,6 +39,8 @@ class Entity {
     this.timers = {};
     this.flashDuration = 0;
   }
+
+  fireAnimation() {}
 
   setBounds(shape) {
     this.boundingBox = shape;

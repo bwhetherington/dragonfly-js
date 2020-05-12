@@ -4,6 +4,7 @@ import Projectile from "./Projectile";
 import WM from "./WorldManager";
 import AM from "../audio/AudioManager";
 import GM from "../event/GameManager";
+import NM from "../network/NetworkManager";
 
 const BOUNCES = 1;
 

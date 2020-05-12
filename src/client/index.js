@@ -10,6 +10,11 @@ import InverseRectangle from "../shared/util/InverseRectangle";
 import Timer from "./timer";
 import { parseLocation } from "./util";
 import HealthPickUp from "../shared/entity/HealthPickUp";
+import { color, getFill, getStroke } from "../shared/util/color";
+
+const GEOM_COLOR = color(220, 220, 220);
+const GEOM_FILL = getFill(GEOM_COLOR);
+const GEOM_STROKE = getStroke(GEOM_COLOR);
 
 const removeChildren = (element) => {
   while (element.firstChild) {
@@ -90,6 +95,16 @@ const main = async () => {
   };
 
   const makeBounds = (two, x, y, width, height) => {
+    // const bg = two.makeRectangle(
+    //   x + width / 2,
+    //   y + height / 2,
+    //   width * 100,
+    //   height * 100
+    // );
+    // bg.stroke = "rgba(0, 0, 0, 0)";
+    // bg.fill = GEOM_FILL;
+    document.getElementById("game").style.background = GEOM_FILL;
+
     const rect = two.makeRectangle(x, y, width, height);
     rect.fill = "white";
 
@@ -116,7 +131,7 @@ const main = async () => {
       height
     );
     border.fill = "rgba(0, 0, 0, 0)";
-    border.stroke = "#a0a0a0";
+    border.stroke = GEOM_STROKE;
     border.linewidth = 5;
   };
 
@@ -142,10 +157,9 @@ const main = async () => {
           break;
         case "Rectangle":
           const rectangle = two.makeRectangle(x, y, width, height);
-          rectangle.fill = "lightgrey";
-          rectangle.stroke = "#a0a0a0";
+          rectangle.fill = GEOM_FILL;
+          rectangle.stroke = GEOM_STROKE;
           rectangle.linewidth = 5;
-
           break;
       }
     }

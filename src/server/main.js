@@ -14,6 +14,7 @@ import {
   pruneEmpty,
   randomInt,
   setServer,
+  initializeInput,
 } from "../shared/util/util";
 import LM from "../shared/network/LogManager";
 import SETTINGS from "../shared/util/settings";
@@ -337,48 +338,50 @@ class GameServer extends Server {
       GM.emitEvent(rejoin);
     });
 
-    GM.registerHandler("KEY_DOWN", (event) => {
-      const hero = this.heroes[event.socketIndex];
-      if (hero) {
-        switch (event.key) {
-          case "KeyW":
-            hero.setInput("up", true);
-            break;
-          case "KeyS":
-            hero.setInput("down", true);
-            break;
-          case "KeyA":
-            hero.setInput("left", true);
-            break;
-          case "KeyD":
-            hero.setInput("right", true);
-            break;
-          case "KeyQ":
-            hero.dropWeapon();
-            break;
-        }
-      }
-    });
+    initializeInput((socketIndex) => this.heroes[socketIndex]);
 
-    GM.registerHandler("KEY_UP", (event) => {
-      const hero = this.heroes[event.socketIndex];
-      if (hero) {
-        switch (event.key) {
-          case "KeyW":
-            hero.setInput("up", false);
-            break;
-          case "KeyS":
-            hero.setInput("down", false);
-            break;
-          case "KeyA":
-            hero.setInput("left", false);
-            break;
-          case "KeyD":
-            hero.setInput("right", false);
-            break;
-        }
-      }
-    });
+    // GM.registerHandler("KEY_DOWN", (event) => {
+    //   const hero = this.heroes[event.socketIndex];
+    //   if (hero) {
+    //     switch (event.key) {
+    //       case "KeyW":
+    //         hero.setInput("up", true);
+    //         break;
+    //       case "KeyS":
+    //         hero.setInput("down", true);
+    //         break;
+    //       case "KeyA":
+    //         hero.setInput("left", true);
+    //         break;
+    //       case "KeyD":
+    //         hero.setInput("right", true);
+    //         break;
+    //       case "KeyQ":
+    //         hero.dropWeapon();
+    //         break;
+    //     }
+    //   }
+    // });
+
+    // GM.registerHandler("KEY_UP", (event) => {
+    //   const hero = this.heroes[event.socketIndex];
+    //   if (hero) {
+    //     switch (event.key) {
+    //       case "KeyW":
+    //         hero.setInput("up", false);
+    //         break;
+    //       case "KeyS":
+    //         hero.setInput("down", false);
+    //         break;
+    //       case "KeyA":
+    //         hero.setInput("left", false);
+    //         break;
+    //       case "KeyD":
+    //         hero.setInput("right", false);
+    //         break;
+    //     }
+    //   }
+    // });
 
     GM.registerHandler("PLAY_AUDIO", (data) => {
       const event = {
