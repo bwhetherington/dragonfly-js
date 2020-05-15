@@ -25,6 +25,11 @@ import CM from "./ChatManager";
 import PM from "../shared/plugins/PluginManager";
 import "./chat";
 import SM from "./StressManager";
+import {
+  makeAnimation,
+  smoothStepDerivative,
+  smoothStep,
+} from "../shared/entity/Animation";
 
 const REQUIRED_PLAYERS = 1;
 const REFRESH_RATE = 60;
@@ -525,13 +530,18 @@ class GameServer extends Server {
 
   onOpen(socketIndex) {
     super.onOpen(socketIndex);
+    const { x, y, width, height } = WM.bounds;
     NM.send(
       {
         type: "DEFINE_ARENA",
         data: {
           friction: WM.friction,
-          ice: WM.icePatches.map((shape) => shape.serialize()),
-          geometry: WM.geometry.map((shape) => shape.serialize()),
+          bounds: {
+            x: x + width / 2,
+            y: y + height / 2,
+            width,
+            height,
+          },
         },
       },
       socketIndex

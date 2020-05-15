@@ -21,11 +21,16 @@ class Pistol extends Weapon {
     const { x, y } = sourceHero.position;
     vector.setXY(fx - x, fy - y);
     vector.normalize();
+    const baseAngle = vector.angle;
+
+    const randOffset = (Math.random() - 0.5) * 0.1;
+
+    const velocity = Vector.fromPolar(650, baseAngle + randOffset);
 
     const bullet = new Projectile(sourceHero.id);
     bullet.maxBounces = BOUNCES;
-    bullet.velocity.set(vector);
-    bullet.velocity.scale(650);
+    bullet.velocity.set(velocity);
+    // bullet.velocity.scale(650);
 
     bullet.registerHandler("HIT_OBJECT", (event) => {
       const { hitID, sourceID, projectileID } = event;

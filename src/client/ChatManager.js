@@ -64,6 +64,7 @@ const COLORS = {
   green: "rgb(125, 195, 55)",
   blue: "rgb(55, 125, 255)",
   yellow: "rgb(255, 255, 55)",
+  orange: "rgb(255, 175, 55)",
 };
 
 class ChatManager {

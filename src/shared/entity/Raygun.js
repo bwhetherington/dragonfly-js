@@ -6,6 +6,7 @@ import Ray from "./Ray";
 import { color } from "../util/color";
 import Vector from "../util/Vector";
 import Explosion from "./Explosion";
+import NM from "../network/NetworkManager";
 
 class Raygun extends Weapon {
   constructor() {
@@ -43,6 +44,7 @@ class Raygun extends Weapon {
           },
         },
       };
+
       GM.emitEvent(event);
 
       if (target) {

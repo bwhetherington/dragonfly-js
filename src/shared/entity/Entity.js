@@ -7,6 +7,7 @@ import { isClient, registerEntity, uuid, isServer } from "../util/util";
 import NM from "../network/NetworkManager";
 import { color, getStroke, getFill, getBrighter } from "../util/color";
 import Projectile from "./Projectile";
+import { CollisionGroup } from "./util";
 
 class Entity {
   constructor() {
@@ -38,6 +39,7 @@ class Entity {
     this.predictionAdjustment = 0;
     this.timers = {};
     this.flashDuration = 0;
+    this.collisionGroup = CollisionGroup.ENTITY;
   }
 
   fireAnimation() {}
@@ -153,6 +155,7 @@ class Entity {
       const event = {
         type: "CLEANUP_GRAPHICS",
         data: {
+          layer: this.collisionGroup,
           object: this.graphicsObject,
         },
       };
@@ -251,6 +254,8 @@ class Entity {
     }
     this.initializeGraphics(two);
     if (this.graphicsObject) {
+      const layer = WM.graphicsLayers[this.collisionGroup];
+      layer.add(this.graphicsObject);
       this.setColor(this.color);
     }
     this.updateOpacity(this.opacity);

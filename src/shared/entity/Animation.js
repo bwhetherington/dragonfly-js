@@ -3,11 +3,16 @@ import { uuid } from "../util/util";
 
 class Animation {}
 
-const clamp = (x, low, high) => Math.max(low, Math.min(x, high));
+export const clamp = (x, low, high) => Math.max(low, Math.min(x, high));
 
-const smoothStep = x => {
+export const smoothStep = (x) => {
   x = clamp(x, 0, 1);
   return x * x * x * (x * (x * 6 - 15) + 10);
+};
+
+export const smoothStepDerivative = (x) => {
+  x = clamp(x, 0, 1);
+  return x * x * (x * (x * 30 - 60) + 30);
 };
 
 export const makeAnimation = (from, to, duration, smoother = smoothStep) => {
@@ -34,8 +39,8 @@ export const makeAnimation = (from, to, duration, smoother = smoothStep) => {
       type: "ANIMATION_UPDATE",
       data: {
         id,
-        state
-      }
+        state,
+      },
     };
 
     GM.emitEvent(update);

@@ -29,6 +29,22 @@ class ChatPlugin extends Plugin {
       }
     });
 
+    CM.registerCommand("roll", (id, die) => {
+      if (die !== undefined) {
+        const dieNum = parseInt(die);
+        if (!Number.isNaN(dieNum)) {
+          const roll = Math.floor(Math.random() * dieNum) + 1;
+          const hero = CM.server.getPlayerEntity(id);
+          const { name } = hero;
+          CM.info(`${name} has rolled a ${roll}. [1-${dieNum}]`);
+        } else {
+          throw new Error("Die must be an integer.");
+        }
+      } else {
+        throw new Error("Die must be specified.");
+      }
+    });
+
     CM.registerCommand("sudo", (_, ...args) => {
       const [id, cmd, ...rest] = args;
       CM.runCommand(id, cmd, rest);
@@ -56,8 +72,13 @@ class ChatPlugin extends Plugin {
       }
     });
 
+    CM.registerCommand("collision", (id) => {
+      const hero = CM.server.getPlayerEntity(id);
+      hero.isCollidable = !hero.isCollidable;
+    });
+
     CM.registerCommand(
-      "spawnai",
+      "spawn",
       (id, count) => {
         if (count !== undefined) {
           const num = parseInt(count);
@@ -77,11 +98,10 @@ class ChatPlugin extends Plugin {
           throw new Error("Must specify an argument.");
         }
       },
-      "Spawns the specified number of enemy AI entities.",
-      ["spawn"]
+      "Spawns the specified number of enemy AI entities."
     );
     CM.registerCommand(
-      "killai",
+      "kill",
       (id) => {
         const deleted = iterator(WM.getEntities())
           .filter((entity) => entity.type === "Enemy")
@@ -96,8 +116,7 @@ class ChatPlugin extends Plugin {
           CM.info("Killed all AI entities.", id);
         }
       },
-      "Kills all currently active AI entities.",
-      ["kill"]
+      "Kills all currently active AI entities."
     );
   }
 }

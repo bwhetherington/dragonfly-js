@@ -358,15 +358,13 @@ class GameClient extends Client {
       const source = WM.findByID(sourceID);
       const damaged = WM.findByID(damagedID);
       if (source && damaged) {
-        console.log(
-          `${damaged.getDebugName()} damaged for ${amount} by ${source.getDebugName()}`
-        );
         damaged.flash();
       }
     });
 
     GM.registerHandler("CLEANUP_GRAPHICS", (event) => {
-      const { object } = event;
+      const { object, layer } = event;
+      WM.graphicsLayers[layer].remove(object);
       this.two.remove(object);
     });
 

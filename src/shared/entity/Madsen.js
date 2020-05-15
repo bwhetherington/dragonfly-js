@@ -41,22 +41,21 @@ class Madsen extends Weapon {
 
   fire(fx, fy, sourceHero) {
     const vector = new Vector(0, 0);
-    const offset = new Vector(0, 0);
 
     // Create direction vector to target
     const { x, y } = sourceHero.position;
     vector.setXY(fx - x, fy - y);
     vector.normalize();
 
-    // Add pseudorandom spray value
-    const so = this.getSprayOffset();
-    vector.add(so, 0.25);
-    vector.normalize();
+    const baseAngle = vector.angle;
+
+    const randOffset = (Math.random() - 0.5) * 0.15;
+
+    const velocity = Vector.fromPolar(750, baseAngle + randOffset);
 
     const bullet = new Projectile(sourceHero.id, COLOR);
     bullet.maxBounces = 0;
-    bullet.velocity.set(vector);
-    bullet.velocity.scale(750);
+    bullet.velocity.set(velocity);
 
     bullet.registerHandler("HIT_OBJECT", (event) => {
       const { hitID, sourceID, projectileID } = event;

@@ -11,6 +11,7 @@ import Timer from "./timer";
 import { parseLocation } from "./util";
 import HealthPickUp from "../shared/entity/HealthPickUp";
 import { color, getFill, getStroke } from "../shared/util/color";
+import { CollisionGroup } from "../shared/entity/util";
 
 const GEOM_COLOR = color(220, 220, 220);
 const GEOM_FILL = getFill(GEOM_COLOR);
@@ -79,6 +80,9 @@ const main = async () => {
     type: Two.Types[renderer],
   }).appendTo(element);
 
+  WM.initialize();
+  WM.initializeGraphics(two);
+
   window.addEventListener("resize", () => {
     adjustScale(two);
   });
@@ -89,30 +93,23 @@ const main = async () => {
 
   const makeLine = (two, x1, y1, x2, y2, color = "#f0f0f0", width = 2) => {
     const line = two.makeLine(x1, y1, x2, y2);
+    WM.graphicsLayers[CollisionGroup.GEOMETRY].add(line);
     line.stroke = color;
     line.fill = color;
     line.linewidth = width;
   };
 
-  const makeBounds = (two, x, y, width, height) => {
-    // const bg = two.makeRectangle(
-    //   x + width / 2,
-    //   y + height / 2,
-    //   width * 100,
-    //   height * 100
-    // );
-    // bg.stroke = "rgba(0, 0, 0, 0)";
-    // bg.fill = GEOM_FILL;
-    document.getElementById("game").style.background = GEOM_FILL;
-
-    const rect = two.makeRectangle(x, y, width, height);
-    rect.fill = "white";
-
+  const drawLines = (two, x, y, width, height) => {
     // Define grid
     const GRID_SIZE = 20;
 
-    x -= width / 2;
-    y -= height / 2;
+    x -= width;
+    y -= height;
+
+    const bg = two.makeRectangle(x + width / 2, y + height / 2, width, height);
+    WM.graphicsLayers[CollisionGroup.GEOMETRY].add(bg);
+    bg.fill = "white";
+    bg.stroke = "rgba(0, 0, 0, 0)";
 
     // Horizontal
     for (let i = GRID_SIZE; i <= width - GRID_SIZE; i += GRID_SIZE) {
@@ -122,62 +119,19 @@ const main = async () => {
     for (let i = GRID_SIZE; i <= height - GRID_SIZE; i += GRID_SIZE) {
       makeLine(two, x, y + i, x + width, y + i);
     }
-
-    // Define horizontal bars
-    const border = two.makeRectangle(
-      x + width / 2,
-      y + height / 2,
-      width,
-      height
-    );
-    border.fill = "rgba(0, 0, 0, 0)";
-    border.stroke = GEOM_STROKE;
-    border.linewidth = 5;
   };
 
   GM.registerHandler("DEFINE_ARENA", (event, remove) => {
-    const { friction, geometry, ice } = event;
+    const { friction, bounds } = event;
+    const { x, y, width, height } = bounds;
 
     WM.friction = friction;
+    // WM.setBounds(bounds);
 
-    WM.icePatches = ice.map(
-      ({ x, y, width, height }) => new Rectangle(x, y, width, height)
-    );
-
-    WM.setGeometry(geometry);
-
-    for (const shape of geometry) {
-      let { type, x, y, width, height } = shape;
-      // x += width / 2;
-      // y += height / 2;
-      switch (type) {
-        case "InverseRectangle":
-          // An InverseRectangle represents the outer bounds
-          makeBounds(two, x, y, width, height);
-          break;
-        case "Rectangle":
-          const rectangle = two.makeRectangle(x, y, width, height);
-          rectangle.fill = GEOM_FILL;
-          rectangle.stroke = GEOM_STROKE;
-          rectangle.linewidth = 5;
-          break;
-      }
-    }
-
-    for (const patch of ice) {
-      const { x, y, width, height } = patch;
-      const rectangle = two.makeRectangle(x, y, width, height);
-      rectangle.fill = "rgba(150, 180, 255, 0.5)";
-      rectangle.stroke = "lightgrey";
-      rectangle.linewidth = 5;
-    }
-
-    WM.initializeGraphics(two);
+    drawLines(two, x + width / 2, y + height / 2, width, height);
 
     remove();
   });
-
-  WM.initialize();
 
   // Start websocket client
   const client = new GameClient(two);

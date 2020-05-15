@@ -23,6 +23,8 @@ import Madsen from "./Madsen";
 import Rocket from "./Rocket";
 import Mortar from "./Mortar";
 import Quadtree from "@timohausmann/quadtree-js";
+import { CollisionGroup } from "./util";
+import Geometry from "./Geometry";
 
 class WorldManager {
   constructor() {
@@ -56,6 +58,7 @@ class WorldManager {
     this.registerEntity("PickUp", PickUp);
     this.registerEntity("HealthPickUp", HealthPickUp);
     this.registerEntity("WeaponPickUp", WeaponPickUp);
+    this.registerEntity("Geometry", Geometry);
   }
 
   initializeWeaponTypes() {
@@ -93,7 +96,25 @@ class WorldManager {
     }
   }
 
+  remove(entity) {
+    if (this.graphicsLayers) {
+      const layer = this.getLayer(entity);
+      layer.remove(entity.graphicsObject);
+    }
+  }
+
+  getLayer(entity) {
+    const { collisionGroup } = entity;
+    return this.graphicsLayers[entity];
+  }
+
   initializeGraphics(two) {
+    // Create layers
+    this.graphicsLayers = [];
+    for (const layer of Object.values(CollisionGroup)) {
+      this.graphicsLayers[layer] = two.makeGroup();
+    }
+
     for (const id in this.entities) {
       this.entities[id].initializeGraphicsInternal(two);
     }
@@ -117,20 +138,38 @@ class WorldManager {
     }
   }
 
+  addGeometry(data) {
+    const shape = this.makeGeometry(data);
+    if (shape !== null) {
+      const geom = new Geometry();
+      const x = shape.getCenterX();
+      const y = shape.getCenterY();
+      geom.setShape(shape);
+      geom.setPositionXY(x, y);
+      this.add(geom);
+      return geom;
+    } else {
+      return null;
+    }
+  }
+
+  makeGeometry(shape) {
+    const { type, x, y, width, height } = shape;
+    switch (type) {
+      case "Rectangle":
+        return new Rectangle(x, y, width, height);
+      case "InverseRectangle":
+        this.setBounds(x, y, width, height);
+        return new InverseRectangle(x, y, width, height);
+      default:
+        return null;
+    }
+  }
+
   setGeometry(geometry) {
-    this.geometry = geometry
-      .map(({ type, x, y, width, height }) => {
-        switch (type) {
-          case "Rectangle":
-            return new Rectangle(x, y, width, height);
-          case "InverseRectangle":
-            this.setBounds(x, y, width, height);
-            return new InverseRectangle(x, y, width, height);
-          default:
-            return null;
-        }
-      })
-      .filter((shape) => shape !== null);
+    for (const shape of geometry) {
+      this.addGeometry(shape);
+    }
   }
 
   getRandomPoint(w = 0, h = 0) {
@@ -393,7 +432,7 @@ class WorldManager {
           if (parent !== undefined) {
             if (!ignore.includes(parent)) {
               const entity = this.findByID(parent);
-              if (!entity.isSpectral) {
+              if (entity && !entity.isSpectral) {
                 cb(new Vector(rect.getCenterX(), rect.getCenterY()), entity);
                 return true;
               }
@@ -421,7 +460,10 @@ class WorldManager {
 
     // Check for collisions
     for (const entity of this.getEntities()) {
-      if (entity.isCollidable) {
+      if (
+        entity.isCollidable &&
+        entity.collisionGroup !== CollisionGroup.GEOMETRY
+      ) {
         // Get possible collisions
         const candidates = this.tree.retrieve(entity.boundingBox);
         for (const other of candidates) {
@@ -437,38 +479,65 @@ class WorldManager {
             other.intersects(entity.boundingBox)
           ) {
             if (other.parent !== undefined) {
-              if (!(entity.isSpectral && otherParent.isSpectral)) {
-                // Entity collision
-                const event = {
-                  type: "OBJECT_COLLISION",
-                  data: {
-                    object1: entity,
-                    object2: otherParent,
-                  },
-                };
-                GM.emitEvent(event);
+              if (
+                !(entity.isSpectral && otherParent.isSpectral) &&
+                entity.collisionGroup !== CollisionGroup.GEOMETRY
+              ) {
+                const group = otherParent.collisionGroup;
+                switch (group) {
+                  case CollisionGroup.GEOMETRY:
+                    // Geometry collision
+                    const geomEvent = {
+                      type: "GEOMETRY_COLLISION",
+                      data: {
+                        object: entity,
+                        other,
+                      },
+                    };
+                    GM.emitEvent(geomEvent);
+
+                    // Shunt object out of geometry
+                    switch (other.type) {
+                      case "Rectangle":
+                        this.shuntOutOf(entity, other);
+                        break;
+                      case "InverseRectangle":
+                        this.shuntOutOfInverse(entity, other);
+                        break;
+                    }
+                    break;
+                  case CollisionGroup.ENTITY:
+                    // Entity collision
+                    const event = {
+                      type: "OBJECT_COLLISION",
+                      data: {
+                        object1: entity,
+                        object2: otherParent,
+                      },
+                    };
+                    GM.emitEvent(event);
+                    break;
+                }
               }
             } else {
-              // Geometry collision
-              const event = {
-                type: "GEOMETRY_COLLISION",
-                data: {
-                  object: entity,
-                  other,
-                },
-              };
-              GM.emitEvent(event);
-
-              // Shunt object out of geometry
-              switch (other.type) {
-                case "Rectangle":
-                  this.shuntOutOf(entity, other);
-                  break;
-                case "InverseRectangle":
-                  this.shuntOutOfInverse(entity, other);
-                  break;
-              }
-
+              // // Geometry collision
+              // const event = {
+              //   type: "GEOMETRY_COLLISION",
+              //   data: {
+              //     object: entity,
+              //     other,
+              //   },
+              // };
+              // GM.emitEvent(event);
+              // // Shunt object out of geometry
+              // switch (other.type) {
+              //   case "Rectangle":
+              //     this.shuntOutOf(entity, other);
+              //     break;
+              //   case "InverseRectangle":
+              //     this.shuntOutOfInverse(entity, other);
+              //     break;
+              // }
               // const { velocity } = thisParent;
             }
           }
@@ -890,7 +959,7 @@ class WorldManager {
     return this.entityCount;
   }
 
-  syncObjectClient(client, object) {
+  syncObjectServer(object) {
     const packet = {
       type: "SYNC_OBJECT",
       data: {

@@ -29,9 +29,11 @@ class Shotgun extends Weapon {
       bullet.bounce = 0;
       bullet.maxBounces = 0;
 
+      const randOffset = (Math.random() - 0.5) * 0.1;
+
       const velocity = Vector.fromPolar(
         1,
-        (i - (this.projectileNum - 1) / 2) * spread + baseAngle
+        (i - (this.projectileNum - 1) / 2) * spread + baseAngle + randOffset
       );
       // velocity.addXY(sourceHero.createOffset(0.1), sourceHero.createOffset(0.1));
       // velocity.normalize();

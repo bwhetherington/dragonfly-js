@@ -74,8 +74,12 @@ class ChatManager {
         style: {
           fontWeight: "bold",
         },
+        color: "yellow",
       },
-      " " + message,
+      {
+        value: " " + message,
+        color: "yellow",
+      },
     ];
     this.sendMessage(comps, id);
   }
@@ -87,11 +91,11 @@ class ChatManager {
         style: {
           fontWeight: "bold",
         },
-        color: "yellow",
+        color: "orange",
       },
       {
         value: " " + message,
-        color: "yellow",
+        color: "orange",
       },
     ];
     this.sendMessage(comps, id);
