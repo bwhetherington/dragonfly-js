@@ -60,7 +60,7 @@ const FLASH_DURATION = 3;
 
 const COLORS = {
   white: "white",
-  red: "rgb(255, 125, 55)",
+  red: "rgb(255, 75, 75)",
   green: "rgb(125, 195, 55)",
   blue: "rgb(55, 125, 255)",
   yellow: "rgb(255, 255, 55)",

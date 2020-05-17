@@ -40,9 +40,9 @@ class Enemy extends Entity {
     this.maxDamage = 100;
     this.name = "Enemy";
     this.setPositionXY(0, 0);
-    this.weapon = new Raygun();
-    this.weapon.delayAmount = 0.1;
-    this.weapon.damage = 1;
+    this.weapon = new Madsen();
+    this.weapon.delayAmount = 0.75;
+    this.weapon.damage = 10;
     this.doSynchronize = true;
     this.target = new Vector(0, 0);
     this.lastPosition = new Vector(0, 0);

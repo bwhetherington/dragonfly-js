@@ -30,6 +30,7 @@ import {
   smoothStepDerivative,
   smoothStep,
 } from "../shared/entity/Animation";
+import Geometry from "../shared/entity/Geometry";
 
 const REQUIRED_PLAYERS = 1;
 const REFRESH_RATE = 60;
@@ -345,49 +346,6 @@ class GameServer extends Server {
 
     initializeInput((socketIndex) => this.heroes[socketIndex]);
 
-    // GM.registerHandler("KEY_DOWN", (event) => {
-    //   const hero = this.heroes[event.socketIndex];
-    //   if (hero) {
-    //     switch (event.key) {
-    //       case "KeyW":
-    //         hero.setInput("up", true);
-    //         break;
-    //       case "KeyS":
-    //         hero.setInput("down", true);
-    //         break;
-    //       case "KeyA":
-    //         hero.setInput("left", true);
-    //         break;
-    //       case "KeyD":
-    //         hero.setInput("right", true);
-    //         break;
-    //       case "KeyQ":
-    //         hero.dropWeapon();
-    //         break;
-    //     }
-    //   }
-    // });
-
-    // GM.registerHandler("KEY_UP", (event) => {
-    //   const hero = this.heroes[event.socketIndex];
-    //   if (hero) {
-    //     switch (event.key) {
-    //       case "KeyW":
-    //         hero.setInput("up", false);
-    //         break;
-    //       case "KeyS":
-    //         hero.setInput("down", false);
-    //         break;
-    //       case "KeyA":
-    //         hero.setInput("left", false);
-    //         break;
-    //       case "KeyD":
-    //         hero.setInput("right", false);
-    //         break;
-    //     }
-    //   }
-    // });
-
     GM.registerHandler("PLAY_AUDIO", (data) => {
       const event = {
         type: "PLAY_AUDIO",
@@ -475,6 +433,27 @@ class GameServer extends Server {
         ({ x, y, width, height }) => new Rectangle(x, y, width, height)
       );
     }
+
+    const geom = WM.addGeometry({
+      type: "Rectangle",
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 200,
+    });
+
+    let time = 0;
+    let flip = false;
+    geom.registerHandler("STEP", (event) => {
+      time += event.dt / 5;
+      while (time > 1) {
+        time -= 1;
+        flip = !flip;
+      }
+
+      const x = (flip ? 1 - smoothStep(time) : smoothStep(time)) * 400;
+      geom.setPositionXY(x, 0);
+    });
 
     this.generatePickups();
   }
