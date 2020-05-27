@@ -54,7 +54,7 @@ class Madsen extends Weapon {
     const velocity = Vector.fromPolar(750, baseAngle + randOffset);
 
     const bullet = new Projectile(sourceHero.id, COLOR);
-    bullet.maxBounces = 3;
+    bullet.maxBounces = 0;
     bullet.velocity.set(velocity);
 
     bullet.registerHandler("HIT_OBJECT", (event) => {

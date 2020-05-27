@@ -3,17 +3,24 @@ import Rocket from "./Rocket";
 import { iterator } from "lazy-iters";
 import WM from "./WorldManager";
 import Hero from "./Hero";
-import { registerEntity, isServer, isClient } from "../util/util";
+import { isServer, isClient, calculateAcceleration } from "../util/util";
 import Madsen from "./Madsen";
 import Explosion from "./Explosion";
 import Vector from "../util/Vector";
 import GM from "../event/GameManager";
 import Raygun from "./Raygun";
 import WeaponAnimation from "./WeaponAnimation";
+import Ball from "./Ball";
 
 const SPAWNER = {
   count: 0,
   spawnPoints: [new Vector(0, 0)],
+};
+
+const Behavior = {
+  ROAM: 0,
+  HUNT: 1,
+  RUN: 2,
 };
 
 class Enemy extends Entity {
@@ -32,17 +39,19 @@ class Enemy extends Entity {
 
   constructor() {
     super();
+    this.behavior = Behavior.ROAM;
+    this.movementSpeed = 250;
     this.type = "Enemy";
     this.cannonAngle = 0;
-    this.friction = 1;
+    this.friction = 0.1;
     this.bounce = 0.2;
     this.damageAmount = 0;
     this.maxDamage = 100;
     this.name = "Enemy";
     this.setPositionXY(0, 0);
-    this.weapon = new Madsen();
-    this.weapon.delayAmount = 0.75;
-    this.weapon.damage = 10;
+    this.weapon = new Rocket();
+    this.weapon.delayAmount = 0.5;
+    this.weapon.damage = 1;
     this.doSynchronize = true;
     this.target = new Vector(0, 0);
     this.lastPosition = new Vector(0, 0);
@@ -64,8 +73,10 @@ class Enemy extends Entity {
           this.chooseTarget();
         }
       });
-      this.runInterval(2, () => {
-        this.selectTargetHero();
+      this.runDelay(Math.random(), () => {
+        this.runInterval(2, () => {
+          this.selectTargetHero();
+        });
       });
     } else {
       this.weaponAnim = new WeaponAnimation();
@@ -99,6 +110,39 @@ class Enemy extends Entity {
     });
   }
 
+  updateBehavior() {
+    // Target distances
+    const targets = WM.getEntitiesByRadius(this.position, 1000)
+      .filter((entity) => entity.id !== this.id)
+      .filter((entity) => entity instanceof Hero || entity instanceof Enemy)
+      .fold({ count: 0, distances: {} }, (acc, entity) => {
+        acc.targets[entity.id] = {
+          entity,
+          distance: entity.position.distance(this.position),
+        };
+        acc.count += 1;
+        return acc;
+      });
+    if (targets.count === 0) {
+      this.behavior = Behavior.ROAM;
+    } else if (this.damageAmount > 50) {
+      this.behavior = Behavior.RUN;
+    } else {
+      this.behavior = Behavior.HUNT;
+    }
+  }
+
+  update() {
+    switch (this.behavior) {
+      case Behavior.ROAM:
+        break;
+      case Behavior.HUNT:
+        break;
+      case Behavior.RUN:
+        break;
+    }
+  }
+
   kill() {}
 
   damage(amount, sourceID) {
@@ -123,7 +167,13 @@ class Enemy extends Entity {
   }
 
   selectTargetHero() {
-    const [hero] = iterator(WM.getEntities())
+    // const target = WM.getEntities()
+    //   .filter((entity) => entity instanceof Ball)
+    //   .first();
+    // if (target) {
+    //   this.targetHero = target.id;
+    // }
+    const [hero] = WM.getEntitiesByRadius(this.position, 600)
       .filter((entity) => entity.id !== this.id)
       .filter((entity) => entity instanceof Hero || entity instanceof Enemy)
       .map((entity) => [entity, entity.position.distance(this.position)])
@@ -158,7 +208,11 @@ class Enemy extends Entity {
       this.acceleration.set(this.target);
       this.acceleration.subtract(this.position);
       this.acceleration.normalize();
-      this.acceleration.scale(200);
+      const acc = calculateAcceleration(
+        this.movementSpeed,
+        WM.friction * this.friction
+      );
+      this.acceleration.scale(acc);
     } else {
       // Get new target
       this.chooseTarget();
@@ -247,6 +301,10 @@ class Enemy extends Entity {
       explosion.setPosition(this.position);
       WM.add(explosion);
     }
+  }
+
+  toString() {
+    return `${this.type}[${this.id}]`;
   }
 }
 

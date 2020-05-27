@@ -31,6 +31,7 @@ import {
   smoothStep,
 } from "../shared/entity/Animation";
 import Geometry from "../shared/entity/Geometry";
+import Ball from "../shared/entity/Ball";
 
 const REQUIRED_PLAYERS = 1;
 const REFRESH_RATE = 60;
@@ -434,27 +435,6 @@ class GameServer extends Server {
       );
     }
 
-    const geom = WM.addGeometry({
-      type: "Rectangle",
-      x: 0,
-      y: 0,
-      width: 50,
-      height: 200,
-    });
-
-    let time = 0;
-    let flip = false;
-    geom.registerHandler("STEP", (event) => {
-      time += event.dt / 5;
-      while (time > 1) {
-        time -= 1;
-        flip = !flip;
-      }
-
-      const x = (flip ? 1 - smoothStep(time) : smoothStep(time)) * 400;
-      geom.setPositionXY(x, 0);
-    });
-
     this.generatePickups();
   }
 
@@ -478,6 +458,9 @@ class GameServer extends Server {
     const mortar = new WeaponPickUp("Mortar");
     mortar.setPosition(WM.getRandomPoint(30, 30));
     WM.add(mortar);
+
+    const e = new Ball();
+    WM.add(e);
   }
 
   resetGame() {

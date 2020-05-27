@@ -6,6 +6,7 @@ import AM from "../audio/AudioManager";
 import GM from "../event/GameManager";
 import { isServer } from "../util/util";
 import { color } from "../util/color";
+import CM from "../../server/ChatManager";
 
 const RADIUS = 100;
 
@@ -42,17 +43,26 @@ class Rocket extends Weapon {
     bullet.velocity.scale(500);
 
     bullet.registerHandler("HIT_OBJECT", (event) => {
+      const vec = new Vector(0, 0);
       if (isServer()) {
         const { sourceID, projectileID } = event;
         if (projectileID === bullet.id) {
-          for (const hitObject of WM.getEntitiesByRadius(
-            bullet.position,
-            RADIUS
-          )) {
-            if (!(hitObject.id === projectileID)) {
-              hitObject.damage(this.damage, sourceID);
+          WM.getEntitiesByRadius(bullet.position, RADIUS).forEach(
+            (hitObject) => {
+              if (!(hitObject.id === projectileID)) {
+                // Damage the target
+                hitObject.damage(this.damage, sourceID);
+
+                // Apply a force away from the center of the blast
+                vec.set(hitObject.position);
+                vec.subtract(bullet.position);
+                const d = 1 - vec.magnitude / RADIUS;
+                vec.normalize();
+                vec.scale(750 * (d * d));
+                hitObject.applyForce(vec);
+              }
             }
-          }
+          );
         }
       }
     });

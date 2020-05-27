@@ -26,6 +26,7 @@ class Projectile extends Entity {
     this.color = color;
     this.isFirstSync = true;
     this.hasBouncedThisStep = false;
+    this.knockBack = 100;
     this.updatePosition();
 
     // if (isServer()) {
@@ -90,12 +91,8 @@ class Projectile extends Entity {
   }
 
   hit(entity) {
-    if (
-      entity instanceof Hero ||
-      (entity instanceof Enemy && !entity.isInvincible)
-    ) {
-      const scale =
-        ((entity.damageAmount / entity.maxDamage) * 0.8 + 0.2) * 200;
+    if (entity !== null) {
+      const scale = this.knockBack;
       this.velocity.normalize();
       this.velocity.scale(scale);
       entity.applyForce(this.velocity);
@@ -122,6 +119,7 @@ class Projectile extends Entity {
       bounces: this.bounces,
       maxBounces: this.maxBounces,
       parent: this.parent,
+      knockBack: this.knockBack,
     };
   }
 
@@ -137,6 +135,7 @@ class Projectile extends Entity {
         bounces,
         maxBounces,
         parent,
+        knockBack,
       } = object;
       if (sourceID) {
         this.sourceID = sourceID;
@@ -155,6 +154,9 @@ class Projectile extends Entity {
       }
       if (parent) {
         this.parent = parent;
+      }
+      if (knockBack !== undefined) {
+        this.knockBack = knockBack;
       }
 
       return true;

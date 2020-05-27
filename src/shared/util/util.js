@@ -338,3 +338,22 @@ export const randomInt = (min, max) => {
   const diff = max - min;
   return Math.floor(Math.random() * diff) + min;
 };
+
+const M = 29.2 / 5;
+
+export const calculateAcceleration = (speed, friction) => {
+  // s = acc - (acc/350) * m * f
+  // s/acc = 1 - m*f/350
+  // s / (1 - (m*f)/350) = acc
+  return speed / (1 - (M * friction) / 350);
+};
+
+const l10 = Math.log(10);
+
+const getPlaces = (num) => {
+  return Math.ceil(Math.log(num) / l10);
+};
+
+// export const sigFigRound = (num, sigFigs) => {
+//   const places =
+// };

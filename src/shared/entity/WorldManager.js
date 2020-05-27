@@ -25,6 +25,8 @@ import Mortar from "./Mortar";
 import Quadtree from "@timohausmann/quadtree-js";
 import { CollisionGroup } from "./util";
 import Geometry from "./Geometry";
+import Ball from "./Ball";
+import { iterator } from "lazy-iters";
 
 class WorldManager {
   constructor() {
@@ -59,6 +61,7 @@ class WorldManager {
     this.registerEntity("HealthPickUp", HealthPickUp);
     this.registerEntity("WeaponPickUp", WeaponPickUp);
     this.registerEntity("Geometry", Geometry);
+    this.registerEntity("Ball", Ball);
   }
 
   initializeWeaponTypes() {
@@ -80,20 +83,30 @@ class WorldManager {
 
   buildNavMesh(geometry) {}
 
-  *getEntities() {
+  *getEntitiesInternal() {
     for (const id in this.entities) {
       yield this.entities[id];
     }
   }
 
-  *getEntitiesByRadius(point, radius) {
-    for (const entity of this.getEntities()) {
-      if (entity.isCollidable) {
-        if (entity.position.distance(point) <= radius) {
-          yield entity;
-        }
+  getEntities() {
+    return iterator(this.getEntitiesInternal());
+  }
+
+  *getEntitiesByRadiusInternal(point, radius) {
+    // Construct bounding box
+    const bound = new Rectangle(point.x, point.y, radius * 2, radius * 2);
+    const candidates = this.tree.retrieve(bound);
+    for (const candidate of candidates) {
+      const entity = this.findByID(candidate.parent);
+      if (entity !== null && entity.position.distance(point) <= radius) {
+        yield entity;
       }
     }
+  }
+
+  getEntitiesByRadius(point, radius) {
+    return iterator(this.getEntitiesByRadiusInternal(point, radius));
   }
 
   remove(entity) {
@@ -181,23 +194,20 @@ class WorldManager {
 
     // If there are no valid spots, this will hang
     while (notFound) {
+      notFound = false;
+
       rx = Math.random() * width + x;
       ry = Math.random() * height + y;
 
-      let rect = null;
-
-      if (!(w === 0 || h === 0)) {
-        rect = new Rectangle(rx, ry, w, h);
-      }
-
-      notFound = false;
-      for (const shape of this.geometry) {
-        const condition =
-          (rect !== null && shape.intersects(rect)) ||
-          shape.containsPoint(rx, ry);
-        if (condition) {
-          notFound = true;
-          // break;
+      const rect = new Rectangle(rx, ry, w, h);
+      for (const candidate of this.tree.retrieve(rect)) {
+        // Check entity
+        const entity = this.findByID(candidate.parent);
+        if (entity instanceof Geometry) {
+          if (candidate.intersects(rect)) {
+            notFound = true;
+            break;
+          }
         }
       }
     }
@@ -374,7 +384,7 @@ class WorldManager {
       const cornerDY = Math.abs(cornerY - thisCornerY);
       if (cornerDX > cornerDY) {
         dx = 0;
-      } else {
+      } else if (cornerDX < cornerDY) {
         dy = 0;
       }
     }

@@ -6,7 +6,13 @@ import Pistol from "./Pistol";
 import Shotgun from "./Shotgun";
 import Raygun from "./Raygun";
 import Weapon from "./Weapon";
-import { isServer, isClient, registerEntity, color } from "../util/util";
+import {
+  isServer,
+  isClient,
+  registerEntity,
+  color,
+  calculateAcceleration,
+} from "../util/util";
 import NM from "../network/NetworkManager";
 import Explosion from "./Explosion";
 import SETTINGS from "../util/settings";
@@ -16,7 +22,7 @@ import Madsen from "./Madsen";
 import Enemy from "./Enemy";
 import WeaponAnimation from "./WeaponAnimation";
 
-const MOVEMENT_SPEED = 300;
+const MOVEMENT_SPEED = 250;
 
 const colorOptions = ["red", "blue", "yellow", "green", "white", "black"];
 
@@ -310,7 +316,9 @@ class Hero extends Entity {
       this.acceleration.setX(this.acceleration.x + 1);
     }
     this.acceleration.normalize();
-    this.acceleration.scale(this.movementSpeed);
+
+    const acc = calculateAcceleration(this.movementSpeed, WM.friction);
+    this.acceleration.scale(acc);
   }
 
   addPosition(vector) {

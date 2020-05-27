@@ -5,6 +5,8 @@ import WM from "../shared/entity/WorldManager";
 import Enemy from "../shared/entity/Enemy";
 import { iterator } from "lazy-iters";
 import SM from "./StressManager";
+import PickUp from "../shared/entity/PickUp";
+import Hero from "../shared/entity/Hero";
 
 class ChatPlugin extends Plugin {
   constructor() {
@@ -27,6 +29,27 @@ class ChatPlugin extends Plugin {
       } else {
         CM.info(message, id);
       }
+    });
+
+    CM.registerCommand("weapons", () => {
+      // Remove all player weapons
+      WM.getEntities()
+        .filter((entity) => entity instanceof Hero)
+        .forEach((hero) => {
+          hero.setWeapon("Pistol");
+        });
+
+      // Destroy all pickups on the map
+      WM.getEntities()
+        .filter((entity) => entity instanceof PickUp)
+        .forEach((entity) => {
+          entity.markForDelete();
+        });
+
+      // Respawn pickups
+      CM.server.generatePickups();
+
+      CM.info("Weapons reset.");
     });
 
     CM.registerCommand("roll", (id, die) => {

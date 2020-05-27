@@ -67,6 +67,10 @@ class ChatManager {
     NM.send(packet, id);
   }
 
+  stringify(message) {
+    return typeof message === "object" ? message.toString() : message;
+  }
+
   info(message, id = -1) {
     const comps = [
       {
@@ -77,7 +81,7 @@ class ChatManager {
         color: "yellow",
       },
       {
-        value: " " + message,
+        value: " " + this.stringify(message),
         color: "yellow",
       },
     ];
@@ -94,7 +98,7 @@ class ChatManager {
         color: "orange",
       },
       {
-        value: " " + message,
+        value: " " + this.stringify(message),
         color: "orange",
       },
     ];
@@ -111,7 +115,7 @@ class ChatManager {
         color: "red",
       },
       {
-        value: " " + message,
+        value: " " + this.stringify(message),
         color: "red",
       },
     ];

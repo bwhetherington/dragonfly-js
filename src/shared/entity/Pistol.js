@@ -5,6 +5,8 @@ import WM from "./WorldManager";
 import AM from "../audio/AudioManager";
 import GM from "../event/GameManager";
 import NM from "../network/NetworkManager";
+import Hero from "./Hero";
+import Enemy from "./Enemy";
 
 const BOUNCES = 1;
 
@@ -29,6 +31,7 @@ class Pistol extends Weapon {
 
     const bullet = new Projectile(sourceHero.id);
     bullet.maxBounces = BOUNCES;
+    bullet.knockBack = 200;
     bullet.velocity.set(velocity);
     // bullet.velocity.scale(650);
 
@@ -38,6 +41,9 @@ class Pistol extends Weapon {
         const object = WM.findByID(hitID);
         if (object) {
           object.damage(this.damage, sourceID);
+          if (object instanceof Hero || object instanceof Enemy) {
+            sourceHero.damage(-5);
+          }
         }
       }
     });

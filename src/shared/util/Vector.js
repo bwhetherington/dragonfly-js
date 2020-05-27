@@ -121,7 +121,7 @@ class Vector {
     // console.log(encoder.decode(ex), encoder.decode(ey), this.x, this.y);
     return {
       x,
-      y
+      y,
     };
   }
 
@@ -196,6 +196,10 @@ class Vector {
 
     this.x = newX;
     this.y = newY;
+  }
+
+  toString() {
+    return `Vector(${this.x}, ${this.y})`;
   }
 }
 

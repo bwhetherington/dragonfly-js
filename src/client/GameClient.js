@@ -171,6 +171,7 @@ class GameClient extends Client {
     const entityLabel = document.getElementById("entity-count");
     const listenerLabel = document.getElementById("listener-count");
     const fpsLabel = document.getElementById("fps");
+    const velLabel = document.getElementById("velocity");
     const debugMenu = document.getElementById("debug-menu");
     let canChangeToRed = true;
 
@@ -187,6 +188,7 @@ class GameClient extends Client {
 
       if (hero) {
         this.hpBar.value = hero.maxDamage - hero.damageAmount;
+        velLabel.innerHTML = Math.round(hero.velocity.magnitude * 10) / 10;
       }
 
       const curFPS = 1 / event.dt;
