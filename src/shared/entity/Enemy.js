@@ -123,6 +123,7 @@ class Enemy extends Entity {
         acc.count += 1;
         return acc;
       });
+    this.targets = targets;
     if (targets.count === 0) {
       this.behavior = Behavior.ROAM;
     } else if (this.damageAmount > 50) {

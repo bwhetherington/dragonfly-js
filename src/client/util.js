@@ -1,7 +1,6 @@
 import uuid from "uuid/v1";
 import NM from "../shared/network/NetworkManager";
 import GM from "../shared/event/GameManager";
-import Vector from "../shared/util/Vector";
 
 export const scaleVector = (vec, scale = 1) => {
   vec[0] *= scale;

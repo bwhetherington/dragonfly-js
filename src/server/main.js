@@ -32,6 +32,7 @@ import {
 } from "../shared/entity/Animation";
 import Geometry from "../shared/entity/Geometry";
 import Ball from "../shared/entity/Ball";
+import TM from "./TimerManager";
 
 const REQUIRED_PLAYERS = 1;
 const REFRESH_RATE = 60;
@@ -140,6 +141,11 @@ class GameServer extends Server {
     // }
   }
 
+  onMessage(message, socket) {
+    super.onMessage(message, socket);
+    TM.wake();
+  }
+
   onClose(socketIndex) {
     const hero = this.heroes[socketIndex];
 
@@ -165,6 +171,10 @@ class GameServer extends Server {
     delete this.heroesToCreate[socketIndex];
 
     super.onClose(socketIndex);
+
+    if (Object.keys(this.heroes).length === 0) {
+      TM.sleep();
+    }
   }
 
   setConfig(config) {
@@ -562,7 +572,7 @@ const main = async () => {
   initializeCleanup(server, timer);
 
   server.start();
-  timer.start();
+  TM.initialize(timer);
 };
 
 main().catch(console.log);
